@@ -233,7 +233,7 @@
     return {
       persona: string(meta.persona || meta.personaname, fallback || "steam profile", 80),
       profileUrl: safeProfileUrl(meta.profileUrl || meta.profileurl),
-      avatar: safeAvatarUrl(meta.avatar || meta.avatarfull),
+      avatar: safeAvatarUrl(meta.avatarfull || meta.avatarmedium || meta.avatar),
       source: string(meta.source, "steam-api", 30),
       generatedAt: isoDate(meta.generatedAt || meta.fetchedAt) || new Date().toISOString().slice(0, 10),
       memberSince: isoDate(meta.memberSince) || dateFromUnix(meta.timecreated)

@@ -7,7 +7,7 @@
 
   // Страница рисуется из одного ProfileViewData: сейчас это статичный data.js,
   // позже сюда же придёт нормализованный ответ Worker для профиля друга.
-  function boot(rules, profileViewData) {
+  function boot(rules, profileViewData, isDemoProfile) {
     var dataLayer = window.SteamWrappedData;
     var D = profileViewData || window.STEAM_DATA;
     if (!D) { console.error("Нет данных: assets/js/data.js не загрузился"); return; }
@@ -108,16 +108,13 @@
 
   /* ---------- шапка ---------- */
 
-  document.title = "Steam Wrapped · " + (D.meta.persona || "profile");
-  $("#brandName").textContent = D.meta.persona || "—";
+  var profileName = D.meta.persona || "steam profile";
+  document.title = "Steam Wrapped · " + (isDemoProfile ? "пример: " : "") + profileName;
   $("#year").textContent = new Date().getFullYear();
-  $("#heroEyebrow").textContent = "Личная статистика" +
+  $("#heroEyebrow").textContent = (isDemoProfile ? "Демо-профиль" : "Профиль Steam") +
+    " · " + profileName +
     (D.meta.memberSince ? " · в Steam с " + fmtDate(D.meta.memberSince) : "") +
     " · данные от " + fmtDate(D.meta.generatedAt);
-  var heroTitle = $$(".hero__title")[0];
-  heroTitle.textContent = D.meta.persona || "profile";
-  heroTitle.appendChild(document.createElement("br"));
-  heroTitle.appendChild(el("b", "", "в цифрах."));
 
   var pl = $("#profileLink");
   if (D.meta.profileUrl) pl.href = D.meta.profileUrl; else pl.style.display = "none";
@@ -223,7 +220,7 @@
       [dec(h / 8760 * 100, 1) + "%", ["календарного ", { bold: "года жизни" }]],
       [num(h / 11.4),         [{ bold: "трилогий «Властелин колец»" }, " в режиссёрской версии"]],
       [dec(h / 600, 1),       [{ bold: "иностранных языков" }, " до уверенного B2 (600 ч каждый)"]],
-      [num(h * 5),            [{ bold: "километров" }, " пешком, если бы шла вместо игры — это дальше, чем от Минска до Токио"]],
+      [num(h * 5),            [{ bold: "километров" }, " пешком, если бы шёл вместо игры — это дальше, чем от Минска до Токио"]],
       [num(h * 60 / unit.min), [{ bold: unit.word }, " " + unit.note]],
       [dec(h / 3.5, 0),       [{ bold: "марафонов" }, " можно было бы пробежать (по 3,5 ч)"]]
     ];
@@ -356,7 +353,7 @@
       var big = el("div", "rcard__big", smartDec(g.hours2w || 0));
       big.appendChild(el("span", "", "ч за 2 недели"));
       card.appendChild(big);
-      var ago = d === null ? "" : (d === 0 ? "играла сегодня" : d + " " + plural(d, ["день", "дня", "дней"]) + " назад");
+      var ago = d === null ? "" : (d === 0 ? "играл сегодня" : d + " " + plural(d, ["день", "дня", "дней"]) + " назад");
       card.appendChild(el("div", "rcard__meta", ago + " · всего " + smartDec(g.hours) + " ч"));
       wrap.appendChild(card);
     });
@@ -494,7 +491,7 @@
         stage.textContent = "";
         stage.appendChild(emptySlot([num(neverPlayed) + " игр ждут", "своего часа"]));
         stage.appendChild(emptySlot(["список появится", "после обновления данных"]));
-        stage.appendChild(emptySlot(["а пока —", "решай сама"]));
+        stage.appendChild(emptySlot(["а пока —", "решай сам"]));
       } else {
         $("#fateCount").textContent = "Бэклог пуст — редкое достижение";
       }
@@ -550,10 +547,15 @@
   var shareCanvas = $("#shareCanvas");
 
   /* аватар для карточки. Файл лежит рядом, в assets/img — это тот же
-     источник, что и на странице, никаких внешних запросов. */
+     источник, что и на странице. Для живого профиля это внешний Steam-аватар:
+     crossOrigin="anonymous" нужен, чтобы он не «taint»ил canvas — иначе
+     toDataURL()/toBlob() бросают SecurityError и карточку нельзя ни скачать,
+     ни скопировать. Если CDN не отдаст CORS, картинка просто не загрузится,
+     нарисуется цветная плашка, но копирование останется рабочим. */
   var avatarImg = null;
   if (D.meta && D.meta.avatar) {
     avatarImg = new Image();
+    avatarImg.crossOrigin = "anonymous";
     avatarImg.onload = function () { redrawCard(); };
     avatarImg.onerror = function () { avatarImg = null; redrawCard(); };
     avatarImg.src = D.meta.avatar;
@@ -722,13 +724,15 @@
     toastT = setTimeout(function () { toast.classList.remove("is-on"); }, 2400);
   }
 
-  $("#dlBtn").addEventListener("click", function () {
+  function downloadCard() {
     var a = document.createElement("a");
     a.download = "steam-wrapped-" + (D.meta.persona || "profile") + ".png";
     a.href = shareCanvas.toDataURL("image/png");
     a.click();
     say("Карточка скачана ✓");
-  });
+  }
+
+  $("#dlBtn").addEventListener("click", downloadCard);
 
   function copyCard() {
     // Промис: карточка в буфер обмена. Соцсети не умеют принимать файл
@@ -762,7 +766,7 @@
     parts.push(num(totalHours) + " " + plural(totalHours, ["час", "часа", "часов"]) + " в Steam.");
     parts.push("Это " + days + " " + plural(+days, ["день", "дня", "дней"]) + " подряд без сна.");
     if (soulmate) {
-      parts.push(soulmate.name + " забрала " + num(soulmate.hours) + " из них.");
+      parts.push("Игра жизни — " + soulmate.name + " (" + num(soulmate.hours) + " ч).");
     }
     parts.push(num(t.gamesOwned || gamesOwned) + " " +
                plural(t.gamesOwned || gamesOwned, ["игра", "игры", "игр"]) + " в библиотеке, " +
@@ -777,21 +781,32 @@
     return (capBox && capBox.value.trim()) || defaultCaption();
   }
 
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text).then(
+        function () { say("Текст скопирован ✓"); },
+        function () { say("Не вышло скопировать текст"); }
+      );
+    }
+    say("Браузер не умеет копировать текст");
+    return Promise.reject();
+  }
+
   function openShare(url) {
     // noopener обязателен: без него открытая вкладка получает доступ к нашей
     window.open(url, "_blank", "noopener,noreferrer");
   }
 
-  /* сначала кладём карточку в буфер, потом открываем окно публикации —
-     иначе окно перехватывает фокус и запись в буфер отменяется */
+  /* Окно публикации открываем синхронно в жесте клика: window.open после
+     await/таймера попадает под попап-блокировщик, из-за чего «пост не
+     создавался». Карточку в буфер кладём следом — подскажем вставить Ctrl+V. */
   function shareVia(build, name) {
     var text = caption();
+    openShare(build(text));
     copyCard().then(
       function () { say("Карточка в буфере — вставь в " + name + " через Ctrl+V"); },
       function () { say("Карточку скопировать не вышло, скачай PNG"); }
-    ).then(function () {
-      setTimeout(function () { openShare(build(text)); }, 350);
-    });
+    );
   }
 
   var tg = $("#tgBtn"), li = $("#liBtn"), dc = $("#dcBtn");
@@ -811,21 +826,15 @@
   });
 
   if (dc) dc.addEventListener("click", function () {
-    // у Discord нет окна публикации — только буфер
-    copyCard().then(
-      function () { say("Карточка в буфере — вставь в любой канал Discord"); },
-      function () { say("Не вышло скопировать — скачай PNG"); }
-    );
+    // у Discord нет окна публикации: кладём в буфер подпись и ссылку,
+    // а карточку отдаём скачиванием — PNG прикрепляешь к сообщению вручную.
+    copyText(caption() + "\n" + PAGE_URL);
+    downloadCard();
   });
 
   var capCopy = $("#capCopyBtn"), capReset = $("#capResetBtn");
   if (capCopy) capCopy.addEventListener("click", function () {
-    var t = caption();
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(t + "\n" + PAGE_URL)
-        .then(function () { say("Текст скопирован ✓"); },
-              function () { say("Не вышло скопировать текст"); });
-    } else { say("Браузер не умеет копировать текст"); }
+    copyText(caption() + "\n" + PAGE_URL);
   });
   if (capReset) capReset.addEventListener("click", function () {
     capBox.value = defaultCaption();
@@ -991,19 +1000,19 @@
     var staticData = dataLayer.normalizeStaticData(window.STEAM_DATA, rules);
     var requested = profileQuery();
     if (!requested) {
-      boot(rules, staticData);
+      boot(rules, staticData, true);
       return;
     }
     if (!dataLayer.validateProfileInput(requested)) {
       setProfileStatus("Не удалось распознать SteamID, ник или ссылку на профиль.", "error");
-      boot(rules, staticData);
+      boot(rules, staticData, true);
       return;
     }
     // CORS сознательно ограничен опубликованным GitHub Pages. Preview Arena
     // показывает интерфейс, но не должен становиться дополнительным origin API.
     if (window.location.origin !== PAGES_ORIGIN) {
       setProfileStatus("Живой профиль доступен на опубликованной GitHub Pages-странице.", "error");
-      boot(rules, staticData);
+      boot(rules, staticData, true);
       return;
     }
 
@@ -1015,10 +1024,10 @@
           : "Профиль построен из публичных данных Steam.",
         result.genreWarning ? "" : "ok"
       );
-      boot(rules, result.data);
+      boot(rules, result.data, false);
     }).catch(function (error) {
       setProfileStatus(workerErrorMessage(error && error.code), "error");
-      boot(rules, staticData);
+      boot(rules, staticData, true);
     });
   }
 
@@ -1029,7 +1038,7 @@
   var dataLayer = window.SteamWrappedData;
   if (!dataLayer) {
     console.warn("Не загрузился общий слой данных; использую data.js напрямую");
-    boot(null);
+    boot(null, null, true);
     return;
   }
   var layerScript = Array.prototype.slice.call(document.querySelectorAll("script[src]"))
@@ -1043,6 +1052,6 @@
     start(rules, dataLayer);
   }).catch(function (error) {
     console.warn("rules.json не загрузился; включён нейтральный режим", error);
-    boot(null);
+    boot(null, null, true);
   });
 })();
