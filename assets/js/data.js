@@ -3,23 +3,23 @@
    -------------------------------------------------------------
    ФАЙЛ СГЕНЕРИРОВАН АВТОМАТИЧЕСКИ: python fetch_data.py
    Правки руками перезапишутся при следующем запуске.
-   Дата сборки: 2026-09-06
+   Дата сборки: 2026-09-07
    Образцовые данные лежат в data.sample.js
    ============================================================= */
 
 window.STEAM_DATA = {
-  "meta": {"persona": "mormyszka", "profileUrl": "https://steamcommunity.com/id/K_Ak4d0/", "avatar": "assets/img/avatar.jpg", "source": "steam-api", "generatedAt": "2026-09-06", "memberSince": "2017-02-02"},
+  "meta": {"persona": "mormyszka", "profileUrl": "https://steamcommunity.com/id/K_Ak4d0/", "avatar": "assets/img/avatar.jpg", "source": "steam-api", "generatedAt": "2026-09-07", "memberSince": "2017-02-02"},
 
-  "totals": {"gamesOwned": 322, "hoursTotal": 7985, "hoursTwoWeeks": 99, "gamesPlayed": 248, "gamesNeverPlayed": 68},
+  "totals": {"gamesOwned": 323, "hoursTotal": 7992, "hoursTwoWeeks": 103, "gamesPlayed": 248, "gamesNeverPlayed": 69},
 
   "soulmateAppid": 570,
 
   "genreHours": [
-    {"name": "Экшен", "hours": 4779},
-    {"name": "Стратегия", "hours": 1496},
+    {"name": "Экшен", "hours": 4784},
+    {"name": "Стратегия", "hours": 1497},
     {"name": "Приключения", "hours": 423},
     {"name": "RPG", "hours": 408},
-    {"name": "Инди", "hours": 320},
+    {"name": "Инди", "hours": 321},
     {"name": "Казуальные", "hours": 176},
     {"name": "Гонки", "hours": 174},
     {"name": "Симулятор", "hours": 28},
@@ -28,12 +28,12 @@ window.STEAM_DATA = {
 
   "games": [
     {"appid": 570, "name": "Dota 2", "hours": 2848.8, "hours2w": 0, "lastPlayed": null, "genres": ["Экшен", "Стратегия"]},
-    {"appid": 730, "name": "Counter-Strike 2", "hours": 2639, "hours2w": 11.8, "lastPlayed": "2026-09-05", "genres": ["Экшен"]},
+    {"appid": 730, "name": "Counter-Strike 2", "hours": 2644, "hours2w": 16.7, "lastPlayed": "2026-09-06", "genres": ["Экшен"]},
     {"appid": 413150, "name": "Stardew Valley", "hours": 313, "hours2w": 0, "lastPlayed": "2026-07-12", "genres": ["Инди", "RPG"]},
     {"appid": 359550, "name": "Tom Clancy's Rainbow Six Siege", "hours": 179, "hours2w": 0, "lastPlayed": "2022-05-28", "genres": ["Экшен"]},
     {"appid": 1293830, "name": "Forza Horizon 4", "hours": 151, "hours2w": 0, "lastPlayed": "2024-11-24", "genres": ["Гонки"]},
     {"appid": 238960, "name": "Path of Exile", "hours": 99, "hours2w": 0, "lastPlayed": "2023-01-17", "genres": ["Экшен", "Приключения"]},
-    {"appid": 2868840, "name": "Slay the Spire 2", "hours": 94, "hours2w": 77.9, "lastPlayed": "2026-09-06", "genres": ["Инди", "Стратегия"]},
+    {"appid": 2868840, "name": "Slay the Spire 2", "hours": 96, "hours2w": 77.1, "lastPlayed": "2026-09-06", "genres": ["Инди", "Стратегия"]},
     {"appid": 1091500, "name": "Cyberpunk 2077", "hours": 85, "hours2w": 0, "lastPlayed": "2026-05-09", "genres": ["RPG"]},
     {"appid": 307780, "name": "Mortal Kombat X", "hours": 83, "hours2w": 0, "lastPlayed": "2026-01-12", "genres": ["Экшен"]},
     {"appid": 72850, "name": "The Elder Scrolls V: Skyrim", "hours": 64, "hours2w": 0, "lastPlayed": "2023-03-31", "genres": ["RPG"]},
@@ -43,7 +43,7 @@ window.STEAM_DATA = {
     {"appid": 4000, "name": "Garry's Mod", "hours": 48, "hours2w": 0, "lastPlayed": "2022-07-18", "genres": ["Казуальные", "Инди"]},
     {"appid": 331470, "name": "Everlasting Summer", "hours": 45, "hours2w": 0, "lastPlayed": "2022-03-12", "genres": ["Приключения", "Казуальные"]},
     {"appid": 239140, "name": "Dying Light", "hours": 44, "hours2w": 0, "lastPlayed": "2026-07-04", "genres": ["Экшен", "Приключения"]},
-    {"appid": 2379780, "name": "Balatro", "hours": 42, "hours2w": 9.2, "lastPlayed": "2026-09-03", "genres": ["Казуальные", "Инди"]},
+    {"appid": 2379780, "name": "Balatro", "hours": 42, "hours2w": 9, "lastPlayed": "2026-09-03", "genres": ["Казуальные", "Инди"]},
     {"appid": 230410, "name": "Warframe", "hours": 40, "hours2w": 0, "lastPlayed": "2023-01-25", "genres": ["Экшен", "RPG"]},
     {"appid": 292030, "name": "The Witcher 3: Wild Hunt", "hours": 38, "hours2w": 0, "lastPlayed": "2025-03-01", "genres": ["RPG"]},
     {"appid": 1846380, "name": "Need for Speed Unbound", "hours": 35, "hours2w": 0, "lastPlayed": "2025-01-22", "genres": ["Экшен", "Гонки"]},
@@ -141,12 +141,13 @@ window.STEAM_DATA = {
     {"appid": 464350, "name": "Screeps: World", "hours": 0, "hours2w": 0, "lastPlayed": "2022-12-24", "genres": ["Инди", "MMO"]},
     {"appid": 635850, "name": "Sentience: The Android's Tale", "hours": 0, "hours2w": 0, "lastPlayed": null, "genres": ["Приключения", "Инди"]},
     {"appid": 41070, "name": "Serious Sam 3: BFE", "hours": 0, "hours2w": 0, "lastPlayed": null, "genres": ["Экшен", "Инди"]},
+    {"appid": 646570, "name": "Slay the Spire", "hours": 0, "hours2w": 0, "lastPlayed": null, "genres": ["Инди", "Стратегия"]},
     {"appid": 1755300, "name": "Smart Factory Tycoon", "hours": 0, "hours2w": 0, "lastPlayed": null, "genres": ["Казуальные", "Инди"]},
     {"appid": 399100, "name": "Spheroid", "hours": 0, "hours2w": 0, "lastPlayed": null, "genres": ["Экшен", "Инди"]},
     {"appid": 443910, "name": "TGV Voyages Train Simulator", "hours": 0, "hours2w": 0, "lastPlayed": null, "genres": ["Симулятор"]},
     {"appid": 1053710, "name": "The Red Lantern", "hours": 0, "hours2w": 0, "lastPlayed": null, "genres": ["Приключения", "Казуальные"]},
     {"appid": 221910, "name": "The Stanley Parable", "hours": 0, "hours2w": 0, "lastPlayed": null, "genres": ["Приключения", "Инди"]},
-    {"appid": 255520, "name": "Viscera Cleanup Detail: Shadow Warrior", "hours": 0, "hours2w": 0, "lastPlayed": null, "genres": ["Инди", "Симулятор"]},
+    {"appid": 255520, "name": "Viscera Cleanup Detail: Shadow Warrior", "hours": 0, "hours2w": 0, "lastPlayed": null, "genres": []},
     {"appid": 358380, "name": "Wacky Wheels", "hours": 0, "hours2w": 0, "lastPlayed": null, "genres": []},
     {"appid": 4570, "name": "Warhammer 40,000: Dawn of War - Anniversary Edition", "hours": 0, "hours2w": 0, "lastPlayed": null, "genres": []},
     {"appid": 4580, "name": "Warhammer 40,000: Dawn of War - Dark Crusade", "hours": 0, "hours2w": 0, "lastPlayed": null, "genres": []},
