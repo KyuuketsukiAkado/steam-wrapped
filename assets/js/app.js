@@ -243,19 +243,19 @@
     if (!top.length) return;
     var max = top[0].hours;
     var wrap = $("#bars");
-    var ramp = ["#26D0FF", "#5B8CFF", "#00E0C6", "#8A7BFF", "#6FD8FF",
-                "#4F9FFF", "#A06BFF", "#79E6D8", "#C0E8FF", "#A78BFF"];
+    var ramp = ["#E10600", "#8E8E93", "#6E6E73", "#636366", "#48484E",
+                "#3A3A3F", "#2F2F34", "#26262B", "#1F1F23", "#1A1A1E"];
 
-    // два колосса почти вровень (Dota и CS2) — каждому свой акцент,
+    // два колосса почти вровень (Dota и CS2) — каждому свой оттенок красного,
     // чтобы второе место не выглядело безнадёжным
     var colossi = top.length > 1 && top[1].hours / top[0].hours >= 0.8;
 
-    // хвост десятки — холодный спектр без циана и индиго колоссов
-    var tail = ["#4F9FFF", "#00E0C6", "#5B8CFF", "#6FD8FF",
-                "#A06BFF", "#79E6D8", "#A78BFF", "#C0E8FF"];
+    // хвост десятки — холодный графит, красный уже разобран
+    var tail = ["#8E8E93", "#6E6E73", "#636366", "#48484E",
+                "#3A3A3F", "#2F2F34", "#26262B", "#1F1F23"];
     var colors = top.map(function (g, i) {
-      if (colossi && i === 0) return "#26D0FF";   // электрик-циан — лидер
-      if (colossi && i === 1) return "#8A7BFF";   // индиго — второй колосс
+      if (colossi && i === 0) return "#E10600";   // красный — лидер
+      if (colossi && i === 1) return "#FF5A4D";   // горячий коралл — второй колосс
       return colossi ? tail[i - 2] : ramp[i];
     });
 
@@ -343,7 +343,7 @@
 
     if (list.length === 1) wrap.classList.add("is-single");
 
-    var rc = ["#5EF0DC", "#8FE8FF", "#9CC8FF", "#B6ACFF"];
+    var rc = ["#E10600", "#FF5A4D", "#C0130A", "#8E8E93"];
     list.forEach(function (g, i) {
       var card = el("div", "rcard");
       card.style.setProperty("--rc", rc[i % rc.length]);
@@ -395,8 +395,8 @@
     if (!sum) return;
 
     var R = 78, C = 2 * Math.PI * R, off = 0;
-    var palette = ["#26D0FF", "#8A7BFF", "#00E0C6", "#4F9FFF", "#6FD8FF",
-                   "#5B8CFF", "#79E6D8", "#A78BFF", "#5E6B7E"];
+    var palette = ["#E10600", "#8E8E93", "#6E6E73", "#636366", "#48484E",
+                   "#3A3A3F", "#2F2F34", "#26262B", "#1F1F23"];
 
     /* Минимальная дуга. Симулятор и MMO — это 0,4% и 0,1%: их доля
        короче зазора между сегментами, дуга получалась отрицательной
@@ -444,6 +444,8 @@
       row.addEventListener("mouseleave", function () { highlight(null); });
       c.addEventListener("mouseenter", function () { highlight(i, g); });
       c.addEventListener("mouseleave", function () { highlight(null); });
+      row.addEventListener("click", function () { highlight(i, g); });
+      c.addEventListener("click", function () { highlight(i, g); });
     });
 
     var dv = $("#donutValue"), dl = $("#donutLabel");
@@ -567,23 +569,23 @@
   function redrawCard() {
     var c = shareCanvas, x = c.getContext("2d");
     var W = c.width, H = c.height;
-    var INK = "#EAF1FA", NEAR = "#F7FBFF", DIM = "#8B94A6", FAINT = "#68758C";
-    var C1 = "#26D0FF", C2 = "#8A7BFF", C3 = "#00E0C6", C4 = "#4F9FFF", C5 = "#C0E8FF";
+    var INK = "#EDEDEF", NEAR = "#F7F7F8", DIM = "#A7A7AD", FAINT = "#6E6E75";
+    var C1 = "#E10600", C2 = "#C0130A", C3 = "#8E0D08", C4 = "#FF5A4D", C5 = "#EDEDEF";
     var css = getComputedStyle(document.documentElement);
     var SANS = (css.getPropertyValue("--display") || "").trim() || 'Arial, sans-serif';
     var WD = (css.getPropertyValue("--w-display") || "700").trim();
 
     // фон + цветные пятна
-    x.fillStyle = "#070B13"; x.fillRect(0, 0, W, H);
+    x.fillStyle = "#0A0A0B"; x.fillRect(0, 0, W, H);
     function blob(cx, cy, r, color) {
       var g = x.createRadialGradient(cx, cy, 0, cx, cy, r);
       g.addColorStop(0, color); g.addColorStop(1, "rgba(0,0,0,0)");
       x.fillStyle = g; x.fillRect(0, 0, W, H);
     }
-    blob(W * 0.5, H * 0.28, W * 0.80, "rgba(38,208,255,0.17)");
-    blob(W * 0.10, H * 0.92, W * 0.70, "rgba(79,159,255,0.16)");
-    blob(W * 0.92, H * 0.82, W * 0.65, "rgba(138,123,255,0.18)");
-    blob(W * 0.15, H * 0.52, W * 0.50, "rgba(0,224,198,0.10)");
+    blob(W * 0.5, H * 0.28, W * 0.80, "rgba(225,6,0,0.10)");
+    blob(W * 0.10, H * 0.92, W * 0.70, "rgba(192,19,10,0.10)");
+    blob(W * 0.92, H * 0.82, W * 0.65, "rgba(142,13,8,0.12)");
+    blob(W * 0.15, H * 0.52, W * 0.50, "rgba(255,90,77,0.07)");
 
     var M = 88;
 
@@ -632,8 +634,8 @@
     // картинка не загрузилась — градиентная плашка с первой буквой ника.
     var persona = D.meta.persona || "profile";
     var avCx = M + 72, avCy = 234, avR = 72;
-    blob(avCx, avCy, 250, "rgba(38,208,255,0.24)");
-    blob(avCx, avCy, 150, "rgba(138,123,255,0.20)");
+    blob(avCx, avCy, 250, "rgba(225,6,0,0.20)");
+    blob(avCx, avCy, 150, "rgba(192,19,10,0.16)");
     x.save();
     x.beginPath(); x.arc(avCx, avCy, avR, 0, Math.PI * 2); x.clip();
     if (avatarImg && avatarImg.complete && avatarImg.naturalWidth) {
@@ -645,7 +647,7 @@
       var ag = x.createLinearGradient(avCx - avR, avCy - avR, avCx + avR, avCy + avR);
       ag.addColorStop(0, C1); ag.addColorStop(1, C4);
       x.fillStyle = ag; x.fillRect(avCx - avR, avCy - avR, avR * 2, avR * 2);
-      x.fillStyle = "#070B13"; x.font = "800 76px " + SANS;
+      x.fillStyle = "#FFFFFF"; x.font = "800 76px " + SANS;
       x.textAlign = "center"; x.textBaseline = "middle";
       x.fillText(persona.charAt(0).toUpperCase(), avCx, avCy + 6);
       x.textAlign = "left"; x.textBaseline = "alphabetic";
@@ -696,7 +698,7 @@
       var pL = M, pR = W - M;
       x.save();
       roundRect(pL, py, pR - pL, ph, rr); x.clip();
-      x.fillStyle = "rgba(13, 22, 38, 0.92)"; x.fillRect(pL, py, pR - pL, ph);
+      x.fillStyle = "rgba(20, 20, 22, 0.92)"; x.fillRect(pL, py, pR - pL, ph);
       var hl = x.createLinearGradient(pL, 0, pR, 0);
       hl.addColorStop(0, C1); hl.addColorStop(1, C4);
       x.fillStyle = hl; x.fillRect(pL, py, pR - pL, 5);
@@ -728,7 +730,7 @@
 
       x.textAlign = "right";
       var hg = x.createLinearGradient(pR - 420, 0, pR - 40, 0);
-      hg.addColorStop(0, "#FFFFFF"); hg.addColorStop(1, "#AEE4FF");
+      hg.addColorStop(0, "#FFFFFF"); hg.addColorStop(1, "#FF3B30");
       var hs = fitSize(num(soulmate.hours), 380, 100);
       x.fillStyle = hg; x.font = WD + " " + hs + "px " + SANS;
       x.fillText(num(soulmate.hours), pR - 40, py + 136);
@@ -738,12 +740,12 @@
     }
 
     // топ-3 по часам: часы и доля от всего времени, много воздуха
-    var tcol = [C1, "#9CC8FF", C3];
+    var tcol = [C1, "#FF5A4D", C3];
     played.slice(0, 3).forEach(function (g, i) {
       var ry = 1008 + i * 58;
       x.fillStyle = tcol[i]; x.font = "700 22px " + SANS;
       x.fillText(String(i + 1).padStart(2, "0"), M, ry);
-      x.fillStyle = "#C6D2E2"; x.font = "700 26px " + SANS;
+      x.fillStyle = "#C9C9CE"; x.font = "700 26px " + SANS;
       x.fillText(fit(g.name, 520, "700 26px " + SANS), M + 64, ry);
       var hourShare = totalHours ? " · " + dec(g.hours / totalHours * 100, 0) + "%" : "";
       x.fillStyle = tcol[i]; x.font = WD + " 26px " + SANS;
@@ -929,6 +931,15 @@
     });
   }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
 
+  // Каскад внутри групп: каждая строка встаёт чуть позже предыдущей.
+  // Задержка работает один раз (unobserve), reduced-motion перекрыт глобально.
+  ["#bars .bar", "#facts .fact", ".fate__slot"].forEach(function (sel) {
+    $$(sel).forEach(function (n, i) {
+      n.classList.add("reveal");
+      n.style.transitionDelay = Math.min(i * 70, 560) + "ms";
+    });
+  });
+
   $$(".reveal").forEach(function (n) { revealObserver.observe(n); });
   }
 
@@ -980,11 +991,14 @@
       });
     });
 
+    input.addEventListener("input", function () { input.removeAttribute("aria-invalid"); });
+
     form.addEventListener("submit", function (event) {
       event.preventDefault();
       var value = input.value.trim();
       if (!dataLayer.validateProfileInput(value)) {
         setProfileStatus("Введи SteamID64, ник или обычную ссылку на профиль Steam.", "error");
+        input.setAttribute("aria-invalid", "true");
         input.focus();
         return;
       }
@@ -1143,4 +1157,92 @@
     console.warn("rules.json не загрузился; включён нейтральный режим", error);
     boot(null, null, true);
   });
+
+  /* ---------- хром страницы: прогресс, подсветка меню, кнопка наверх ----------
+     Данных не касается: чистый UI-слушатель поверх готовой страницы. */
+  (function chrome() {
+    var bar = document.getElementById("scrollProgress");
+    var top = document.getElementById("toTop");
+    var ticking = false;
+    function onScroll() {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(function () {
+        ticking = false;
+        var max = document.documentElement.scrollHeight - window.innerHeight;
+        var ratio = max > 0 ? Math.min(1, window.scrollY / max) : 0;
+        if (bar) bar.style.transform = "scaleX(" + ratio + ")";
+        if (top) top.classList.toggle("is-on", window.scrollY > 700);
+      });
+    }
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    if (top) top.addEventListener("click", function () {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    // Бургер: открыть/закрыть, закрыть по ссылке, Esc и при ресайзе в десктоп.
+    var burger = document.getElementById("burger");
+    var mnav = document.getElementById("mobileNav");
+    function setNav(open) {
+      if (!burger || !mnav) return;
+      burger.setAttribute("aria-expanded", open ? "true" : "false");
+      mnav.classList.toggle("is-open", open);
+    }
+    if (burger && mnav) {
+      burger.addEventListener("click", function () {
+        setNav(burger.getAttribute("aria-expanded") !== "true");
+      });
+      mnav.addEventListener("click", function (e) {
+        if (e.target && e.target.closest("a")) setNav(false);
+      });
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") setNav(false);
+      });
+      if (window.matchMedia) {
+        var mq = window.matchMedia("(min-width: 781px)");
+        var mqClose = function () { if (mq.matches) setNav(false); };
+        if (mq.addEventListener) mq.addEventListener("change", mqClose);
+        else if (mq.addListener) mq.addListener(mqClose);
+      }
+    }
+
+    // Спотлайт в hero: свечение следует за курсором. Только без reduced-motion.
+    var hero = document.getElementById("hero");
+    if (hero && window.matchMedia && window.matchMedia("(prefers-reduced-motion: no-preference)").matches) {
+      var hraf = null;
+      hero.addEventListener("pointermove", function (e) {
+        if (hraf) return;
+        var cx = e.clientX, cy = e.clientY;
+        hraf = requestAnimationFrame(function () {
+          hraf = null;
+          var r = hero.getBoundingClientRect();
+          if (r.width && r.height) {
+            hero.style.setProperty("--mx", ((cx - r.left) / r.width * 100).toFixed(1) + "%");
+            hero.style.setProperty("--my", ((cy - r.top) / r.height * 100).toFixed(1) + "%");
+          }
+        });
+      }, { passive: true });
+    }
+
+    var links = Array.prototype.slice.call(document.querySelectorAll('.topbar__nav a[href^="#"]'));
+    if ("IntersectionObserver" in window && links.length) {
+      var map = {};
+      links.forEach(function (a) { map[a.getAttribute("href").slice(1)] = a; });
+      var spy = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          var a = map[e.target.id];
+          if (!a) return;
+          if (e.isIntersecting) {
+            links.forEach(function (l) { l.classList.remove("is-on"); });
+            a.classList.add("is-on");
+          }
+        });
+      }, { rootMargin: "-40% 0px -55% 0px" });
+      Object.keys(map).forEach(function (id) {
+        var sec = document.getElementById(id);
+        if (sec) spy.observe(sec);
+      });
+    }
+  })();
 })();

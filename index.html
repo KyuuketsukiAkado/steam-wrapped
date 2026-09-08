@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Steam Wrapped — статистика Steam-профиля</title>
 <meta name="description" content="Steam Wrapped превращает публичную библиотеку в цифры — от которых одновременно стыдно и радостно.">
-<meta name="theme-color" content="#070B13">
+<meta name="theme-color" content="#0A0A0B">
 <meta property="og:title" content="Steam Wrapped — твоя библиотека в цифрах">
 <meta property="og:description" content="Инструмент для наглядной статистики публичного Steam-профиля.">
 <meta property="og:type" content="website">
@@ -19,15 +19,20 @@
 <meta name="twitter:title" content="Steam Wrapped — твоя библиотека в цифрах">
 <meta name="twitter:description" content="Инструмент для наглядной статистики публичного Steam-профиля.">
 <meta name="twitter:image" content="https://kyuuketsukiakado.github.io/steam-wrapped/assets/img/og.png">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23070B13'/><circle cx='16' cy='16' r='6' fill='%2326D0FF'/></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%230A0A0B'/><rect x='10' y='10' width='12' height='12' rx='2' fill='%23E10600' transform='rotate(45 16 16)'/></svg>">
 <link rel="preload" as="font" type="font/woff2" href="assets/fonts/unbounded-cyrillic-wght-normal.woff2" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="assets/fonts/manrope-cyrillic-wght-normal.woff2" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400..900&family=JetBrains+Mono:wght@400..800&display=swap">
 <!-- ?v= — бамп версии при ручных правках css/js, иначе браузер отдаст кэш -->
-<link rel="stylesheet" href="assets/css/style.css?v=20260908-3">
+<link rel="stylesheet" href="assets/css/style.css?v=20260908-27">
 </head>
 <body>
+<a class="skip-link" href="#hero">К содержимому</a>
 
 <div class="shell">
+  <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
 
   <header class="topbar">
     <div class="wrap topbar__inner">
@@ -39,7 +44,17 @@
         <a href="#genres">Жанры</a>
         <a href="#fate">Судьба вечера</a>
       </nav>
+      <button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="mobileNav" aria-label="Меню">
+        <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
+      </button>
     </div>
+    <nav class="mobilenav" id="mobileNav" aria-label="Разделы страницы">
+      <a href="#soulmate">Главная игра</a>
+      <a href="#top">Топ</a>
+      <a href="#now">Сейчас</a>
+      <a href="#genres">Жанры</a>
+      <a href="#fate">Судьба вечера</a>
+    </nav>
   </header>
 
   <!-- ============ ГЕРОЙ ============ -->
@@ -124,7 +139,7 @@
   </div>
 
   <!-- ============ ГЛАВНАЯ ИГРА ЖИЗНИ ============ -->
-  <section id="soulmate" class="sec sec--c1">
+  <section id="soulmate" class="sec sec--c1" data-num="01">
     <div class="wrap">
       <div class="section-head reveal">
         <span class="section-num">01</span>
@@ -145,7 +160,7 @@
   </section>
 
   <!-- ============ ТОП ИГР ============ -->
-  <section id="top" class="sec sec--c2">
+  <section id="top" class="sec sec--c2" data-num="02">
     <div class="wrap">
       <div class="section-head reveal">
         <span class="section-num">02</span>
@@ -157,7 +172,7 @@
   </section>
 
   <!-- ============ СЕЙЧАС ============ -->
-  <section id="now" class="sec sec--c3">
+  <section id="now" class="sec sec--c3" data-num="03">
     <div class="wrap">
       <div class="section-head reveal">
         <span class="section-num">03</span>
@@ -169,7 +184,7 @@
   </section>
 
   <!-- ============ ЖАНРЫ ============ -->
-  <section id="genres" class="sec sec--c4">
+  <section id="genres" class="sec sec--c4" data-num="04">
     <div class="wrap">
       <div class="section-head reveal">
         <span class="section-num">04</span>
@@ -191,7 +206,7 @@
   </section>
 
   <!-- ============ СУДЬБА ВЕЧЕРА ============ -->
-  <section id="fate" class="sec sec--c5">
+  <section id="fate" class="sec sec--c5" data-num="05">
     <div class="wrap">
       <div class="section-head reveal">
         <span class="section-num">05</span>
@@ -207,14 +222,14 @@
         </div>
         <div class="fate__bar">
           <span class="fate__count" id="fateCount">—</span>
-          <button type="button" class="btn btn--solid" id="fateBtn">Бросить кости 🎲</button>
+          <button type="button" class="btn btn--solid" id="fateBtn">Бросить кости</button>
         </div>
       </div>
     </div>
   </section>
 
   <!-- ============ ПОДЕЛИТЬСЯ ============ -->
-  <section id="share" class="sec sec--c6">
+  <section id="share" class="sec sec--c6" data-num="06">
     <div class="wrap">
       <div class="section-head reveal">
         <span class="section-num">06</span>
@@ -278,6 +293,7 @@
 
 <script src="assets/js/data.js"></script>
 <script src="assets/js/profile-data.js"></script>
-<script src="assets/js/app.js?v=20260908-4"></script>
+<script src="assets/js/app.js?v=20260908-11"></script>
+  <button class="to-top" id="toTop" type="button" aria-label="Наверх">↑</button>
 </body>
 </html>
