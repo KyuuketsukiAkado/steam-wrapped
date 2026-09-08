@@ -26,15 +26,15 @@ except ImportError:
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # ---------- палитра (та же, что в style.css) ----------
-BG    = (10, 10, 12)
-INK   = (242, 240, 236)
-DIM   = (158, 154, 147)
-FAINT = (102, 98, 92)
-C1    = (255, 92, 56)     # коралл
-C2    = (139, 92, 246)    # фиалка
-C3    = (34, 211, 165)    # мята
-C4    = (255, 197, 61)    # янтарь
-C5    = (76, 194, 255)    # лёд
+BG    = (7, 11, 19)
+INK   = (234, 241, 250)
+DIM   = (156, 168, 187)
+FAINT = (102, 116, 139)
+C1    = (38, 208, 255)     # электрик-циан
+C2    = (138, 123, 255)    # индиго
+C3    = (0, 224, 198)      # бирюза
+C4    = (79, 159, 255)     # синий
+C5    = (192, 232, 255)    # ледяной
 
 W, H, M = 1200, 630, 72
 
@@ -178,7 +178,7 @@ def main():
     d = ImageDraw.Draw(img)
 
     def hline(y):
-        d.line([(M, y), (W - M, y)], fill=(60, 60, 64), width=1)
+        d.line([(M, y), (W - M, y)], fill=(48, 60, 80), width=1)
 
     # шапка
     draw_text(M, 48, "STEAM WRAPPED", 21, d, C4, letter=8)
@@ -190,7 +190,7 @@ def main():
     # ник + градиентная строка
     persona = D["meta"].get("persona") or "profile"
     draw_text(M, 122, persona, 84, d, INK, letter=1)
-    grad, mask, pos = gradient_text(M, 234, "в цифрах.", 84, [C1, C4, C2, C5])
+    grad, mask, pos = gradient_text(M, 234, "в цифрах", 84, [C1, C4, C2, C5])
     img.paste(grad, pos, mask)
     d = ImageDraw.Draw(img)
     hline(372)
@@ -213,7 +213,7 @@ def main():
     # низ: топ-2 игры (колоссы) + стаж
     games = sorted(D["games"], key=lambda g: -g["hours"])
     x = M
-    for g, color in zip(games[:2], [C1, C5]):
+    for g, color in zip(games[:2], [C1, C2]):
         d.rectangle([x, 558, x + 12, 570], fill=color)
         x += 24
         x += draw_text(x, 554, "%s · %s ч" % (g["name"], fmt(g["hours"])), 20, d, INK) + 28
@@ -230,7 +230,7 @@ def main():
     # (10 вместо 245), из-за чего вся картинка уходила в чёрное.
     noise = Image.effect_noise((W, H), 22).convert("L")
     noise = noise.point(lambda v: 235 if v > 140 else 255)
-    img = Image.composite(img, Image.new("RGB", (W, H), (4, 4, 6)), noise)
+    img = Image.composite(img, Image.new("RGB", (W, H), (3, 5, 9)), noise)
 
     os.makedirs(os.path.dirname(a.out), exist_ok=True)
     img.save(a.out, "PNG", optimize=True)
