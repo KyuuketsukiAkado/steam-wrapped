@@ -44,35 +44,54 @@
   <!-- ============ ГЕРОЙ ============ -->
   <section class="hero wrap" id="hero">
     <div class="hero__top">
+      <p class="hero__badge"><span class="hero__badge-dot" aria-hidden="true"></span>Инструмент для публичного Steam-профиля</p>
       <h1 class="hero__title">Steam<br><b>Wrapped</b></h1>
-      <div class="hero__profile">
-        <div class="avatar" id="avatar">M</div>
-        <div class="hero__profile-side">
-          <div class="hero__nick" id="heroNick">mormyszka</div>
-          <p class="eyebrow" id="heroEyebrow">Демо-профиль · данные от —</p>
-        </div>
-      </div>
     </div>
 
     <p class="hero__sub">
-      Инструмент, который честно пересчитывает публичную Steam-библиотеку: часы,
-      дни, топ игр и жанры. <b>Цифры, которые и так всё знали.</b>
+      Вставь ссылку на профиль — получишь часы в днях, топ игр, жанры
+      и карточку для шаринга. <b>Без регистрации и ключей: только открытые данные Steam.</b>
     </p>
 
+    <ul class="hero__features">
+      <li><b>Часы — в днях и смыслах:</b> нон-стоп, годы жизни и «Властелин колец» в режиссёрской версии.</li>
+      <li><b>Топ игр и жанры:</b> десятка с долями, донат жанров и чем ты занят прямо сейчас.</li>
+      <li><b>Карточка для шаринга:</b> постер 1080×1350 — скачать, скопировать, кинуть в Telegram или Discord.</li>
+    </ul>
+
     <form class="profile-form" id="profileForm" novalidate>
-      <label class="profile-form__label" for="profileInput">Собрать wrapped для публичного Steam-профиля</label>
+      <label class="profile-form__label" for="profileInput">Собери свой wrapped</label>
       <div class="profile-form__row">
         <input class="profile-form__input" id="profileInput" name="profile" type="text"
                inputmode="url" autocomplete="url" maxlength="400"
                placeholder="SteamID64, ник или ссылка на steamcommunity.com"
                aria-describedby="profileStatus">
-        <button class="btn btn--solid" type="submit">Построить wrapped</button>
+        <button class="btn btn--solid" type="submit">Построить wrapped →</button>
+      </div>
+      <div class="profile-form__chips">
+        <span class="profile-form__chips-label">Попробовать:</span>
+        <button type="button" class="chip" data-fill="https://steamcommunity.com/id/K_Ak4d0/">демо: mormyszka</button>
+        <button type="button" class="chip" data-fill="https://steamcommunity.com/id/">заготовка ссылки</button>
       </div>
       <p class="profile-form__status" id="profileStatus" aria-live="polite">
         Библиотека в Steam должна быть открыта для просмотра.
       </p>
       <a class="profile-form__reset" id="profileReset" href="./" hidden>Вернуться к исходной статистике</a>
     </form>
+
+    <div class="hero__demo">
+      <span class="hero__demo-line" aria-hidden="true"></span>
+      <span class="eyebrow">Живой пример — демо-профиль</span>
+      <span class="hero__demo-line" aria-hidden="true"></span>
+    </div>
+
+    <div class="hero__profile">
+      <div class="avatar" id="avatar">M</div>
+      <div class="hero__profile-side">
+        <div class="hero__nick" id="heroNick">mormyszka</div>
+        <p class="eyebrow" id="heroEyebrow">Демо-профиль · данные от —</p>
+      </div>
+    </div>
 
     <div class="hero__actions">
       <a class="btn btn--solid" href="#fate">Судьба вечера ↘</a>

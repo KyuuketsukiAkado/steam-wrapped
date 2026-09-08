@@ -614,15 +614,15 @@
     }
 
     // шапка
-    label("STEAM WRAPPED", 116);
+    label("STEAM WRAPPED", 104);
     x.fillStyle = C4; x.font = "700 22px " + SANS;
-    x.textAlign = "right"; x.fillText((D.meta.generatedAt || "").slice(0, 7), W - M, 116); x.textAlign = "left";
-    line(150);
+    x.textAlign = "right"; x.fillText((D.meta.generatedAt || "").slice(0, 7), W - M, 104); x.textAlign = "left";
+    line(136);
 
     // аватар: круг с градиентным кольцом, как в wrapped-постере. Пока
     // картинка не загрузилась — градиентная плашка с первой буквой ника.
     var persona = D.meta.persona || "profile";
-    var avCx = W / 2, avCy = 246, avR = 78;
+    var avCx = W / 2, avCy = 206, avR = 66;
     blob(avCx, avCy, 250, "rgba(38,208,255,0.20)");
     blob(avCx, avCy, 150, "rgba(138,123,255,0.16)");
     x.save();
@@ -636,7 +636,7 @@
       var ag = x.createLinearGradient(avCx - avR, avCy - avR, avCx + avR, avCy + avR);
       ag.addColorStop(0, C1); ag.addColorStop(1, C4);
       x.fillStyle = ag; x.fillRect(avCx - avR, avCy - avR, avR * 2, avR * 2);
-      x.fillStyle = "#070B13"; x.font = "800 84px " + SANS;
+      x.fillStyle = "#070B13"; x.font = "800 72px " + SANS;
       x.textAlign = "center"; x.textBaseline = "middle";
       x.fillText(persona.charAt(0).toUpperCase(), avCx, avCy + 6);
       x.textAlign = "left"; x.textBaseline = "alphabetic";
@@ -647,39 +647,42 @@
     x.strokeStyle = ring; x.lineWidth = 7;
     x.beginPath(); x.arc(avCx, avCy, avR + 11, 0, Math.PI * 2); x.stroke();
 
-    // имя профиля — крупнее всего на карточке; под ним градиентный слоган
+    // имя профиля — крупнее всего на карточке; под ним градиентный слоган.
+    // Верх компактный: выигранные пиксели отданы жанрам и процентам внизу.
     x.textAlign = "center";
-    x.fillStyle = NEAR; x.font = WD + " 88px " + SANS;
-    x.fillText(fit(persona, W - M * 2, WD + " 88px " + SANS), W / 2, 452);
+    x.fillStyle = NEAR; x.font = WD + " 80px " + SANS;
+    x.fillText(fit(persona, W - M * 2, WD + " 80px " + SANS), W / 2, 394);
     x.textAlign = "left";
     var tag = x.createLinearGradient(W / 2 - 180, 0, W / 2 + 180, 0);
     tag.addColorStop(0, C1); tag.addColorStop(0.5, C4); tag.addColorStop(1, C2);
-    x.textAlign = "center"; x.fillStyle = tag; x.font = WD + " 48px " + SANS;
-    x.fillText("в цифрах", W / 2, 560); x.textAlign = "left";
+    x.textAlign = "center"; x.fillStyle = tag; x.font = WD + " 44px " + SANS;
+    x.fillText("в цифрах", W / 2, 478); x.textAlign = "left";
+    line(516);
 
-    // три числа-колосса: маркер, значение, подпись
+    // три числа-колосса: значение, подпись и строка контекста под ней.
+    // Цветных маркеров над числами нет: цифры сами держат композицию.
     var cols = [
-      [num(gamesOwned), "игр"],
-      [num(totalHours), "часов"],
-      [num(hours2w), "за 2 недели"]
+      [num(gamesOwned), "игр", num(neverPlayed) + " в бэклоге"],
+      [num(totalHours), "часов", "≈ " + dec(totalHours / 24, 0) + " " +
+        plural(totalHours / 24, ["день", "дня", "дней"]) + " нон-стоп"],
+      [num(hours2w), "за 2 недели", "≈ " + dec(hours2w / 14, 1) + " ч в день"]
     ];
-    var colMark = [C1, "#9CC8FF", C3];
     var colW = (W - M * 2) / 3;
     cols.forEach(function (col, i) {
       var cx = M + colW * i + colW / 2;
-      x.fillStyle = colMark[i];
-      roundRect(cx - 9, 596, 18, 18, 6); x.fill();
       x.textAlign = "center";
-      x.fillStyle = NEAR; x.font = WD + " 84px " + SANS;
-      x.fillText(col[0], cx, 730);
+      x.fillStyle = NEAR; x.font = WD + " 80px " + SANS;
+      x.fillText(col[0], cx, 624);
       x.fillStyle = DIM; x.font = "600 25px " + SANS;
-      x.fillText(col[1], cx, 776);
+      x.fillText(col[1], cx, 668);
+      x.fillStyle = FAINT; x.font = "600 21px " + SANS;
+      x.fillText(fit(col[2], colW - 16, "600 21px " + SANS), cx, 702);
       x.textAlign = "left";
     });
 
     // игра жизни — плашка с градиентной полосой сверху
     if (soulmate) {
-      var py = 838, ph = 246, rr = 30;
+      var py = 744, ph = 252, rr = 30;
       var pL = M, pR = W - M;
       x.save();
       roundRect(pL, py, pR - pL, ph, rr); x.clip();
@@ -691,44 +694,87 @@
       x.strokeStyle = "rgba(255,255,255,0.08)"; x.lineWidth = 1.5;
       roundRect(pL + 0.75, py + 0.75, pR - pL - 1.5, ph - 1.5, rr); x.stroke();
 
-      label("ГЛАВНАЯ ИГРА ЖИЗНИ", py + 56, C1, pL + 40);
-      x.fillStyle = INK; x.font = WD + " 44px " + SANS;
-      x.fillText(fit(soulmate.name, 470, WD + " 44px " + SANS), pL + 40, py + 132);
+      label("ГЛАВНАЯ ИГРА ЖИЗНИ", py + 52, C1, pL + 40);
+      x.fillStyle = INK; x.font = WD + " 42px " + SANS;
+      x.fillText(fit(soulmate.name, 460, WD + " 42px " + SANS), pL + 40, py + 124);
       var days = soulmate.hours / 24;
       x.fillStyle = DIM; x.font = "600 24px " + SANS;
       x.fillText("≈ " + dec(days, days >= 100 ? 0 : 1) + " " +
-        plural(Math.round(days), ["день", "дня", "дней"]) + " нон-стоп", pL + 40, py + 176);
+        plural(Math.round(days), ["день", "дня", "дней"]) + " нон-стоп", pL + 40, py + 168);
+      // доля от всего времени + человеческая единица из soulmateUnit
+      var smUnit = dataLayer && dataLayer.soulmateUnit
+        ? dataLayer.soulmateUnit(soulmate, rules) : null;
+      var smShare = totalHours
+        ? dec(soulmate.hours / totalHours * 100, 0) + "% всего времени" +
+          (smUnit ? " · ≈ " + num(soulmate.hours * 60 / smUnit.min) + " " + smUnit.word : "")
+        : "";
+      x.fillStyle = FAINT; x.font = "600 23px " + SANS;
+      x.fillText(fit(smShare, 460, "600 23px " + SANS), pL + 40, py + 206);
 
       x.textAlign = "right";
       var hg = x.createLinearGradient(pR - 420, 0, pR - 40, 0);
       hg.addColorStop(0, "#FFFFFF"); hg.addColorStop(1, "#AEE4FF");
-      x.fillStyle = hg; x.font = WD + " 96px " + SANS;
-      x.fillText(fit(num(soulmate.hours), 400, WD + " 96px " + SANS), pR - 40, py + 140);
+      x.fillStyle = hg; x.font = WD + " 92px " + SANS;
+      x.fillText(fit(num(soulmate.hours), 390, WD + " 92px " + SANS), pR - 40, py + 132);
       x.fillStyle = DIM; x.font = "600 24px " + SANS;
-      x.fillText("часов", pR - 40, py + 196);
+      x.fillText("часов", pR - 40, py + 188);
       x.textAlign = "left";
     }
 
-    // топ-3 по часам
+    // топ-3 по часам: часы, доля от всего времени и полоска от лидера
     var tcol = [C1, "#9CC8FF", C3];
+    var topLead = played.length ? played[0].hours : 0;
     played.slice(0, 3).forEach(function (g, i) {
-      var ry = 1136 + i * 46;
+      var ry = 1050 + i * 62;
       x.fillStyle = tcol[i]; x.font = "700 22px " + SANS;
       x.fillText(String(i + 1).padStart(2, "0"), M, ry);
       x.fillStyle = "#C6D2E2"; x.font = "700 26px " + SANS;
-      x.fillText(fit(g.name, 620, "700 26px " + SANS), M + 64, ry);
+      x.fillText(fit(g.name, 520, "700 26px " + SANS), M + 64, ry);
+      var hourShare = totalHours ? " · " + dec(g.hours / totalHours * 100, 0) + "%" : "";
       x.fillStyle = NEAR; x.font = WD + " 26px " + SANS;
-      x.textAlign = "right"; x.fillText(num(g.hours) + " ч", W - M, ry); x.textAlign = "left";
+      x.textAlign = "right"; x.fillText(num(g.hours) + " ч" + hourShare, W - M, ry); x.textAlign = "left";
+      // трек + заполнение по доле от лидера
+      x.fillStyle = "rgba(255,255,255,0.08)";
+      roundRect(M + 64, ry + 14, 520, 6, 3); x.fill();
+      if (topLead > 0) {
+        x.fillStyle = tcol[i];
+        roundRect(M + 64, ry + 14, Math.max(8, 520 * g.hours / topLead), 6, 3); x.fill();
+      }
     });
 
-    // подпись: своя полоса воздуха снизу. Линия отбивки далеко и от
-    // топ-3, и от самой подписи — иначе низ выглядит слипшимся.
-    line(1280);
-    x.fillStyle = FAINT; x.font = "600 22px " + SANS;
-    x.fillText("steam wrapped · сделано вручную", M, H - 55);
+    // жанры: stacked-bar топ-3 + «остальное» и одна строка легенды
+    var genreSum = genreData.reduce(function (s, g) { return s + g.hours; }, 0);
+    if (genreSum > 0) {
+      var gTop = genreData.slice(0, 3);
+      var gRest = genreSum - gTop.reduce(function (s, g) { return s + g.hours; }, 0);
+      var gSegs = gTop.map(function (g) { return g.hours; });
+      if (gRest > 0) gSegs.push(gRest);
+      var gCols = [C1, C2, C3, "#5E6B7E"];
+      var gX = M, gY = 1218, gH = 14, gW = W - M * 2;
+      x.save();
+      roundRect(gX, gY, gW, gH, 7); x.clip();
+      gSegs.forEach(function (h, i) {
+        var w = gW * h / genreSum;
+        x.fillStyle = gCols[i % gCols.length];
+        x.fillRect(gX, gY, w + 1, gH);
+        gX += w;
+      });
+      x.restore();
+      var gLegend = gTop.map(function (g) {
+        return g.name + " " + dec(g.hours / genreSum * 100, 0) + "%";
+      }).join(" · ");
+      x.fillStyle = DIM; x.font = "600 21px " + SANS;
+      x.fillText(fit(gLegend, gW, "600 21px " + SANS), M, 1262);
+    }
+
+    // подпись: линия отбивки далеко и от жанров, и от самой подписи —
+    // иначе низ выглядит слипшимся.
+    line(1284);
+    x.fillStyle = FAINT; x.font = "600 20px " + SANS;
+    x.fillText(fit("steam wrapped · kyuuketsukiakado.github.io/steam-wrapped", 640, "600 20px " + SANS), M, H - 38);
     if (D.meta.memberSince) {
       x.textAlign = "right";
-      x.fillText("в Steam с " + String(D.meta.memberSince).slice(0, 4), W - M, H - 55);
+      x.fillText("в Steam с " + String(D.meta.memberSince).slice(0, 4), W - M, H - 38);
       x.textAlign = "left";
     }
   }
@@ -911,6 +957,15 @@
         reset.href = resetProfileUrl();
       }
     }
+
+    // Чипы-примеры: вставляют заготовку в поле и ставят фокус.
+    // Логику сабмита не трогают — дальше работает штатная валидация.
+    Array.prototype.forEach.call(form.querySelectorAll("[data-fill]"), function (chip) {
+      chip.addEventListener("click", function () {
+        input.value = chip.getAttribute("data-fill");
+        input.focus();
+      });
+    });
 
     form.addEventListener("submit", function (event) {
       event.preventDefault();
