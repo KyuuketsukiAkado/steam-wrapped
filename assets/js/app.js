@@ -580,10 +580,10 @@
       g.addColorStop(0, color); g.addColorStop(1, "rgba(0,0,0,0)");
       x.fillStyle = g; x.fillRect(0, 0, W, H);
     }
-    blob(W * 0.5, H * 0.28, W * 0.80, "rgba(38,208,255,0.13)");
-    blob(W * 0.10, H * 0.92, W * 0.70, "rgba(79,159,255,0.12)");
-    blob(W * 0.92, H * 0.82, W * 0.65, "rgba(138,123,255,0.14)");
-    blob(W * 0.15, H * 0.52, W * 0.50, "rgba(0,224,198,0.07)");
+    blob(W * 0.5, H * 0.28, W * 0.80, "rgba(38,208,255,0.17)");
+    blob(W * 0.10, H * 0.92, W * 0.70, "rgba(79,159,255,0.16)");
+    blob(W * 0.92, H * 0.82, W * 0.65, "rgba(138,123,255,0.18)");
+    blob(W * 0.15, H * 0.52, W * 0.50, "rgba(0,224,198,0.10)");
 
     var M = 88;
 
@@ -623,7 +623,7 @@
     }
 
     // шапка
-    label("STEAM WRAPPED", 92);
+    label("STEAM WRAPPED", 92, C5);
     x.fillStyle = C4; x.font = "700 22px " + SANS;
     x.textAlign = "right"; x.fillText((D.meta.generatedAt || "").slice(0, 7), W - M, 92); x.textAlign = "left";
     line(120);
@@ -632,8 +632,8 @@
     // картинка не загрузилась — градиентная плашка с первой буквой ника.
     var persona = D.meta.persona || "profile";
     var avCx = M + 72, avCy = 234, avR = 72;
-    blob(avCx, avCy, 250, "rgba(38,208,255,0.20)");
-    blob(avCx, avCy, 150, "rgba(138,123,255,0.16)");
+    blob(avCx, avCy, 250, "rgba(38,208,255,0.24)");
+    blob(avCx, avCy, 150, "rgba(138,123,255,0.20)");
     x.save();
     x.beginPath(); x.arc(avCx, avCy, avR, 0, Math.PI * 2); x.clip();
     if (avatarImg && avatarImg.complete && avatarImg.naturalWidth) {
@@ -676,13 +676,14 @@
       [num(hours2w), "за 2 недели", "≈ " + dec(hours2w / 14, 1) + " ч в день"]
     ];
     var colW = (W - M * 2) / 3;
+    var colLab = [C1, C4, C3];
     cols.forEach(function (col, i) {
       var cx = M + colW * i + colW / 2;
       var vs = fitSize(col[0], colW - 8, 80);
       x.textAlign = "center";
       x.fillStyle = NEAR; x.font = WD + " " + vs + "px " + SANS;
       x.fillText(col[0], cx, 500);
-      x.fillStyle = DIM; x.font = "600 26px " + SANS;
+      x.fillStyle = colLab[i]; x.font = "600 26px " + SANS;
       x.fillText(col[1], cx, 548);
       x.fillStyle = FAINT; x.font = "600 20px " + SANS;
       x.fillText(fit(col[2], colW - 16, "600 20px " + SANS), cx, 586);
@@ -704,7 +705,9 @@
       roundRect(pL + 0.75, py + 0.75, pR - pL - 1.5, ph - 1.5, rr); x.stroke();
 
       label("ГЛАВНАЯ ИГРА ЖИЗНИ", py + 56, C1, pL + 40);
-      x.fillStyle = INK; x.font = WD + " 44px " + SANS;
+      var ng = x.createLinearGradient(pL + 40, 0, pL + 500, 0);
+      ng.addColorStop(0, "#FFFFFF"); ng.addColorStop(1, C5);
+      x.fillStyle = ng; x.font = WD + " 44px " + SANS;
       x.fillText(fit(soulmate.name, 440, WD + " 44px " + SANS), pL + 40, py + 132);
       var days = soulmate.hours / 24;
       x.fillStyle = DIM; x.font = "600 24px " + SANS;
@@ -713,7 +716,7 @@
       // Каждая цифра — своей строкой: доля и единица из soulmateUnit
       // гарантированно влезают, обрезков вида «4498 …» больше нет.
       if (totalHours) {
-        x.fillStyle = DIM; x.font = "600 23px " + SANS;
+        x.fillStyle = C3; x.font = "600 23px " + SANS;
         x.fillText(dec(soulmate.hours / totalHours * 100, 0) + "% всего времени", pL + 40, py + 218);
       }
       var smUnit = dataLayer && dataLayer.soulmateUnit
@@ -743,28 +746,47 @@
       x.fillStyle = "#C6D2E2"; x.font = "700 26px " + SANS;
       x.fillText(fit(g.name, 520, "700 26px " + SANS), M + 64, ry);
       var hourShare = totalHours ? " · " + dec(g.hours / totalHours * 100, 0) + "%" : "";
-      x.fillStyle = NEAR; x.font = WD + " 26px " + SANS;
+      x.fillStyle = tcol[i]; x.font = WD + " 26px " + SANS;
       x.textAlign = "right"; x.fillText(num(g.hours) + " ч" + hourShare, W - M, ry); x.textAlign = "left";
     });
 
-    // жанры — одна строка с процентами вместо бара: воздух важнее
+    // жанры — одна строка, каждый жанр своим цветом; если живому профилю
+    // с длинными названиями не хватило ширины — однострочный фолбэк
     var genreSum = genreData.reduce(function (s, g) { return s + g.hours; }, 0);
     if (genreSum > 0) {
-      var gLegend = "Жанры: " + genreData.slice(0, 3).map(function (g) {
+      var gTop = genreData.slice(0, 3);
+      var gCols = [C1, C2, C3];
+      var gParts = gTop.map(function (g) {
         return g.name + " " + dec(g.hours / genreSum * 100, 0) + "%";
-      }).join(" · ");
-      x.fillStyle = DIM; x.font = "600 21px " + SANS;
-      x.fillText(fit(gLegend, W - M * 2, "600 21px " + SANS), M, 1192);
+      });
+      x.font = "600 21px " + SANS;
+      var gFull = "Жанры: " + gParts.join(" · ");
+      if (x.measureText(gFull).width <= W - M * 2) {
+        var gX = M;
+        x.fillStyle = FAINT; x.fillText("Жанры: ", gX, 1192);
+        gX += x.measureText("Жанры: ").width;
+        gParts.forEach(function (part, i) {
+          if (i) {
+            x.fillStyle = FAINT; x.fillText(" · ", gX, 1192);
+            gX += x.measureText(" · ").width;
+          }
+          x.fillStyle = gCols[i % gCols.length]; x.fillText(part, gX, 1192);
+          gX += x.measureText(part).width;
+        });
+      } else {
+        x.fillStyle = DIM;
+        x.fillText(fit(gFull, W - M * 2, "600 21px " + SANS), M, 1192);
+      }
     }
 
     // подпись: линия отбивки далеко и от жанров, и от самой подписи —
     // иначе низ выглядит слипшимся.
     line(1244);
-    x.fillStyle = FAINT; x.font = "600 18px " + SANS;
+    x.fillStyle = C4; x.font = "600 18px " + SANS;
     x.fillText(fit("kyuuketsukiakado.github.io/steam-wrapped", 680, "600 18px " + SANS), M, H - 50);
     if (D.meta.memberSince) {
       x.textAlign = "right";
-      x.fillStyle = FAINT; x.font = "600 18px " + SANS;
+      x.fillStyle = DIM; x.font = "600 18px " + SANS;
       x.fillText("в Steam с " + String(D.meta.memberSince).slice(0, 4), W - M, H - 50);
       x.textAlign = "left";
     }
