@@ -631,7 +631,7 @@
     // аватар: круг с градиентным кольцом, как в wrapped-постере. Пока
     // картинка не загрузилась — градиентная плашка с первой буквой ника.
     var persona = D.meta.persona || "profile";
-    var avCx = W / 2, avCy = 212, avR = 72;
+    var avCx = M + 72, avCy = 234, avR = 72;
     blob(avCx, avCy, 250, "rgba(38,208,255,0.20)");
     blob(avCx, avCy, 150, "rgba(138,123,255,0.16)");
     x.save();
@@ -656,18 +656,16 @@
     x.strokeStyle = ring; x.lineWidth = 7;
     x.beginPath(); x.arc(avCx, avCy, avR + 11, 0, Math.PI * 2); x.stroke();
 
-    // имя профиля — крупнее всего на карточке; под ним градиентный слоган,
-    // который прямо говорит: это Steam-профиль в цифрах.
-    x.textAlign = "center";
-    x.fillStyle = NEAR; x.font = WD + " 84px " + SANS;
-    x.fillText(fit(persona, W - M * 2, WD + " 84px " + SANS), W / 2, 412);
-    x.textAlign = "left";
-    var tag = x.createLinearGradient(W / 2 - 260, 0, W / 2 + 260, 0);
+    // строка профиля: аватар слева, ник и слоган справа. Горизонталь
+    // отдаёт низу ~190px воздуха, а ник остаётся крупным.
+    var nameX = M + 144 + 36, nameW = (W - M) - (M + 144 + 36);
+    x.fillStyle = NEAR; x.font = WD + " 80px " + SANS;
+    x.fillText(fit(persona, nameW, WD + " 80px " + SANS), nameX, 246);
+    var tag = x.createLinearGradient(nameX, 0, nameX + 520, 0);
     tag.addColorStop(0, C1); tag.addColorStop(0.5, C4); tag.addColorStop(1, C2);
-    x.textAlign = "center"; x.fillStyle = tag; x.font = WD + " 44px " + SANS;
-    x.fillText(fit("steam-профиль в цифрах", W - M * 2, WD + " 44px " + SANS), W / 2, 500);
-    x.textAlign = "left";
-    line(542);
+    x.fillStyle = tag; x.font = WD + " 36px " + SANS;
+    x.fillText(fit("steam-профиль в цифрах", nameW, WD + " 36px " + SANS), nameX, 302);
+    line(372);
 
     // три числа-колосса: значение, подпись и строка контекста под ней.
     // Цветных маркеров над числами нет: цифры сами держат композицию.
@@ -683,17 +681,17 @@
       var vs = fitSize(col[0], colW - 8, 80);
       x.textAlign = "center";
       x.fillStyle = NEAR; x.font = WD + " " + vs + "px " + SANS;
-      x.fillText(col[0], cx, 672);
+      x.fillText(col[0], cx, 500);
       x.fillStyle = DIM; x.font = "600 26px " + SANS;
-      x.fillText(col[1], cx, 720);
+      x.fillText(col[1], cx, 548);
       x.fillStyle = FAINT; x.font = "600 20px " + SANS;
-      x.fillText(fit(col[2], colW - 16, "600 20px " + SANS), cx, 758);
+      x.fillText(fit(col[2], colW - 16, "600 20px " + SANS), cx, 586);
       x.textAlign = "left";
     });
 
     // игра жизни — плашка с градиентной полосой сверху
     if (soulmate) {
-      var py = 800, ph = 248, rr = 30;
+      var py = 648, ph = 296, rr = 30;
       var pL = M, pR = W - M;
       x.save();
       roundRect(pL, py, pR - pL, ph, rr); x.clip();
@@ -705,40 +703,41 @@
       x.strokeStyle = "rgba(255,255,255,0.08)"; x.lineWidth = 1.5;
       roundRect(pL + 0.75, py + 0.75, pR - pL - 1.5, ph - 1.5, rr); x.stroke();
 
-      label("ГЛАВНАЯ ИГРА ЖИЗНИ", py + 48, C1, pL + 40);
-      x.fillStyle = INK; x.font = WD + " 42px " + SANS;
-      x.fillText(fit(soulmate.name, 440, WD + " 42px " + SANS), pL + 40, py + 118);
+      label("ГЛАВНАЯ ИГРА ЖИЗНИ", py + 56, C1, pL + 40);
+      x.fillStyle = INK; x.font = WD + " 44px " + SANS;
+      x.fillText(fit(soulmate.name, 440, WD + " 44px " + SANS), pL + 40, py + 132);
       var days = soulmate.hours / 24;
       x.fillStyle = DIM; x.font = "600 24px " + SANS;
       x.fillText("≈ " + dec(days, days >= 100 ? 0 : 1) + " " +
-        plural(Math.round(days), ["день", "дня", "дней"]) + " нон-стоп", pL + 40, py + 158);
+        plural(Math.round(days), ["день", "дня", "дней"]) + " нон-стоп", pL + 40, py + 178);
       // Каждая цифра — своей строкой: доля и единица из soulmateUnit
       // гарантированно влезают, обрезков вида «4498 …» больше нет.
       if (totalHours) {
         x.fillStyle = DIM; x.font = "600 23px " + SANS;
-        x.fillText(dec(soulmate.hours / totalHours * 100, 0) + "% всего времени", pL + 40, py + 192);
+        x.fillText(dec(soulmate.hours / totalHours * 100, 0) + "% всего времени", pL + 40, py + 218);
       }
       var smUnit = dataLayer && dataLayer.soulmateUnit
         ? dataLayer.soulmateUnit(soulmate, rules) : null;
       if (smUnit) {
         x.fillStyle = FAINT; x.font = "600 23px " + SANS;
-        x.fillText("≈ " + num(soulmate.hours * 60 / smUnit.min) + " " + smUnit.word, pL + 40, py + 224);
+        x.fillText("≈ " + num(soulmate.hours * 60 / smUnit.min) + " " + smUnit.word, pL + 40, py + 254);
       }
 
       x.textAlign = "right";
       var hg = x.createLinearGradient(pR - 420, 0, pR - 40, 0);
       hg.addColorStop(0, "#FFFFFF"); hg.addColorStop(1, "#AEE4FF");
-      x.fillStyle = hg; x.font = WD + " 96px " + SANS;
-      x.fillText(fit(num(soulmate.hours), 380, WD + " 96px " + SANS), pR - 40, py + 126);
+      var hs = fitSize(num(soulmate.hours), 380, 100);
+      x.fillStyle = hg; x.font = WD + " " + hs + "px " + SANS;
+      x.fillText(num(soulmate.hours), pR - 40, py + 136);
       x.fillStyle = DIM; x.font = "600 24px " + SANS;
-      x.fillText("часов", pR - 40, py + 182);
+      x.fillText("часов", pR - 40, py + 196);
       x.textAlign = "left";
     }
 
     // топ-3 по часам: часы и доля от всего времени, много воздуха
     var tcol = [C1, "#9CC8FF", C3];
     played.slice(0, 3).forEach(function (g, i) {
-      var ry = 1100 + i * 52;
+      var ry = 1008 + i * 58;
       x.fillStyle = tcol[i]; x.font = "700 22px " + SANS;
       x.fillText(String(i + 1).padStart(2, "0"), M, ry);
       x.fillStyle = "#C6D2E2"; x.font = "700 26px " + SANS;
@@ -755,18 +754,18 @@
         return g.name + " " + dec(g.hours / genreSum * 100, 0) + "%";
       }).join(" · ");
       x.fillStyle = DIM; x.font = "600 21px " + SANS;
-      x.fillText(fit(gLegend, W - M * 2, "600 21px " + SANS), M, 1252);
+      x.fillText(fit(gLegend, W - M * 2, "600 21px " + SANS), M, 1192);
     }
 
     // подпись: линия отбивки далеко и от жанров, и от самой подписи —
     // иначе низ выглядит слипшимся.
-    line(1288);
+    line(1244);
     x.fillStyle = FAINT; x.font = "600 18px " + SANS;
-    x.fillText(fit("kyuuketsukiakado.github.io/steam-wrapped", 680, "600 18px " + SANS), M, H - 38);
+    x.fillText(fit("kyuuketsukiakado.github.io/steam-wrapped", 680, "600 18px " + SANS), M, H - 50);
     if (D.meta.memberSince) {
       x.textAlign = "right";
       x.fillStyle = FAINT; x.font = "600 18px " + SANS;
-      x.fillText("в Steam с " + String(D.meta.memberSince).slice(0, 4), W - M, H - 38);
+      x.fillText("в Steam с " + String(D.meta.memberSince).slice(0, 4), W - M, H - 50);
       x.textAlign = "left";
     }
   }
