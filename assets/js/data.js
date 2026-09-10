@@ -3,23 +3,23 @@
    -------------------------------------------------------------
    ФАЙЛ СГЕНЕРИРОВАН АВТОМАТИЧЕСКИ: python fetch_data.py
    Правки руками перезапишутся при следующем запуске.
-   Дата сборки: 2026-09-09
+   Дата сборки: 2026-09-10
    Образцовые данные лежат в data.sample.js
    ============================================================= */
 
 window.STEAM_DATA = {
-  "meta": {"persona": "mormyszka", "profileUrl": "https://steamcommunity.com/id/K_Ak4d0/", "avatar": "assets/img/avatar.jpg", "source": "steam-api", "generatedAt": "2026-09-09", "memberSince": "2017-02-02"},
+  "meta": {"persona": "mormyszka", "profileUrl": "https://steamcommunity.com/id/K_Ak4d0/", "avatar": "assets/img/avatar.jpg", "source": "steam-api", "generatedAt": "2026-09-10", "memberSince": "2017-02-02"},
 
-  "totals": {"gamesOwned": 323, "hoursTotal": 8007, "hoursTwoWeeks": 107, "gamesPlayed": 249, "gamesNeverPlayed": 68},
+  "totals": {"gamesOwned": 323, "hoursTotal": 8013, "hoursTwoWeeks": 101, "gamesPlayed": 249, "gamesNeverPlayed": 68},
 
   "soulmateAppid": 570,
 
   "genreHours": [
-    {"name": "Экшен", "hours": 4792},
-    {"name": "Стратегия", "hours": 1501},
+    {"name": "Экшен", "hours": 4796},
+    {"name": "Стратегия", "hours": 1502},
     {"name": "Приключения", "hours": 422},
     {"name": "RPG", "hours": 408},
-    {"name": "Инди", "hours": 325},
+    {"name": "Инди", "hours": 326},
     {"name": "Казуальные", "hours": 175},
     {"name": "Гонки", "hours": 174},
     {"name": "Симулятор", "hours": 28},
@@ -28,12 +28,12 @@ window.STEAM_DATA = {
 
   "games": [
     {"appid": 570, "name": "Dota 2", "hours": 2848.8, "hours2w": 0, "lastPlayed": null, "genres": ["Экшен", "Стратегия"]},
-    {"appid": 730, "name": "Counter-Strike 2", "hours": 2652, "hours2w": 24.9, "lastPlayed": "2026-09-08", "genres": ["Экшен"]},
+    {"appid": 730, "name": "Counter-Strike 2", "hours": 2656, "hours2w": 25.9, "lastPlayed": "2026-09-09", "genres": ["Экшен"]},
     {"appid": 413150, "name": "Stardew Valley", "hours": 313, "hours2w": 0, "lastPlayed": "2026-07-12", "genres": ["Инди", "RPG"]},
     {"appid": 359550, "name": "Tom Clancy's Rainbow Six Siege", "hours": 179, "hours2w": 0, "lastPlayed": "2022-05-28", "genres": ["Экшен"]},
     {"appid": 1293830, "name": "Forza Horizon 4", "hours": 151, "hours2w": 0, "lastPlayed": "2024-11-24", "genres": ["Гонки"]},
+    {"appid": 2868840, "name": "Slay the Spire 2", "hours": 100, "hours2w": 61.8, "lastPlayed": "2026-09-09", "genres": ["Инди", "Стратегия"]},
     {"appid": 238960, "name": "Path of Exile", "hours": 99, "hours2w": 0, "lastPlayed": "2023-01-17", "genres": ["Экшен", "Приключения"]},
-    {"appid": 2868840, "name": "Slay the Spire 2", "hours": 99, "hours2w": 69.2, "lastPlayed": "2026-09-08", "genres": ["Инди", "Стратегия"]},
     {"appid": 1091500, "name": "Cyberpunk 2077", "hours": 85, "hours2w": 0, "lastPlayed": "2026-05-09", "genres": ["RPG"]},
     {"appid": 307780, "name": "Mortal Kombat X", "hours": 83, "hours2w": 0, "lastPlayed": "2026-01-12", "genres": ["Экшен"]},
     {"appid": 72850, "name": "The Elder Scrolls V: Skyrim", "hours": 64, "hours2w": 0, "lastPlayed": "2023-03-31", "genres": ["RPG"]},
@@ -43,7 +43,7 @@ window.STEAM_DATA = {
     {"appid": 4000, "name": "Garry's Mod", "hours": 48, "hours2w": 0, "lastPlayed": "2022-07-18", "genres": ["Казуальные", "Инди"]},
     {"appid": 331470, "name": "Everlasting Summer", "hours": 45, "hours2w": 0, "lastPlayed": "2022-03-12", "genres": ["Приключения", "Казуальные"]},
     {"appid": 239140, "name": "Dying Light", "hours": 44, "hours2w": 0, "lastPlayed": "2026-07-04", "genres": ["Экшен", "Приключения"]},
-    {"appid": 2379780, "name": "Balatro", "hours": 42, "hours2w": 8.2, "lastPlayed": "2026-09-03", "genres": ["Казуальные", "Инди"]},
+    {"appid": 2379780, "name": "Balatro", "hours": 42, "hours2w": 7.8, "lastPlayed": "2026-09-03", "genres": ["Казуальные", "Инди"]},
     {"appid": 230410, "name": "Warframe", "hours": 40, "hours2w": 0, "lastPlayed": "2023-01-25", "genres": ["Экшен", "RPG"]},
     {"appid": 292030, "name": "The Witcher 3: Wild Hunt", "hours": 38, "hours2w": 0, "lastPlayed": "2025-03-01", "genres": ["RPG"]},
     {"appid": 1846380, "name": "Need for Speed Unbound", "hours": 35, "hours2w": 0, "lastPlayed": "2025-01-22", "genres": ["Экшен", "Гонки"]},
