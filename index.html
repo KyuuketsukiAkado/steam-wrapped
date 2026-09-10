@@ -26,7 +26,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400..900&family=JetBrains+Mono:wght@400..800&display=swap">
 <!-- ?v= — бамп версии при ручных правках css/js, иначе браузер отдаст кэш -->
-<link rel="stylesheet" href="assets/css/style.css?v=20260910-15">
+<link rel="stylesheet" href="assets/css/style.css?v=20260910-16">
 </head>
 <body>
 <a class="skip-link" href="#hero">К содержимому</a>
@@ -58,38 +58,32 @@
   </header>
 
   <!-- ============ ГЕРОЙ ============ -->
-  <section class="hero wrap" id="hero">
-    <div class="hero__meta" aria-hidden="true">
-      <span>Инструмент · открытые данные</span>
-      <span class="hero__meta-dot"></span>
-      <span>Steam Wrapped · 2026</span>
-    </div>
-
-    <div class="frame">
-      <div class="frame__panel">
-        <div class="frame__nav">
-          <span class="frame__brand">Steam—Wrapped</span>
-          <span class="frame__pill">RU · 2026</span>
+  <section class="hero" id="hero">
+    <div class="hero__red sec--red">
+      <div class="wrap">
+        <div class="hero__nav">
+          <span class="hero__brand">Steam—Wrapped</span>
+          <span class="hero__pill">RU · 2026</span>
         </div>
-        <div class="frame__stage">
+        <div class="hero__stage">
           <h1 class="hero__title"><span class="t-steam">Steam</span><span class="t-wrap">Wrapped</span></h1>
-          <a class="frame__disc" href="#profileForm" aria-label="Собрать свой wrapped">
+          <a class="hero__disc" href="#profileForm" aria-label="Собрать свой wrapped">
             <svg viewBox="0 0 140 140" aria-hidden="true">
               <defs><path id="discPath" d="M70,70 m-52,0 a52,52 0 1,1 104,0 a52,52 0 1,1 -104,0"></path></defs>
               <circle class="disc-bg" cx="70" cy="70" r="68"></circle>
               <circle class="disc-ring" cx="70" cy="70" r="60"></circle>
               <text class="disc-text" textLength="324" lengthAdjust="spacingAndGlyphs"><textPath href="#discPath">Твоя библиотека в цифрах · 2026 ·</textPath></text>
             </svg>
-            <span class="frame__disc-arrow" aria-hidden="true">↓</span>
+            <span class="hero__disc-arrow" aria-hidden="true">↓</span>
           </a>
         </div>
-        <div class="frame__bottom">
+        <div class="hero__bottom">
           <div>
-            <p class="frame__sub">Твоя библиотека —<br>в цифрах.</p>
+            <p class="hero__sub">Твоя библиотека —<br>в цифрах.</p>
             <a class="btn btn--cream" href="#profileForm">Собрать свой ↓</a>
           </div>
-          <p class="frame__micro">Часы в днях, топ игр, жанры и карточка для шаринга. Без регистрации и ключей — только открытые данные Steam.</p>
-          <div class="frame__cards">
+          <p class="hero__micro">Часы в днях, топ игр, жанры и карточка для шаринга. Без регистрации и ключей — только открытые данные Steam.</p>
+          <div class="hero__cards">
             <div class="fcard">
               <div class="fcard__value"><span data-count="games">0</span></div>
               <div class="fcard__label">игр в библиотеке</div>
@@ -103,6 +97,7 @@
       </div>
     </div>
 
+    <div class="wrap hero__tools">
     <form class="profile-form" id="profileForm" novalidate>
       <label class="profile-form__label" for="profileInput">Собери свой wrapped</label>
       <div class="profile-form__row">
@@ -159,6 +154,7 @@
         <div class="eyebrow stat__label">За последние 2 недели</div>
         <div class="stat__hint" id="hint2w">—</div>
       </div>
+    </div>
     </div>
   </section>
 
