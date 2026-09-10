@@ -243,11 +243,16 @@ section { padding: var(--section-pad) 0; }
   background: linear-gradient(90deg, transparent, var(--c1) 25%, var(--c1) 75%, transparent);
   opacity: 0.55; pointer-events: none;
 }
-.topbar__inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 58px; }
+.topbar__inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 66px; }
 
 .topbar__brand {
-  font-family: var(--mono); font-size: 12px; font-weight: 700;
-  letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-dim);
+  display: inline-flex; align-items: center; gap: 12px;
+  font-family: var(--display); font-size: 15px; font-weight: 900;
+  letter-spacing: 0.02em; text-transform: uppercase; color: var(--ink);
+}
+.topbar__brand::before {
+  content: ""; width: 10px; height: 10px; flex: none;
+  background: var(--c1);
 }
 .topbar__brand b { color: var(--c1); font-weight: 700; }
 
@@ -310,7 +315,7 @@ section { padding: var(--section-pad) 0; }
 /* ---------- герой ---------- */
 
 .hero { padding: 0; text-align: center; position: relative; isolation: isolate; }
-/* якоря пилюли и печати не прячутся под липкий топбар */
+/* якорь пилюли не прячется под липкий топбар */
 #profileForm { scroll-margin-top: 76px; }
 /* красная шапка во всю ширину + тёмная инструментальная зона */
 .hero__red { padding: clamp(36px, 5vw, 64px) 0 clamp(44px, 6vw, 88px); text-align: left; }
@@ -366,6 +371,7 @@ section { padding: var(--section-pad) 0; }
   line-height: 0.88; letter-spacing: var(--tight); text-transform: uppercase;
   color: #FFFFFF; text-align: center;
   width: 108%; margin: 0 -4%;
+  position: relative; z-index: 1;
 }
 .hero__title .t-steam, .hero__title .t-wrap { display: block; }
 .hero__title .t-steam {
@@ -380,30 +386,17 @@ section { padding: var(--section-pad) 0; }
   to { opacity: 1; transform: none; clip-path: inset(0 0 0 0); }
 }
 
-/* вращающаяся печать поверх типа — кликабельный скролл к форме */
-.hero__disc {
-  position: absolute; z-index: 2; left: 50%; top: 50%;
-  width: clamp(112px, 12vw, 148px); aspect-ratio: 1;
-  transform: translate(-50%, -50%);
-  display: grid; place-items: center;
-  filter: drop-shadow(0 10px 28px rgba(0, 0, 0, 0.45));
-  animation: disc-in 0.7s cubic-bezier(0.2, 0.7, 0.3, 1) 0.65s both;
-  transition: scale 0.15s ease;
+/* скоростные линии дрейфуют за типом: период 158px, сдвиг на период = бесшовно */
+.hero__stage::before {
+  content: ""; position: absolute; top: 0; bottom: 0; left: 0; right: -170px;
+  z-index: 0; pointer-events: none;
+  background: repeating-linear-gradient(90deg,
+    transparent 0 34px, rgba(255, 255, 255, 0.055) 34px 36px,
+    transparent 36px 90px, rgba(255, 255, 255, 0.09) 90px 94px,
+    transparent 94px 150px, rgba(0, 0, 0, 0.07) 150px 158px);
+  animation: stage-drift 30s linear infinite;
 }
-.hero__disc:hover { scale: 1.05; }
-@keyframes disc-in { from { opacity: 0; scale: 0.6; } to { opacity: 1; scale: 1; } }
-.hero__disc svg {
-  position: absolute; inset: 0; width: 100%; height: 100%;
-  animation: disc-spin 22s linear infinite;
-}
-@keyframes disc-spin { to { transform: rotate(360deg); } }
-.disc-bg { fill: #0A0A0B; }
-.disc-ring { fill: none; stroke: rgba(255, 255, 255, 0.85); stroke-width: 1.5; }
-.disc-text {
-  font-family: var(--mono); font-size: 12px; font-weight: 700;
-  letter-spacing: 1.5px; fill: #FFFFFF; text-transform: uppercase;
-}
-.hero__disc-arrow { font-size: 26px; font-weight: 800; color: var(--c4); line-height: 1; }
+@keyframes stage-drift { to { transform: translateX(-158px); } }
 
 /* нижний ряд: подзаголовок + пилюля, микротекст, живые стат-карточки */
 .hero__bottom {
@@ -442,8 +435,6 @@ section { padding: var(--section-pad) 0; }
 @media (max-width: 760px) {
   .hero__bottom { grid-template-columns: 1fr; gap: 28px; align-items: start; }
   .hero__micro { max-width: none; }
-  .hero__disc { left: auto; right: 6px; top: 44%; transform: translateY(-50%); width: 92px; }
-  .hero__disc-arrow { font-size: 20px; }
 }
 @media (max-width: 400px) {
   .fcard__value { font-size: 22px; }
@@ -482,6 +473,7 @@ section { padding: var(--section-pad) 0; }
 .avatar img { width: 100%; height: 100%; object-fit: cover; }
 
 .hero__actions { display: flex; gap: 12px; margin-top: 34px; flex-wrap: wrap; justify-content: center; }
+.share .hero__actions { justify-content: flex-start; }
 
 /* ---------- Явный запрос публичного Steam-профиля ---------- */
 
@@ -867,14 +859,21 @@ section { padding: var(--section-pad) 0; }
 
 /* ---------- подвал ---------- */
 
-.footer { border-top: 1px solid var(--line); padding: 48px 0 64px; }
+.footer { border-top: 1px solid var(--line); background: #070605; padding: 64px 0 40px; }
 .footer::before {
   content: ""; display: block; height: 1px;
-  position: relative; top: -48px; margin-bottom: -1px;
+  position: relative; top: -64px; margin-bottom: -1px;
   background: linear-gradient(90deg, transparent, rgba(225, 6, 0, 0.55) 30%, rgba(192, 19, 10, 0.55) 70%, transparent);
   box-shadow: 0 0 16px rgba(225, 6, 0, 0.25);
 }
-.footer__inner { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; font-size: 13px; color: var(--ink-faint); }
+.footer__big {
+  margin: 0 0 34px;
+  font-family: var(--display); font-weight: var(--w-display);
+  font-size: clamp(38px, 8vw, 108px); line-height: 0.95;
+  letter-spacing: var(--tight); text-transform: uppercase; color: var(--ink);
+}
+.footer__big b { color: var(--c1); font-weight: var(--w-display); }
+.footer__inner { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; font-size: 13px; color: var(--ink-faint); border-top: 1px solid var(--line); padding-top: 26px; }
 .footer a { border-bottom: none; }
 .footer a:hover { color: var(--c1); }
 

@@ -26,7 +26,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400..900&family=JetBrains+Mono:wght@400..800&display=swap">
 <!-- ?v= — бамп версии при ручных правках css/js, иначе браузер отдаст кэш -->
-<link rel="stylesheet" href="assets/css/style.css?v=20260910-21">
+<link rel="stylesheet" href="assets/css/style.css?v=20260910-22">
 </head>
 <body>
 <a class="skip-link" href="#hero">К содержимому</a>
@@ -67,15 +67,6 @@
         </div>
         <div class="hero__stage">
           <h1 class="hero__title"><span class="t-steam">Steam</span><span class="t-wrap">Wrapped</span></h1>
-          <a class="hero__disc" href="#profileForm" aria-label="Собрать свой wrapped">
-            <svg viewBox="0 0 140 140" aria-hidden="true">
-              <defs><path id="discPath" d="M70,70 m-52,0 a52,52 0 1,1 104,0 a52,52 0 1,1 -104,0"></path></defs>
-              <circle class="disc-bg" cx="70" cy="70" r="68"></circle>
-              <circle class="disc-ring" cx="70" cy="70" r="60"></circle>
-              <text class="disc-text" textLength="324" lengthAdjust="spacingAndGlyphs"><textPath href="#discPath">Твоя библиотека в цифрах · 2026 ·</textPath></text>
-            </svg>
-            <span class="hero__disc-arrow" aria-hidden="true">↓</span>
-          </a>
         </div>
         <div class="hero__bottom">
           <div>
@@ -304,10 +295,13 @@
   </section>
 
   <footer class="footer">
-    <div class="wrap footer__inner">
+    <div class="wrap">
+      <div class="footer__big" aria-hidden="true">Steam Wrapped<b>.</b></div>
+      <div class="footer__inner">
       <span>© <span id="year"></span> Steam Wrapped · сделано вручную, без фреймворков by Kyuuketsuki Akado</span>
       <span class="badge" id="sourceBadge">источник данных: <b>образец</b></span>
       <span><a href="https://github.com/KyuuketsukiAkado" target="_blank" rel="noopener">github</a> · <a href="https://kyuuketsukiakado.github.io/hannamuzyka/" target="_blank" rel="noopener">портфолио</a></span>
+      </div>
     </div>
   </footer>
 
