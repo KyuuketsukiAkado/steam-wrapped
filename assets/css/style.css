@@ -201,7 +201,6 @@ a:hover { color: var(--accent); }
 
 /* ---------- кадры секций: общая шапка (тёмная по умолчанию, светлая на красном) ---------- */
 
-.frame__panel--sec { padding: clamp(26px, 4vw, 52px) clamp(18px, 3.5vw, 44px); }
 .sec-head {
   display: flex; align-items: baseline; gap: clamp(12px, 2vw, 22px); flex-wrap: wrap;
   margin-bottom: clamp(26px, 3.6vw, 46px);
@@ -222,30 +221,37 @@ a:hover { color: var(--accent); }
   margin: 0 0 0 auto; max-width: 30ch;
   font-size: 14px; line-height: 1.55; color: var(--ink-dim);
 }
-.frame__panel .sec-index { background: #0A0A0B; border-color: #0A0A0B; color: #FFFFFF; }
-.frame__panel .sec-title { color: #FFFFFF; }
-.frame__panel .sec-title b { color: #0A0A0B; }
-.frame__panel .sec-note { color: rgba(255, 255, 255, 0.85); }
+/* ---------- красный разворот во всю ширину: секция льётся от края до края ---------- */
+
+.sec--red {
+  background: linear-gradient(160deg, #F31200 0%, var(--c1) 35%, var(--c2) 70%, var(--c3) 100%);
+  color: #FFFFFF;
+}
+.sec--red :focus-visible { outline-color: #FFFFFF; }
+.sec--red .sec-index { background: #0A0A0B; border-color: #0A0A0B; color: #FFFFFF; }
+.sec--red .sec-title { color: #FFFFFF; }
+.sec--red .sec-title b { color: #0A0A0B; }
+.sec--red .sec-note { color: rgba(255, 255, 255, 0.85); }
 
 /* ---------- 01 на красном: молоко + чёрный вместо серо-красного ---------- */
 
-.frame__panel .eyebrow { color: rgba(255, 255, 255, 0.78); }
-.frame__panel .soulmate__hours {
+.sec--red .eyebrow { color: rgba(255, 255, 255, 0.78); }
+.sec--red .soulmate__hours {
   background: none;
   -webkit-text-fill-color: #FFFFFF; color: #FFFFFF;
 }
-.frame__panel .soulmate__hours span {
+.sec--red .soulmate__hours span {
   color: rgba(255, 255, 255, 0.75);
   -webkit-text-fill-color: rgba(255, 255, 255, 0.75);
 }
-.frame__panel .soulmate__hours::after { background: #0A0A0B; }
-.frame__panel .soulmate__share { color: rgba(255, 255, 255, 0.85); }
-.frame__panel .facts { border-top-color: rgba(255, 255, 255, 0.25); }
-.frame__panel .fact { border-bottom-color: rgba(255, 255, 255, 0.25); }
-.frame__panel .fact:hover { background: rgba(255, 255, 255, 0.08); box-shadow: inset 2px 0 0 #0A0A0B; }
-.frame__panel .fact__num { color: #0D0D0F; }
-.frame__panel .fact__text { color: rgba(255, 255, 255, 0.88); }
-.frame__panel .fact__text b { color: #FFFFFF; }
+.sec--red .soulmate__hours::after { background: #0A0A0B; }
+.sec--red .soulmate__share { color: rgba(255, 255, 255, 0.85); }
+.sec--red .facts { border-top-color: rgba(255, 255, 255, 0.25); }
+.sec--red .fact { border-bottom-color: rgba(255, 255, 255, 0.25); }
+.sec--red .fact:hover { background: rgba(255, 255, 255, 0.08); box-shadow: inset 2px 0 0 #0A0A0B; }
+.sec--red .fact__num { color: #0D0D0F; }
+.sec--red .fact__text { color: rgba(255, 255, 255, 0.88); }
+.sec--red .fact__text b { color: #FFFFFF; }
 
 section { padding: var(--section-pad) 0; }
 
@@ -401,9 +407,6 @@ section { padding: var(--section-pad) 0; }
   letter-spacing: 0.14em; text-transform: uppercase; color: #FFFFFF;
 }
 .frame__brand { letter-spacing: 0.1em; }
-.frame__links { display: flex; gap: clamp(12px, 2vw, 24px); }
-.frame__links a { color: rgba(255, 255, 255, 0.72); transition: color 0.12s ease; }
-.frame__links a:hover { color: #FFFFFF; }
 .frame__pill {
   border: 1px solid rgba(255, 255, 255, 0.55); border-radius: 999px;
   padding: 7px 14px; white-space: nowrap;
@@ -496,7 +499,6 @@ section { padding: var(--section-pad) 0; }
 }
 
 @media (max-width: 760px) {
-  .frame__links { display: none; }
   .frame__bottom { grid-template-columns: 1fr; gap: 20px; align-items: start; }
   .frame__micro { max-width: none; }
   .frame__disc { left: auto; right: 6px; top: 44%; transform: translateY(-50%); width: 92px; }

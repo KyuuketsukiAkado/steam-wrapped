@@ -26,7 +26,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400..900&family=JetBrains+Mono:wght@400..800&display=swap">
 <!-- ?v= — бамп версии при ручных правках css/js, иначе браузер отдаст кэш -->
-<link rel="stylesheet" href="assets/css/style.css?v=20260910-14">
+<link rel="stylesheet" href="assets/css/style.css?v=20260910-15">
 </head>
 <body>
 <a class="skip-link" href="#hero">К содержимому</a>
@@ -62,19 +62,13 @@
     <div class="hero__meta" aria-hidden="true">
       <span>Инструмент · открытые данные</span>
       <span class="hero__meta-dot"></span>
-      <span>Русский рэп · 2026</span>
+      <span>Steam Wrapped · 2026</span>
     </div>
 
     <div class="frame">
       <div class="frame__panel">
         <div class="frame__nav">
           <span class="frame__brand">Steam—Wrapped</span>
-          <nav class="frame__links" aria-label="Разделы">
-            <a href="#soulmate">Главная</a>
-            <a href="#top">Топ</a>
-            <a href="#now">Сейчас</a>
-            <a href="#genres">Жанры</a>
-          </nav>
           <span class="frame__pill">RU · 2026</span>
         </div>
         <div class="frame__stage">
@@ -173,26 +167,22 @@
   </div>
 
   <!-- ============ ГЛАВНАЯ ИГРА ЖИЗНИ ============ -->
-  <section id="soulmate" class="sec sec--c1">
+  <section id="soulmate" class="sec sec--red sec--c1">
     <div class="wrap">
-      <div class="frame reveal">
-        <div class="frame__panel frame__panel--sec">
-          <div class="sec-head">
-            <span class="sec-index">01</span>
-            <h2 class="sec-title">Главная игра <b>жизни</b></h2>
-            <p class="sec-note">Игра, в которую ушло больше всего часов — и что эти часы значат, если перевести их в человеческие единицы.</p>
-          </div>
+      <div class="sec-head reveal">
+        <span class="sec-index">01</span>
+        <h2 class="sec-title">Главная игра <b>жизни</b></h2>
+        <p class="sec-note">Игра, в которую ушло больше всего часов — и что эти часы значат, если перевести их в человеческие единицы.</p>
+      </div>
 
-          <div class="soulmate">
-            <div>
-              <p class="eyebrow">Абсолютный чемпион</p>
-              <h3 class="soulmate__name" id="smName">—</h3>
-              <div class="soulmate__hours"><span data-count="smHours">0</span> <span>часов</span></div>
-              <p class="soulmate__share" id="smShare">—</p>
-            </div>
-            <div class="facts" id="facts"></div>
-          </div>
+      <div class="soulmate reveal">
+        <div>
+          <p class="eyebrow">Абсолютный чемпион</p>
+          <h3 class="soulmate__name" id="smName">—</h3>
+          <div class="soulmate__hours"><span data-count="smHours">0</span> <span>часов</span></div>
+          <p class="soulmate__share" id="smShare">—</p>
         </div>
+        <div class="facts" id="facts"></div>
       </div>
     </div>
   </section>
