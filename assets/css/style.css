@@ -429,7 +429,7 @@ section { padding: var(--section-pad) 0; }
   display: flex; gap: 14px; align-items: baseline;
   padding: 12px 2px; border-bottom: 1px solid rgba(255, 255, 255, 0.3);
   color: #FFFFFF;
-  font-family: var(--display); font-weight: var(--w-display);
+  font-family: var(--display); font-weight: 700;
   font-size: clamp(17px, 1.8vw, 23px); line-height: 1.15; letter-spacing: var(--tight);
 }
 .hero__points i { font-style: normal; font-family: var(--mono); font-size: 12px; font-weight: 700; color: rgba(255, 255, 255, 0.75); }

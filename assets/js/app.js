@@ -762,7 +762,7 @@
       panelBottom = lineY + 276;
     }
 
-    var tcol = [C1, "#FF5A4D", C3];
+    var tcol = [C1, "#FF5A4D", C5];
     var topList = played.slice(0, 3);
     var topRows = [];
     var curY = panelBottom + 64, lastTopY = curY;
@@ -783,7 +783,7 @@
 
     var genreSum = genreData.reduce(function (s, g) { return s + g.hours; }, 0);
     var gTop = genreSum > 0 ? genreData.slice(0, 3) : [];
-    var gCols = [C1, C2, C3];
+    var gCols = [C1, C4, "#C9C9CE"];
     var gParts = gTop.map(function (g) {
       return g.name + " " + dec(g.hours / genreSum * 100, 0) + "%";
     });
@@ -848,7 +848,7 @@
     var footY = H - 50;
 
     /* ---------- рисуем ---------- */
-    x.fillStyle = "#0A0A0B"; x.fillRect(0, 0, W, H);
+    x.fillStyle = "#0A0807"; x.fillRect(0, 0, W, H);
     (function paintBlobs() {
       function blob(cx, cy, r, color) {
         var g = x.createRadialGradient(cx, cy, 0, cx, cy, r);
@@ -908,13 +908,13 @@
       x.fillText(nick.lines[ni], nameX, nickFirstY + nickLineH * ni);
     }
     var tag = x.createLinearGradient(nameX, 0, nameX + 520, 0);
-    tag.addColorStop(0, C1); tag.addColorStop(0.5, C4); tag.addColorStop(1, C2);
+    tag.addColorStop(0, C1); tag.addColorStop(1, C4);
     x.fillStyle = tag; x.font = fontOf(WD, 36);
     x.fillText("steam-профиль в цифрах", nameX, sloganY);
     line(lineY);
 
     // три числа-колосса: значение, подпись и строка контекста под ней
-    var colLab = [C1, C4, C3];
+    var colLab = [C1, C4, C5];
     cols.forEach(function (col, i) {
       var cx = M + colW * i + colW / 2;
       var vs = shrinkSingle(col[0], colW - 8, WD, 80, 40);
@@ -924,7 +924,7 @@
       x.fillStyle = colLab[i]; x.font = "600 26px " + SANS;
       x.fillText(col[1], cx, labY);
       var sub = shrinkSingle(col[2], colW - 16, "600", 20, 14);
-      x.fillStyle = FAINT; x.font = sub.font;
+      x.fillStyle = DIM; x.font = sub.font;
       x.fillText(col[2], cx, ctxY);
       x.textAlign = "left";
     });
@@ -942,7 +942,7 @@
       x.strokeStyle = "rgba(255,255,255,0.08)"; x.lineWidth = 1.5;
       roundRect(pL + 0.75, py + 0.75, pR - pL - 1.5, ph - 1.5, rr); x.stroke();
 
-      label("ГЛАВНАЯ ИГРА ЖИЗНИ", py + 56, C1, pL + 40);
+      label("ГЛАВНАЯ ИГРА ЖИЗНИ", py + 56, C4, pL + 40);
       var ng = x.createLinearGradient(pL + 40, 0, pL + 500, 0);
       ng.addColorStop(0, "#FFFFFF"); ng.addColorStop(1, C5);
       x.fillStyle = ng; x.font = sm.font;
@@ -959,13 +959,13 @@
       if (hasShare) {
         var shareText = dec(soulmate.hours / totalHours * 100, 0) + "% всего времени";
         var shareFit = shrinkSingle(shareText, 440, "600", 23, 16);
-        x.fillStyle = C3; x.font = shareFit.font;
+        x.fillStyle = C4; x.font = shareFit.font;
         x.fillText(shareText, pL + 40, smShareY);
       }
       if (smUnit) {
         var unitText = "≈ " + num(soulmate.hours * 60 / smUnit.min) + " " + smUnit.word;
         var unitFit = shrinkSingle(unitText, 440, "600", 23, 16);
-        x.fillStyle = FAINT; x.font = unitFit.font;
+        x.fillStyle = DIM; x.font = unitFit.font;
         x.fillText(unitText, pL + 40, smUnitY);
       }
 
@@ -1006,14 +1006,14 @@
         var gX = M;
         x.font = lineFont;
         if (gl.prefix) {
-          x.fillStyle = FAINT; x.fillText(gl.prefix, gX, gy);
+          x.fillStyle = DIM; x.fillText(gl.prefix, gX, gy);
           gX += textW(gl.prefix, lineFont);
           x.font = lineFont;
         }
         var partIndex = gi ? genreLines[0].parts.length : 0;
         gl.parts.forEach(function (part, pi) {
           if (pi) {
-            x.fillStyle = FAINT; x.font = lineFont; x.fillText(" · ", gX, gy);
+            x.fillStyle = DIM; x.font = lineFont; x.fillText(" · ", gX, gy);
             gX += textW(" · ", lineFont);
           }
           x.fillStyle = gCols[(partIndex + pi) % gCols.length];
