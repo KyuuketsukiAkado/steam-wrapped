@@ -628,6 +628,8 @@
   function redrawCard() {
     if (myBoot !== bootSeq) return;   // устаревший вызов после повторного boot
     var c = shareCanvas, x = c.getContext("2d");
+    // возврат из широкой: вертикальный расчёт всегда идёт от 1080
+    if (c.width !== 1080) { c.width = 1080; x = c.getContext("2d"); }
     var W = c.width, H = c.height;
     var INK = "#EDEDEF", NEAR = "#F7F7F8", DIM = "#A7A7AD", FAINT = "#6E6E75";
     var C1 = "#E10600", C2 = "#C0130A", C3 = "#8E0D08", C4 = "#FF5A4D", C5 = "#EDEDEF";
@@ -849,6 +851,327 @@
     } else {
       contentBottom = ctxY;
     }
+
+    /* Теснота вертикали: ник или игры упёрлись в пол кегля даже в две
+       строки — уходим в широкую карточку, где тем же строкам просторно. */
+    var pinched = nick.size < 36 || (sm && sm.size < 28) ||
+      topRows.some(function (row) { return row.name.size < 18; });
+
+    /* Широкая карточка 1600×N: те же данные и темы, просторные боксы.
+       W мутирует наружу осознанно: line()/label() строят по новой ширине,
+       после return вертикальный код не выполняется. */
+    function drawWide() {
+      W = 1600;
+      // ник: бокс почти на всю ширину
+      var wNameX = M + 64 + 64 + 32, wNameW = (W - M) - wNameX;
+      var wNick = fitOneOrTwo(persona, wNameW, WD, 88, 52, 64, 40);
+      var wNickLh = Math.round(wNick.size * 1.12);
+      var wNickY, wSloganY;
+      if (wNick.lines.length < 2) { wNickY = 248; wSloganY = 304; }
+      else { wNickY = 212; wSloganY = wNickY + wNickLh * (wNick.lines.length - 1) + 54; }
+      var wLineY = wSloganY + 66;
+      // статы — компактная строка вместо трёх колонок
+      var wColLab = RED ? ["#FFFFFF", "#FFFFFF", "#FFFFFF"] : [C1, C4, C5];
+      var wDim = RED ? "rgba(255,255,255,0.7)" : DIM;
+      var wStripY = wLineY + 58;
+      var segs = [];
+      cols.forEach(function (col, i) {
+        if (i) segs.push({ t: "  ·  ", f: 20, w: "600", c: wDim });
+        segs.push({ t: col[0], f: 30, w: "700", c: NEAR });
+        segs.push({ t: " " + col[1], f: 22, w: "600", c: wColLab[i] });
+        segs.push({ t: " (" + col[2] + ")", f: 20, w: "600", c: wDim });
+      });
+      function segW(k) {
+        var s = 0;
+        segs.forEach(function (g) { s += textW(g.t, fontOf(g.w, Math.max(12, Math.round(g.f * k)))); });
+        return s;
+      }
+      var wBox = W - M * 2, k = 1;
+      if (segW(1) > wBox) {
+        // сначала выбрасываем контексты в скобках, потом жмём кегль
+        segs = segs.filter(function (g) { return g.t.charAt(1) !== "("; });
+        k = wBox / segW(1);
+        if (k > 1) k = 1;
+        if (k < 0.7) k = 0.7;
+      }
+      // панель игры жизни: имя получает бокс 1000 вместо 440
+      var wPy = wStripY + 52, wPh = 0, wPanelBottom = 0;
+      var wSm = null, wSmLh = 0, wSmFirstY = 0, wSmDaysY = 0, wSmShareY = 0, wSmUnitY = 0;
+      if (soulmate) {
+        wSm = fitOneOrTwo(soulmate.name, 1000, WD, 48, 34, 44, 30);
+        wSmLh = Math.round(wSm.size * 1.15);
+        var wLastRel;
+        if (wSm.lines.length < 2) { wSmFirstY = wPy + 128; wLastRel = 128; wSmDaysY = wPy + 178; }
+        else { wSmFirstY = wPy + 116; wLastRel = 116 + wSmLh * (wSm.lines.length - 1); wSmDaysY = wPy + wLastRel + 46; }
+        wSmShareY = wSmDaysY + 38;
+        wSmUnitY = hasShare ? wSmShareY + 34 : wSmDaysY + 72;
+        var wSmLastY = wSmDaysY;
+        if (hasShare) wSmLastY = wSmShareY;
+        if (smUnit) wSmLastY = wSmUnitY;
+        wPh = wSmLastY - wPy + 40;
+        if (wPh < 280) wPh = 280;
+        wPanelBottom = wPy + wPh;
+      } else {
+        wPanelBottom = wPy;
+      }
+      // топ-3: бокс названий ~1080 вместо ~586
+      var wTopRows = [], wCurY = wPanelBottom + 58, wLastTopY = wCurY;
+      topList.forEach(function (g, i) {
+        var hoursText = num(g.hours) + " ч" +
+          (totalHours ? " · " + dec(g.hours / totalHours * 100, 0) + "%" : "");
+        var hoursFont = fontOf(WD, 26);
+        var wNameMaxW = (W - M - textW(hoursText, hoursFont) - 24) - (M + 64);
+        var nm = fitOneOrTwo(g.name, wNameMaxW, "700", 28, 22, 26, 20);
+        var lh = Math.round(nm.size * 1.3);
+        wTopRows.push({ g: g, i: i, hoursText: hoursText, hoursFont: hoursFont,
+          name: nm, lineH: lh, y: wCurY });
+        wLastTopY = wCurY + lh * (nm.lines.length - 1);
+        wCurY = wLastTopY + 50;
+      });
+      // жанры — тот же алгоритм, якоря свои
+      var wGenreY = 0, wGenreSecondY = 0, wGenreLines = [], wGenreFont = "600 21px " + SANS;
+      var wContentBottom = wPanelBottom;
+      if (gParts.length) {
+        wGenreY = (wTopRows.length ? wLastTopY + 62 : wPanelBottom + 54);
+        var wGMaxW = W - M * 2;
+        var wGFull = "Жанры: " + gParts.join(" · ");
+        if (textW(wGFull, wGenreFont) <= wGMaxW) {
+          wGenreLines = [{ prefix: "Жанры: ", parts: gParts }];
+          wContentBottom = wGenreY;
+        } else {
+          var wGSmall = shrinkSingle(wGFull, wGMaxW, "600", 21, 18);
+          if (textW(wGFull, wGSmall.font) <= wGMaxW) {
+            wGenreFont = wGSmall.font;
+            wGenreLines = [{ prefix: "Жанры: ", parts: gParts }];
+            wContentBottom = wGenreY;
+          } else {
+            wGenreFont = "600 21px " + SANS;
+            var wL1 = { prefix: "Жанры: ", parts: [] }, wL2 = { prefix: "", parts: [] };
+            var wCur = textW("Жанры: ", wGenreFont), wFirst = true;
+            var wSepW = textW(" · ", wGenreFont);
+            gParts.forEach(function (part) {
+              var pw = textW(part, wGenreFont);
+              var need = wFirst ? pw : pw + wSepW;
+              if (wFirst || wCur + need <= wGMaxW) {
+                wL1.parts.push(part); wCur += need; wFirst = false;
+              } else {
+                wL2.parts.push(part);
+              }
+            });
+            if (!wL1.parts.length && wL2.parts.length) { wL1.parts = wL2.parts; wL2.parts = []; }
+            wGenreLines = wL2.parts.length ? [wL1, wL2] : [wL1];
+            wGenreSecondY = wGenreY + 30;
+            wContentBottom = wL2.parts.length ? wGenreSecondY : wGenreY;
+          }
+        }
+      } else if (wTopRows.length) {
+        wContentBottom = wLastTopY;
+      } else if (soulmate) {
+        wContentBottom = wPanelBottom;
+      } else {
+        wContentBottom = wStripY;
+      }
+      var wFootLineY = wContentBottom + 50;
+      var wNeedH = wFootLineY + 104;
+      if (wNeedH < 900) wNeedH = 900;
+      c.width = 1600; c.height = wNeedH; x = c.getContext("2d");
+      H = wNeedH;
+      var wFootY = H - 48;
+
+      // фон — те же темы, пятна масштабируются от W/H
+      if (!RED) {
+        x.fillStyle = "#0A0807"; x.fillRect(0, 0, W, H);
+      } else {
+        var wBg = x.createLinearGradient(0, 0, W, H);
+        wBg.addColorStop(0, "#F31200"); wBg.addColorStop(0.35, "#E10600");
+        wBg.addColorStop(0.7, "#C0130A"); wBg.addColorStop(1, "#8E0D08");
+        x.fillStyle = wBg; x.fillRect(0, 0, W, H);
+      }
+      (function paintWideBlobs() {
+        function blob(cx, cy, r, color) {
+          var g = x.createRadialGradient(cx, cy, 0, cx, cy, r);
+          g.addColorStop(0, color); g.addColorStop(1, "rgba(0,0,0,0)");
+          x.fillStyle = g; x.fillRect(0, 0, W, H);
+        }
+        if (!RED) {
+          blob(W * 0.5, H * 0.28, W * 0.80, "rgba(225,6,0,0.10)");
+          blob(W * 0.10, H * 0.92, W * 0.70, "rgba(192,19,10,0.10)");
+          blob(W * 0.92, H * 0.82, W * 0.65, "rgba(142,13,8,0.12)");
+          blob(W * 0.15, H * 0.52, W * 0.50, "rgba(255,90,77,0.07)");
+        } else {
+          blob(W * 0.5, H * 1.05, W * 0.85, "rgba(142,13,8,0.45)");
+          blob(W * 0.5, H * -0.08, W * 0.7, "rgba(255,255,255,0.10)");
+        }
+      })();
+
+      // шапка
+      label("STEAM WRAPPED", 92, C5);
+      x.fillStyle = RED ? "#FFFFFF" : C4; x.font = "700 22px " + SANS;
+      x.textAlign = "right"; x.fillText((D.meta.generatedAt || "").slice(0, 7), W - M, 92); x.textAlign = "left";
+      line(120);
+
+      // аватар
+      var wAvCx = M + 64, wAvCy = 225, wAvR = 64;
+      (function paintWideGlow() {
+        function blob(cx, cy, r, color) {
+          var g = x.createRadialGradient(cx, cy, 0, cx, cy, r);
+          g.addColorStop(0, color); g.addColorStop(1, "rgba(0,0,0,0)");
+          x.fillStyle = g; x.fillRect(0, 0, W, H);
+        }
+        blob(wAvCx, wAvCy, 230, RED ? "rgba(142,13,8,0.35)" : "rgba(225,6,0,0.20)");
+        blob(wAvCx, wAvCy, 140, RED ? "rgba(142,13,8,0.28)" : "rgba(192,19,10,0.16)");
+      })();
+      x.save();
+      x.beginPath(); x.arc(wAvCx, wAvCy, wAvR, 0, Math.PI * 2); x.clip();
+      if (avatarImg && avatarImg.complete && avatarImg.naturalWidth) {
+        var ws = Math.max((wAvR * 2) / avatarImg.naturalWidth, (wAvR * 2) / avatarImg.naturalHeight);
+        var wdw = avatarImg.naturalWidth * ws, wdh = avatarImg.naturalHeight * ws;
+        x.drawImage(avatarImg, wAvCx - wdw / 2, wAvCy - wdh / 2, wdw, wdh);
+      } else {
+        var wag = x.createLinearGradient(wAvCx - wAvR, wAvCy - wAvR, wAvCx + wAvR, wAvCy + wAvR);
+        wag.addColorStop(0, C1); wag.addColorStop(1, C4);
+        x.fillStyle = wag; x.fillRect(wAvCx - wAvR, wAvCy - wAvR, wAvR * 2, wAvR * 2);
+        x.fillStyle = "#FFFFFF"; x.font = "800 68px " + SANS;
+        x.textAlign = "center"; x.textBaseline = "middle";
+        x.fillText(persona.charAt(0).toUpperCase(), wAvCx, wAvCy + 6);
+        x.textAlign = "left"; x.textBaseline = "alphabetic";
+      }
+      x.restore();
+      var wRing = x.createLinearGradient(wAvCx - wAvR, wAvCy - wAvR, wAvCx + wAvR, wAvCy + wAvR);
+      wRing.addColorStop(0, RED ? "#FFFFFF" : C1); wRing.addColorStop(0.55, RED ? "#FFFFFF" : C4); wRing.addColorStop(1, RED ? "#FFFFFF" : C2);
+      x.strokeStyle = wRing; x.lineWidth = 7;
+      x.beginPath(); x.arc(wAvCx, wAvCy, wAvR + 11, 0, Math.PI * 2); x.stroke();
+
+      // ник + слоган
+      x.fillStyle = NEAR; x.font = wNick.font;
+      x.fillText(wNick.lines[0], wNameX, wNickY);
+      for (var wni = 1; wni < wNick.lines.length; wni++) {
+        x.fillText(wNick.lines[wni], wNameX, wNickY + wNickLh * wni);
+      }
+      var wTag = x.createLinearGradient(wNameX, 0, wNameX + 520, 0);
+      wTag.addColorStop(0, RED ? "#FFFFFF" : C1); wTag.addColorStop(1, RED ? "#FFFFFF" : C4);
+      x.fillStyle = wTag; x.font = fontOf(WD, 34);
+      x.fillText("steam-профиль в цифрах", wNameX, wSloganY);
+      line(wLineY);
+
+      // строка статов
+      var sX = M;
+      segs.forEach(function (g) {
+        var f = fontOf(g.w, Math.max(12, Math.round(g.f * k)));
+        x.font = f; x.fillStyle = g.c;
+        x.fillText(g.t, sX, wStripY);
+        sX += textW(g.t, f);
+      });
+
+      // панель игры жизни
+      if (soulmate) {
+        var wPL = M, wPR = W - M, wRR = 30;
+        x.save();
+        roundRect(wPL, wPy, wPR - wPL, wPh, wRR); x.clip();
+        x.fillStyle = RED ? "#FFFFFF" : "rgba(20, 20, 22, 0.92)";
+        x.fillRect(wPL, wPy, wPR - wPL, wPh);
+        var wHl = x.createLinearGradient(wPL, 0, wPR, 0);
+        wHl.addColorStop(0, C1); wHl.addColorStop(1, C4);
+        x.fillStyle = wHl; x.fillRect(wPL, wPy, wPR - wPL, 5);
+        x.restore();
+        x.strokeStyle = RED ? "rgba(142,13,8,0.18)" : "rgba(255,255,255,0.08)"; x.lineWidth = 1.5;
+        roundRect(wPL + 0.75, wPy + 0.75, wPR - wPL - 1.5, wPh - 1.5, wRR); x.stroke();
+
+        label("ГЛАВНАЯ ИГРА ЖИЗНИ", wPy + 52, RED ? C1 : C4, wPL + 40);
+        var wNg = x.createLinearGradient(wPL + 40, 0, wPL + 560, 0);
+        wNg.addColorStop(0, "#FFFFFF"); wNg.addColorStop(1, C5);
+        x.fillStyle = RED ? "#141416" : wNg; x.font = wSm.font;
+        x.fillText(wSm.lines[0], wPL + 40, wSmFirstY);
+        for (var wsi = 1; wsi < wSm.lines.length; wsi++) {
+          x.fillText(wSm.lines[wsi], wPL + 40, wSmFirstY + wSmLh * wsi);
+        }
+        var wDays = soulmate.hours / 24;
+        var wDaysText = "≈ " + dec(wDays, wDays >= 100 ? 0 : 1) + " " +
+          plural(Math.round(wDays), ["день", "дня", "дней"]) + " нон-стоп";
+        var wDaysFit = shrinkSingle(wDaysText, 700, "600", 24, 16);
+        x.fillStyle = RED ? "#3F3F46" : DIM; x.font = wDaysFit.font;
+        x.fillText(wDaysText, wPL + 40, wSmDaysY);
+        if (hasShare) {
+          var wShareText = dec(soulmate.hours / totalHours * 100, 0) + "% всего времени";
+          var wShareFit = shrinkSingle(wShareText, 700, "600", 23, 16);
+          x.fillStyle = RED ? C1 : C4; x.font = wShareFit.font;
+          x.fillText(wShareText, wPL + 40, wSmShareY);
+        }
+        if (smUnit) {
+          var wUnitText = "≈ " + num(soulmate.hours * 60 / smUnit.min) + " " + smUnit.word;
+          var wUnitFit = shrinkSingle(wUnitText, 700, "600", 23, 16);
+          x.fillStyle = RED ? "#3F3F46" : DIM; x.font = wUnitFit.font;
+          x.fillText(wUnitText, wPL + 40, wSmUnitY);
+        }
+
+        x.textAlign = "right";
+        var wHs = shrinkSingle(num(soulmate.hours), 320, WD, 100, 40);
+        x.fillStyle = RED ? C1 : "#FFFFFF"; x.font = wHs.font;
+        x.fillText(num(soulmate.hours), wPR - 40, wPy + 132);
+        x.fillStyle = RED ? "#3F3F46" : DIM; x.font = "600 24px " + SANS;
+        x.fillText("часов", wPR - 40, wPy + 190);
+        x.textAlign = "left";
+      }
+
+      // топ-3
+      wTopRows.forEach(function (row) {
+        x.fillStyle = tcol[row.i]; x.font = "700 22px " + SANS;
+        x.fillText(String(row.i + 1).padStart(2, "0"), M, row.y);
+        x.fillStyle = RED ? "#FFFFFF" : "#C9C9CE"; x.font = row.name.font;
+        x.fillText(row.name.lines[0], M + 64, row.y);
+        for (var li = 1; li < row.name.lines.length; li++) {
+          x.fillText(row.name.lines[li], M + 64, row.y + row.lineH * li);
+        }
+        x.fillStyle = tcol[row.i]; x.font = row.hoursFont;
+        x.textAlign = "right"; x.fillText(row.hoursText, W - M, row.y); x.textAlign = "left";
+      });
+
+      // жанры
+      if (wGenreLines.length) {
+        var wGMaxW2 = W - M * 2;
+        wGenreLines.forEach(function (gl, gi) {
+          var gy = gi ? wGenreSecondY : wGenreY;
+          var totalStr = (gl.prefix || "") + gl.parts.join(" · ");
+          var wLineFont = wGenreFont;
+          if (textW(totalStr, wLineFont) > wGMaxW2) {
+            wLineFont = shrinkSingle(totalStr, wGMaxW2, "600", 21, 12).font;
+          }
+          var gX = M;
+          x.font = wLineFont;
+          if (gl.prefix) {
+            x.fillStyle = RED ? "rgba(255,255,255,0.7)" : DIM; x.fillText(gl.prefix, gX, gy);
+            gX += textW(gl.prefix, wLineFont);
+            x.font = wLineFont;
+          }
+          var partIndex = gi ? wGenreLines[0].parts.length : 0;
+          gl.parts.forEach(function (part, pi) {
+            if (pi) {
+              x.fillStyle = RED ? "rgba(255,255,255,0.7)" : DIM; x.font = wLineFont; x.fillText(" · ", gX, gy);
+              gX += textW(" · ", wLineFont);
+            }
+            x.fillStyle = gCols[(partIndex + pi) % gCols.length];
+            x.font = wLineFont;
+            x.fillText(part, gX, gy);
+            gX += textW(part, wLineFont);
+          });
+        });
+      }
+
+      // подвал
+      line(wFootLineY);
+      var wFootUrl = "kyuuketsukiakado.github.io/steam-wrapped";
+      var wFootFit = shrinkSingle(wFootUrl, 680, "600", 18, 14);
+      x.fillStyle = RED ? "#FFFFFF" : C4; x.font = wFootFit.font;
+      x.fillText(wFootUrl, M, wFootY);
+      if (D.meta.memberSince) {
+        x.textAlign = "right";
+        x.fillStyle = RED ? "rgba(255,255,255,0.7)" : DIM; x.font = "600 18px " + SANS;
+        x.fillText("в Steam с " + String(D.meta.memberSince).slice(0, 4), W - M, wFootY);
+        x.textAlign = "left";
+      }
+    }
+
+    if (pinched) { drawWide(); return; }
 
     /* Холст вытягивается под длинные данные, обычные остаются 1080×1350.
        Низ (линейка + подпись) всегда на фиксированных отступах от контента. */
