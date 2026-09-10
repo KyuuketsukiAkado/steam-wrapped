@@ -37,10 +37,10 @@
 
 :root {
   /* база */
-  --bg:        #0A0A0B;
-  --bg-soft:   #141416;
-  --line:      rgba(255, 255, 255, 0.10);
-  --line-soft: rgba(255, 255, 255, 0.06);
+  --bg:        #0C0A09;
+  --bg-soft:   #161312;
+  --line:      rgba(255, 241, 231, 0.10);
+  --line-soft: rgba(255, 241, 231, 0.06);
   --ink:       #EDEDEF;
   --ink-dim:   #A7A7AD;
   --ink-faint: #6E6E75;
@@ -257,6 +257,23 @@ a:hover { color: var(--accent); }
 .sec--red .fact__num { color: #FFFFFF; }
 .sec--red .fact__text { color: rgba(255, 255, 255, 0.88); }
 .sec--red .fact__text b { color: #FFFFFF; }
+
+/* ---------- 06 на красном: текст молочный, кнопки светлые ---------- */
+
+.sec--red .share__text { color: rgba(255, 255, 255, 0.88); }
+.sec--red .share__hint { color: rgba(255, 255, 255, 0.7); }
+.sec--red .share__hint b { color: #FFFFFF; }
+.sec--red .btn { border-color: rgba(255, 255, 255, 0.5); color: #FFFFFF; }
+.sec--red .btn:hover { border-color: #FFFFFF; color: #FFFFFF; }
+.sec--red .btn--cream:hover { color: var(--c1); }
+.sec--red .btn--net::before { background: #FFFFFF; }
+.sec--red .btn--net:hover::before { box-shadow: 0 0 14px 0 #FFFFFF; }
+.sec--red .share__caption summary { color: rgba(255, 255, 255, 0.75); }
+.sec--red .share__caption summary:hover { color: #FFFFFF; }
+.sec--red .share__caption-label { color: rgba(255, 255, 255, 0.7); }
+.sec--red .share__caption textarea { border-color: rgba(255, 255, 255, 0.25); }
+.sec--red .share__caption textarea:focus { border-color: #FFFFFF; }
+.sec--red .share__preview { border-color: rgba(255, 255, 255, 0.35); background: #0A0A0B; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45); }
 
 section { padding: var(--section-pad) 0; }
 
@@ -819,23 +836,23 @@ section { padding: var(--section-pad) 0; }
 
 /* ---------- судьба вечера ---------- */
 
-.fate__stage { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.fate__stage { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
 @media (max-width: 760px) { .fate__stage { grid-template-columns: 1fr; } }
 
 .fate__slot {
-  background: #111113; padding: clamp(28px, 4vw, 44px) 26px; min-height: 200px;
+  background: #FFFFFF; color: #101012; border-radius: 6px; padding: clamp(28px, 4vw, 44px) 26px; min-height: 200px;
   display: flex; flex-direction: column; justify-content: center; gap: 12px; position: relative;
 }
-.fate__slot::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 3px; background: var(--fs, var(--c5)); opacity: .9; }
-.fate__slot:nth-child(1) { --fs: var(--c5); }
+.fate__slot::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 4px; border-radius: 6px 6px 0 0; background: var(--fs, var(--c1)); }
+.fate__slot:nth-child(1) { --fs: var(--c1); }
 .fate__slot:nth-child(2) { --fs: var(--c2); }
-.fate__slot:nth-child(3) { --fs: var(--c4); }
-.fate__slot--empty { color: var(--ink-faint); font-size: 17px; font-weight: 600; text-align: center; align-items: center; }
+.fate__slot:nth-child(3) { --fs: var(--c3); }
+.fate__slot--empty { color: #6E6E75; font-size: 17px; font-weight: 600; text-align: center; align-items: center; }
 .fate__slot--empty::before { opacity: .25; }
 .fate__idx { font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--fs); letter-spacing: .1em; }
 .fate__name { font-size: clamp(17px, 2vw, 23px); font-family: var(--display); font-weight: var(--w-display); line-height: 1.1; letter-spacing: var(--tight); transition: opacity .18s ease, filter .18s ease; }
 .fate__tags { font-size: 13px; color: var(--ink-faint); }
-.fate__link { font-size: 13px; font-weight: 600; color: var(--ink-dim); border-bottom: 1px solid var(--line); align-self: flex-start; padding-bottom: 2px; }
+.fate__link { font-size: 13px; font-weight: 600; color: #3A3A40; border-bottom: 1px solid rgba(0, 0, 0, 0.2); align-self: flex-start; padding-bottom: 2px; }
 .fate__link:hover { color: var(--fs); border-color: var(--fs); }
 .fate__slot.is-rolling .fate__name { opacity: .3; filter: blur(2px); }
 
@@ -940,7 +957,7 @@ section { padding: var(--section-pad) 0; }
 .bars .bar__fill { transition: width 1.1s cubic-bezier(0.2, 0.7, 0.3, 1); }
 .reveal:not(.is-in) .bar__fill { width: 0 !important; }
 .fate__slot { transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease; }
-.fate__slot:hover { transform: none; box-shadow: inset 0 0 0 1px rgba(225, 6, 0, 0.4); }
+.fate__slot:hover { transform: translateY(-2px); box-shadow: 0 18px 44px rgba(0, 0, 0, 0.35); }
 .marquee span { font-size: 13px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-dim); white-space: nowrap; }
 .marquee i { font-style: normal; margin-right: 10px; }
 .marquee span:nth-child(5n+1) i { color: var(--c1); }
