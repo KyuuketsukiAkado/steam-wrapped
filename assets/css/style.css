@@ -1095,3 +1095,17 @@ body.wipe-on .sec--red.is-in { clip-path: inset(0 0 0 0); transition: clip-path 
   body.wipe-on .sec--red { clip-path: none; }
   .sec-head .ch { opacity: 1; }
 }
+
+/* ---------- вау-2: спотлайт и параллакс метеоров ---------- */
+
+/* спотлайт за курсором на красном — мягкое белое свечение */
+.sec--red, .hero__red { position: relative; }
+.sec--red::after, .hero__red::after {
+  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background: radial-gradient(circle 340px at var(--mx, 50%) var(--my, -10%), rgba(255, 255, 255, 0.08), transparent 70%);
+}
+
+/* параллакс метеоров: свойство translate отдельно от transform анимации — не конфликтует */
+.meteor { translate: var(--px, 0px) var(--py, 0px); transition: translate .35s ease-out; }
+.hero__stage .meteor:nth-child(2) { translate: calc(var(--px, 0px) * 1.4) calc(var(--py, 0px) * 1.4); }
+.hero__stage .meteor:nth-child(3) { translate: calc(var(--px, 0px) * 0.7) calc(var(--py, 0px) * 0.7); }
