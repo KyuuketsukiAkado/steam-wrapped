@@ -116,6 +116,13 @@
     (D.meta.memberSince ? " · в Steam с " + fmtDate(D.meta.memberSince) : "") +
     " · данные от " + fmtDate(D.meta.generatedAt);
 
+  // Подпись-разделитель над профилем тоже зависит от режима: в живом профиле
+  // слова про «демо» вводить в заблуждение не должны.
+  var demoCaption = $("#demoCaption");
+  if (demoCaption) demoCaption.textContent = isDemoProfile
+    ? "Живой пример — демо-профиль"
+    : "Живой профиль — данные из Steam";
+
   var pl = $("#profileLink");
   if (D.meta.profileUrl) pl.href = D.meta.profileUrl; else pl.style.display = "none";
 
