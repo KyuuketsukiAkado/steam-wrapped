@@ -341,10 +341,10 @@ section { padding: var(--section-pad) 0; }
 .hero__title {
   font-family: var(--display);
   font-weight: var(--w-display);
-  /* full-bleed постер: 100vw центрируется флексом .hero__top,
-     кегль считается от вьюпорта, а не от контентной колонки */
+  /* full-bleed постер: 100vw центрируется флексом .hero__top.
+     Замер Black c HVAR: WRAPPED 6.69em — 14.4vw/216px дают микро-поля ~12px. */
   width: 100vw;
-  font-size: clamp(48px, 15vw, 224px);
+  font-size: clamp(46px, 14.4vw, 216px);
   line-height: 0.9;
   letter-spacing: var(--tight);
   text-transform: uppercase;
@@ -368,17 +368,15 @@ section { padding: var(--section-pad) 0; }
                steam-flow 8s ease-in-out 1.2s infinite;
   }
 }
+/* WRAPPED — сплошной лёд на красной плашке: контур убран,
+   плашка длиной в слово (паддинги в em тянутся за кеглем) */
 .hero__title b {
   display: inline-block;
-  font-weight: 600;
-  color: var(--c1);
+  font-weight: var(--w-display);
+  color: #FFFFFF;
+  background: linear-gradient(96deg, var(--c1), var(--c2));
+  padding: 0 0.1em 0.02em;
   animation: title-in 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.3s both;
-}
-@supports (-webkit-text-stroke: 1px black) {
-  .hero__title b {
-    color: transparent;
-    -webkit-text-stroke: 1.5px var(--c1);
-  }
 }
 @keyframes title-in {
   from { opacity: 0; transform: translateY(0.35em); clip-path: inset(0 0 100% 0); }
