@@ -26,7 +26,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400..900&family=JetBrains+Mono:wght@400..800&display=swap">
 <!-- ?v= — бамп версии при ручных правках css/js, иначе браузер отдаст кэш -->
-<link rel="stylesheet" href="assets/css/style.css?v=20260910-41">
+<link rel="stylesheet" href="assets/css/style.css?v=20260910-42">
 </head>
 <body>
 <a class="skip-link" href="#hero">К содержимому</a>
@@ -157,7 +157,7 @@
         <p class="sec-note">Игра, в которую ушло больше всего часов — и что эти часы значат, если перевести их в человеческие единицы.</p>
       </div>
 
-      <div class="soulmate reveal">
+      <div class="soulmate">
         <div>
           <p class="eyebrow">Абсолютный чемпион</p>
           <div class="soulmate__art"><img id="smArt" width="460" height="215" alt="" hidden></div>
@@ -178,7 +178,7 @@
         <h2 class="sec-title">Топ игр <b>по часам</b></h2>
         <p class="sec-note" id="topNote">Десять игр, которые забрали больше всего времени. Длина полосы — доля от лидера.</p>
       </div>
-      <div class="bars reveal" id="bars"></div>
+      <div class="bars" id="bars"></div>
     </div>
   </section>
 
@@ -190,7 +190,7 @@
         <h2 class="sec-title">Чем занимаюсь <b>сейчас</b></h2>
         <p class="sec-note">Активность за последние две недели — прямо из Steam.</p>
       </div>
-      <div class="recent reveal" id="recent"></div>
+      <div class="recent" id="recent"></div>
     </div>
   </section>
 
@@ -203,7 +203,7 @@
         <p class="sec-note">Часы, разложенные по жанрам из карточек магазина Steam.</p>
       </div>
 
-      <div class="genres reveal">
+      <div class="genres">
         <div class="donut-wrap">
           <svg class="donut" id="donut" viewBox="0 0 200 200" role="img" aria-label="Распределение часов по жанрам"></svg>
           <div class="donut-center">
@@ -225,7 +225,7 @@
         <p class="sec-note">Три случайные игры из бэклога — те, что куплены, но ни разу не запущены. Решать не тебе.</p>
       </div>
 
-      <div class="fate reveal">
+      <div class="fate">
         <div class="fate__stage" id="fateStage">
           <div class="fate__slot fate__slot--empty">нажми кнопку —<br>и судьба решит</div>
           <div class="fate__slot fate__slot--empty">три игры<br>из бэклога</div>
@@ -249,7 +249,7 @@
         <p class="sec-note">Введи профиль друга — столкнём цифры лицом к лицу: часы, бэклог, чемпион и жанры.</p>
       </div>
 
-      <form class="versus-form reveal" id="versusForm" novalidate>
+      <form class="versus-form" id="versusForm" novalidate>
         <input class="versus-form__input" id="versusInput" name="versus" type="text"
                inputmode="url" autocomplete="url" maxlength="400"
                placeholder="SteamID64, ник или ссылка на steamcommunity.com"
@@ -269,7 +269,7 @@
         <h2 class="sec-title">Забрать <b>карточку</b></h2>
       </div>
 
-      <div class="share reveal">
+      <div class="share">
         <div>
           <p class="share__text">
             Карточка собирается из тех же данных, что и страница: главные цифры,
@@ -333,7 +333,7 @@
 
 <script src="assets/js/data.js"></script>
 <script src="assets/js/profile-data.js"></script>
-<script src="assets/js/app.js?v=20260910-16"></script>
+<script src="assets/js/app.js?v=20260910-17"></script>
   <button class="to-top" id="toTop" type="button" aria-label="Наверх">↑</button>
 </body>
 </html>

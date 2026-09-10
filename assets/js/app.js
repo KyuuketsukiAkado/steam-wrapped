@@ -1569,15 +1569,6 @@
     });
   }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
 
-  // Каскад внутри групп: каждая строка встаёт чуть позже предыдущей.
-  // Задержка работает один раз (unobserve), reduced-motion перекрыт глобально.
-  ["#bars .bar", "#facts .fact", ".fate__slot"].forEach(function (sel) {
-    $$(sel).forEach(function (n, i) {
-      n.classList.add("reveal");
-      n.style.transitionDelay = Math.min(i * 70, 560) + "ms";
-    });
-  });
-
   /* Вау: заголовки встают каскадом букв. Сплит визуальный — spans без
      семантики, скринридеры читают текст как раньше. dataset.guard на повторный boot. */
   function splitLetters(root) {
@@ -1610,7 +1601,6 @@
      сгиба прятались до первого пересечения, а не мигали. */
   document.body.classList.add("wipe-on");
   $$(".sec--red").forEach(function (n) { revealObserver.observe(n); });
-  $$(".reveal").forEach(function (n) { revealObserver.observe(n); });
   // Шапки без блочного вылета (reveal снят), is-in нужен каскаду букв.
   $$(".sec-head").forEach(function (n) { revealObserver.observe(n); });
   }
