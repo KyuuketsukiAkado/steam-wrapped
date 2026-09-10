@@ -1569,40 +1569,10 @@
     });
   }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
 
-  /* Вау: заголовки встают каскадом букв. Сплит визуальный — spans без
-     семантики, скринридеры читают текст как раньше. dataset.guard на повторный boot. */
-  function splitLetters(root) {
-    if (!root || root.dataset.split) return;
-    root.dataset.split = "1";
-    var i = 0;
-    function walk(node) {
-      Array.prototype.slice.call(node.childNodes).forEach(function (n) {
-        if (n.nodeType === 3) {
-          var frag = document.createDocumentFragment();
-          n.textContent.split("").forEach(function (ch) {
-            if (ch === " ") { frag.appendChild(document.createTextNode(" ")); return; }
-            var s = document.createElement("span");
-            s.className = "ch";
-            s.style.setProperty("--i", String(i++));
-            s.textContent = ch;
-            frag.appendChild(s);
-          });
-          node.replaceChild(frag, n);
-        } else if (n.nodeType === 1 && n.tagName !== "BR") {
-          walk(n);
-        }
-      });
-    }
-    walk(root);
-  }
-  $$(".hero__title, .sec-title").forEach(splitLetters);
-
   /* Вау: красный вайп. Класс на body — до observe, чтобы секции ниже
      сгиба прятались до первого пересечения, а не мигали. */
   document.body.classList.add("wipe-on");
   $$(".sec--red").forEach(function (n) { revealObserver.observe(n); });
-  // Шапки без блочного вылета (reveal снят), is-in нужен каскаду букв.
-  $$(".sec-head").forEach(function (n) { revealObserver.observe(n); });
   }
 
   // Статичная карточка не вызывает Worker сама. Живой запрос возможен только
