@@ -149,12 +149,6 @@
     (D.meta.memberSince ? "в Steam с " + fmtDate(D.meta.memberSince) + " · " : "") +
     "данные от " + fmtDate(D.meta.generatedAt);
 
-  // Бейдж режима у ника тоже зависит от данных: в живом профиле
-  // слова про «демо» вводить в заблуждение не должны.
-  var demoCaption = $("#demoCaption");
-  if (demoCaption) demoCaption.textContent = isDemoProfile
-    ? "демо-профиль"
-    : "профиль steam";
 
   var pl = $("#profileLink");
   if (D.meta.profileUrl) { pl.href = D.meta.profileUrl; pl.style.display = ""; }
