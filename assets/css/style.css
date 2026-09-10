@@ -350,19 +350,22 @@ section { padding: var(--section-pad) 0; }
   text-transform: uppercase;
   margin: 0;
 }
-/* STEAM — ледяной градиент; строки входят каскадом через маску.
-   WRAPPED — semibold-контур (замер с HVAR: 6.45em, 15vw/224px дают поля ~10px),
-   по нему раз в 9 секунд проходит красный «сигнал». Без stroke/clip — фолбэки. */
+/* STEAM — цветной перелив (красный→коралл→лёд) с медленным течением;
+   строки входят каскадом через маску. WRAPPED — голый контур 1.5px:
+   любой background под stroke дублирует линии, поэтому только stroke. */
 .hero__title-solid {
   display: inline-block;
-  color: var(--ink);
+  color: var(--c4);
   animation: title-in 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.15s both;
 }
 @supports ((-webkit-background-clip: text) or (background-clip: text)) {
   .hero__title-solid {
-    background: linear-gradient(180deg, #FFFFFF 0%, var(--c5) 48%, #97979E 100%);
+    background: linear-gradient(100deg, var(--c1) 0%, var(--c4) 22%, var(--c5) 42%, #FFFFFF 50%, var(--c5) 58%, var(--c4) 78%, var(--c1) 100%);
+    background-size: 220% 100%;
     -webkit-background-clip: text; background-clip: text;
     -webkit-text-fill-color: transparent; color: transparent;
+    animation: title-in 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.15s both,
+               steam-flow 8s ease-in-out 1.2s infinite;
   }
 }
 .hero__title b {
@@ -375,21 +378,15 @@ section { padding: var(--section-pad) 0; }
   .hero__title b {
     color: transparent;
     -webkit-text-stroke: 1.5px var(--c1);
-    background: linear-gradient(100deg, transparent 46%, var(--c1) 49%, var(--c4) 50%, var(--c1) 51%, transparent 54%);
-    background-size: 250% 100%;
-    -webkit-background-clip: text; background-clip: text;
-    animation: title-in 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.3s both,
-               wrapped-sweep 9s linear 2s infinite;
   }
 }
 @keyframes title-in {
   from { opacity: 0; transform: translateY(0.35em); clip-path: inset(0 0 100% 0); }
   to { opacity: 1; transform: none; clip-path: inset(0 0 0 0); }
 }
-@keyframes wrapped-sweep {
-  0% { background-position: 150% 0; }
-  12% { background-position: -50% 0; }
-  100% { background-position: -50% 0; }
+@keyframes steam-flow {
+  0%, 100% { background-position: 0% 0; }
+  50% { background-position: 100% 0; }
 }
 
 .hero__profile { display: flex; align-items: center; justify-content: center; gap: clamp(16px, 2vw, 22px); margin-top: clamp(26px, 3.4vw, 44px); }
