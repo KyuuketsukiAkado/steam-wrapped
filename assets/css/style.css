@@ -149,22 +149,8 @@ a:hover { color: var(--accent); }
   font-weight: 700;
 }
 
-.sec { position: relative; border-top: 1px solid var(--line-soft); }
-.sec::after {
-  content: ""; position: absolute; top: -1px; left: 0; width: 56px; height: 2px;
-  background: var(--c1);
-  clip-path: polygon(0 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
-}
-.sec::before {
-  content: attr(data-num);
-  position: absolute; top: clamp(8px, 2vw, 24px); right: clamp(0px, 2vw, 24px);
-  font-family: var(--display); font-weight: var(--w-display);
-  font-size: clamp(96px, 15vw, 200px); line-height: 1;
-  color: transparent; -webkit-text-fill-color: transparent;
-  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.15);
-  text-shadow: 3px 3px 0 rgba(225, 6, 0, 0.28);
-  pointer-events: none; user-select: none;
-}
+/* секции — кадры на карбоне: рамка вместо линеек и призраков */
+.sec { position: relative; }
 .section-head {
   display: flex;
   align-items: baseline;
@@ -212,6 +198,54 @@ a:hover { color: var(--accent); }
   color: var(--ink-dim);
   line-height: 1.55;
 }
+
+/* ---------- кадры секций: общая шапка (тёмная по умолчанию, светлая на красном) ---------- */
+
+.frame__panel--sec { padding: clamp(26px, 4vw, 52px) clamp(18px, 3.5vw, 44px); }
+.sec-head {
+  display: flex; align-items: baseline; gap: clamp(12px, 2vw, 22px); flex-wrap: wrap;
+  margin-bottom: clamp(26px, 3.6vw, 46px);
+}
+.sec-index {
+  font-family: var(--mono); font-size: 12px; font-weight: 700;
+  color: var(--accent); border: 1px solid var(--accent);
+  padding: 4px 9px; border-radius: 3px; letter-spacing: 0.06em;
+  transform: translateY(-4px);
+}
+.sec-title {
+  margin: 0; font-family: var(--display); font-weight: var(--w-display);
+  font-size: clamp(30px, 4.6vw, 62px); line-height: 1;
+  letter-spacing: var(--tight); text-transform: uppercase;
+}
+.sec-title b { color: var(--accent); font-weight: var(--w-display); }
+.sec-note {
+  margin: 0 0 0 auto; max-width: 30ch;
+  font-size: 14px; line-height: 1.55; color: var(--ink-dim);
+}
+.frame__panel .sec-index { background: #0A0A0B; border-color: #0A0A0B; color: #FFFFFF; }
+.frame__panel .sec-title { color: #FFFFFF; }
+.frame__panel .sec-title b { color: #0A0A0B; }
+.frame__panel .sec-note { color: rgba(255, 255, 255, 0.85); }
+
+/* ---------- 01 на красном: молоко + чёрный вместо серо-красного ---------- */
+
+.frame__panel .eyebrow { color: rgba(255, 255, 255, 0.78); }
+.frame__panel .soulmate__hours {
+  background: none;
+  -webkit-text-fill-color: #FFFFFF; color: #FFFFFF;
+}
+.frame__panel .soulmate__hours span {
+  color: rgba(255, 255, 255, 0.75);
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.75);
+}
+.frame__panel .soulmate__hours::after { background: #0A0A0B; }
+.frame__panel .soulmate__share { color: rgba(255, 255, 255, 0.85); }
+.frame__panel .facts { border-top-color: rgba(255, 255, 255, 0.25); }
+.frame__panel .fact { border-bottom-color: rgba(255, 255, 255, 0.25); }
+.frame__panel .fact:hover { background: rgba(255, 255, 255, 0.08); box-shadow: inset 2px 0 0 #0A0A0B; }
+.frame__panel .fact__num { color: #0D0D0F; }
+.frame__panel .fact__text { color: rgba(255, 255, 255, 0.88); }
+.frame__panel .fact__text b { color: #FFFFFF; }
 
 section { padding: var(--section-pad) 0; }
 
@@ -964,6 +998,7 @@ section { padding: var(--section-pad) 0; }
 @media (max-width: 700px) {
   .section-note { margin-left: 0; max-width: none; font-size: 13.5px; }
   .section-head { gap: 12px; }
+  .sec-note { margin-left: 0; max-width: none; font-size: 13.5px; }
 }
 
 /* герой: ник из Unbounded не должен упираться в края */
