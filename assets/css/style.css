@@ -793,8 +793,8 @@ section { padding: var(--section-pad) 0; }
 .fate__idx { font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--fs); letter-spacing: .1em; }
 .fate__name { font-size: clamp(17px, 2vw, 23px); font-family: var(--display); font-weight: var(--w-display); line-height: 1.1; letter-spacing: var(--tight); transition: opacity .18s ease, filter .18s ease; }
 .fate__tags { font-size: 13px; color: var(--ink-dim); }
-a.game-link { color: inherit; text-decoration: underline; text-decoration-color: rgba(255,255,255,.35); text-underline-offset: 4px; text-decoration-thickness: 1px; }
-a.game-link:hover { text-decoration-color: currentColor; }
+a.game-link { color: inherit; text-decoration: none; }
+a.game-link:hover { text-decoration: underline; text-decoration-color: currentColor; text-underline-offset: 4px; text-decoration-thickness: 1px; }
 .fate__slot.is-rolling .fate__name { opacity: .3; filter: blur(2px); }
 
 .fate__bar { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin-top: 26px; }
