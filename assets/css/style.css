@@ -151,53 +151,7 @@ a:hover { color: var(--accent); }
 
 /* секции — кадры на карбоне: рамка вместо линеек и призраков */
 .sec { position: relative; }
-.section-head {
-  display: flex;
-  align-items: baseline;
-  gap: 18px;
-  padding-bottom: 26px;
-  margin-bottom: clamp(34px, 5vw, 64px);
-  border-bottom: 1px solid var(--line);
-  position: relative;
-  flex-wrap: wrap;
-}
-.section-head::after {
-  content: ""; position: absolute; left: 0; bottom: -1px; height: 2px; width: 84px;
-  background: var(--accent);
-  clip-path: polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
-  transition: width 0.9s cubic-bezier(0.2, 0.7, 0.3, 1) 0.15s;
-}
-.section-head.reveal:not(.is-in)::after { width: 0; }
-
-.section-num {
-  font-family: var(--mono);
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--accent);
-  border: 1px solid var(--accent);
-  padding: 3px 8px;
-  border-radius: 3px;
-  letter-spacing: 0.06em;
-}
-
-.section-title {
-  text-transform: none;
-  font-family: var(--display);
-  font-weight: var(--w-display);
-  font-size: clamp(22px, 2.8vw, 36px);
-  line-height: 1.08;
-  margin: 0;
-  letter-spacing: var(--tight);
-}
-.section-title b { color: var(--accent); font-weight: var(--w-display); }
-
-.section-note {
-  margin-left: auto;
-  max-width: 34ch;
-  font-size: 14px;
-  color: var(--ink-dim);
-  line-height: 1.55;
-}
+/* старые .section-head удалены: все секции на .sec-head */
 
 /* ---------- кадры секций: общая шапка (тёмная по умолчанию, светлая на красном) ---------- */
 
@@ -533,34 +487,27 @@ section { padding: var(--section-pad) 0; }
 /* ---------- Явный запрос публичного Steam-профиля ---------- */
 
 .profile-form {
+  position: relative;
   max-width: 720px;
   margin: 30px auto 0;
   padding: 24px;
-  border: 1px solid transparent;
-  border-radius: 14px;
-  background:
-    #101013 padding-box,
-    linear-gradient(135deg, rgba(225, 6, 0, 0.5), rgba(255, 90, 77, 0.16) 40%, rgba(142, 13, 8, 0.5)) border-box;
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.4), 0 0 40px rgba(225, 6, 0, 0.07);
-  transition: box-shadow 0.15s ease;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--bg-soft);
+  transition: border-color 0.15s ease;
 }
-.profile-form:focus-within {
-  background:
-    #101013 padding-box,
-    linear-gradient(135deg, rgba(225, 6, 0, 0.85), rgba(255, 90, 77, 0.3) 40%, rgba(142, 13, 8, 0.85)) border-box;
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.4),
-              0 0 60px rgba(225, 6, 0, 0.14),
-              0 0 90px rgba(192, 19, 10, 0.09);
+.profile-form::before {
+  content: ""; position: absolute; top: -1px; left: 0; right: 0; height: 3px;
+  border-radius: 6px 6px 0 0; background: var(--c1);
 }
+.profile-form:focus-within { border-color: rgba(225, 6, 0, 0.6); }
 .profile-form__label {
   display: block;
   margin-bottom: 12px;
   font-size: 17px;
   font-weight: 800;
   letter-spacing: 0;
-  background: linear-gradient(90deg, #FFFFFF, var(--c5));
-  -webkit-background-clip: text; background-clip: text;
-  -webkit-text-fill-color: transparent; color: transparent;
+  color: var(--ink);
 }
 .profile-form__row { display: flex; gap: 10px; align-items: stretch; }
 .profile-form .btn--solid {
@@ -677,17 +624,16 @@ section { padding: var(--section-pad) 0; }
 /* ---------- главные цифры ---------- */
 
 .stats {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
-  background: var(--line); border: 1px solid var(--line); border-radius: 6px;
-  margin-top: clamp(44px, 6vw, 76px); overflow: hidden;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+  margin-top: clamp(44px, 6vw, 76px);
 }
 
-.stat { background: #111113; padding: clamp(26px, 3.4vw, 44px); position: relative; transition: background .18s ease; }
-.stat::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--sc, var(--c1)); }
-.stat:nth-child(1) { --sc: #FF3B30; }
-.stat:nth-child(2) { --sc: #F4F4F5; }
+.stat { background: #FFFFFF; color: #101012; border-radius: 6px; padding: clamp(26px, 3.4vw, 44px); position: relative; transition: transform .15s ease, box-shadow .15s ease; }
+.stat::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px; border-radius: 6px 6px 0 0; background: var(--sc, var(--c1)); }
+.stat:nth-child(1) { --sc: #E10600; }
+.stat:nth-child(2) { --sc: #101012; }
 .stat:nth-child(3) { --sc: #8E8E93; }
-.stat:hover { background: #1B1B1E; }
+.stat:hover { transform: translateY(-2px); box-shadow: 0 18px 44px rgba(0, 0, 0, 0.35); }
 
 .stat__value {
   font-size: clamp(34px, 5vw, 66px); font-family: var(--display); font-weight: var(--w-display); line-height: 1;
@@ -696,7 +642,7 @@ section { padding: var(--section-pad) 0; }
 /* ряд цифр — на ту же центральную ось, что и подписи (наследуют center от hero):
    иначе короткие числа жмутся к левому краю ячейки */
 .stat__unit { font-size: 15px; font-weight: 600; letter-spacing: 0; color: var(--ink-faint); }
-.stat__label { margin-top: 16px; color: var(--ink); }
+.stat__label { margin-top: 16px; color: #101012; }
 .stat__hint { margin-top: 6px; font-size: 13.5px; color: var(--ink-faint); }
 
 @media (max-width: 760px) { .stats { grid-template-columns: 1fr; } }
@@ -710,8 +656,7 @@ section { padding: var(--section-pad) 0; }
 
 .soulmate__hours {
   font-size: clamp(48px, 8.4vw, 106px); font-family: var(--display); font-weight: var(--w-display); line-height: 1; letter-spacing: var(--tight); margin: 22px 0 0;
-  background: linear-gradient(100deg, #FFFFFF 0%, #D8D8DE 55%, #E10600 100%);
-  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;
+  color: var(--ink);
 }
 .soulmate__hours::after {
   content: ""; display: block; width: min(300px, 64%); height: 5px;
@@ -944,7 +889,7 @@ section { padding: var(--section-pad) 0; }
 /* ---------- бегущая строка ---------- */
 
 .marquee {
-  overflow: hidden; padding: 16px 0;
+  overflow: hidden; padding: 20px 0;
   border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
   background: linear-gradient(90deg, rgba(225,6,0,.06), rgba(192,19,10,.06), rgba(142,13,8,.06));
 }
@@ -958,7 +903,7 @@ section { padding: var(--section-pad) 0; }
 .reveal:not(.is-in) .bar__fill { width: 0 !important; }
 .fate__slot { transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease; }
 .fate__slot:hover { transform: translateY(-2px); box-shadow: 0 18px 44px rgba(0, 0, 0, 0.35); }
-.marquee span { font-size: 13px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-dim); white-space: nowrap; }
+.marquee span { font-family: var(--display); font-weight: var(--w-display); font-size: clamp(22px, 3.4vw, 40px); letter-spacing: var(--tight); text-transform: uppercase; color: var(--ink); white-space: nowrap; }
 .marquee i { font-style: normal; margin-right: 10px; }
 .marquee span:nth-child(5n+1) i { color: var(--c1); }
 .marquee span:nth-child(5n+2) i { color: var(--c4); }
@@ -985,8 +930,6 @@ section { padding: var(--section-pad) 0; }
 
 /* подпись секции уезжает под заголовок, а не сжимает его */
 @media (max-width: 700px) {
-  .section-note { margin-left: 0; max-width: none; font-size: 13.5px; }
-  .section-head { gap: 12px; }
   .sec-note { margin-left: 0; max-width: none; font-size: 13.5px; }
 }
 
@@ -1019,8 +962,7 @@ section { padding: var(--section-pad) 0; }
   .donut-center__label { font-size: 10px; letter-spacing: .1em; }
 
   /* заголовки секций и бегущая строка */
-  .section-title { font-size: clamp(20px, 6.4vw, 28px); }
-  .marquee span { font-size: 14px; }
+  .marquee span { font-size: clamp(18px, 5.4vw, 26px); }
   .marquee__track { gap: 26px; }
 
   .rcard { padding: 20px 18px; }
@@ -1048,7 +990,6 @@ section { padding: var(--section-pad) 0; }
 @media (max-width: 360px) {
   .stat__value { font-size: 28px; }
   .soulmate__hours { font-size: 38px; }
-  .section-title { font-size: 19px; }
   .donut-center__value { font-size: 27px; }
   .fact__num { font-size: 15.5px; }
   .bar__value { font-size: 13px; }
