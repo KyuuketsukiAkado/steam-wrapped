@@ -5,6 +5,10 @@
 (function () {
   "use strict";
 
+  // Подгрузка без перезагрузки (задача 4): boot() может вызываться повторно.
+  // bootSeq отменяет устаревшие асинхронные перерисовки (аватар, fonts.ready).
+  var bootSeq = 0;
+
   // Страница рисуется из одного ProfileViewData: сейчас это статичный data.js,
   // позже сюда же придёт нормализованный ответ Worker для профиля друга.
   function boot(rules, profileViewData, isDemoProfile) {
@@ -14,6 +18,8 @@
     // Для исходного data.js сохраняем прежний путь нормализации. Данные,
     // полученные Worker, уже нормализованы через normalizeSteamData() до boot.
     if (dataLayer && !profileViewData) D = dataLayer.normalizeStaticData(D, rules);
+    bootSeq += 1;
+    var myBoot = bootSeq;
 
   var $  = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
@@ -124,15 +130,16 @@
     : "Живой профиль — данные из Steam";
 
   var pl = $("#profileLink");
-  if (D.meta.profileUrl) pl.href = D.meta.profileUrl; else pl.style.display = "none";
+  if (D.meta.profileUrl) { pl.href = D.meta.profileUrl; pl.style.display = ""; }
+  else pl.style.display = "none";
 
   var av = $("#avatar");
   if (D.meta.avatar) {
     var img = new Image();
     img.src = D.meta.avatar;
     img.alt = D.meta.persona || "avatar";
-    img.onload = function () { av.textContent = ""; av.appendChild(img); };
-    img.onerror = function () { av.textContent = (D.meta.persona || "?").charAt(0).toUpperCase(); };
+    img.onload = function () { if (myBoot !== bootSeq) return; av.textContent = ""; av.appendChild(img); };
+    img.onerror = function () { if (myBoot !== bootSeq) return; av.textContent = (D.meta.persona || "?").charAt(0).toUpperCase(); };
   } else {
     av.textContent = (D.meta.persona || "?").charAt(0).toUpperCase();
   }
@@ -207,6 +214,10 @@
 
   /* ---------- 01 · главная игра жизни ---------- */
 
+  // повторный boot: чистим динамические контейнеры, иначе строки задвоятся
+  $("#facts").textContent = "";
+  $("#smName").textContent = "—";
+  $("#smShare").textContent = "—";
   if (soulmate) {
     var h = soulmate.hours;
 
@@ -247,6 +258,7 @@
 
   (function topGames() {
     var top = played.slice(0, 10);
+    $("#bars").textContent = "";
     if (!top.length) return;
     var max = top[0].hours;
     var wrap = $("#bars");
@@ -329,6 +341,8 @@
 
   (function recent() {
     var wrap = $("#recent");
+    wrap.textContent = "";
+    wrap.classList.remove("is-single");
     var list = games.filter(function (g) { return (g.hours2w || 0) > 0; })
                     .sort(function (a, b) { return b.hours2w - a.hours2w; })
                     .slice(0, 4);
@@ -398,8 +412,13 @@
 
   (function donut() {
     var svg = $("#donut"), legend = $("#legend");
+    svg.textContent = ""; legend.textContent = "";
     var sum = genreData.reduce(function (s, x) { return s + x.hours; }, 0);
-    if (!sum) return;
+    if (!sum) {
+      $("#donutValue").textContent = "—";
+      $("#donutLabel").textContent = "жанров";
+      return;
+    }
 
     var R = 78, C = 2 * Math.PI * R, off = 0;
     var palette = ["#E10600", "#8E8E93", "#6E6E73", "#636366", "#48484E",
@@ -484,9 +503,14 @@
 
   (function fate() {
     var stage = $("#fateStage"), btn = $("#fateBtn");
+    // повторный boot: сцену возвращаем к заглушкам (исходный HTML — один раз),
+    // кнопку включаем заново и возвращаем исходную подпись
+    if (stage.dataset.base === undefined) stage.dataset.base = stage.innerHTML;
+    else stage.innerHTML = stage.dataset.base;
+    btn.disabled = !backlog.length;
+    btn.textContent = "Бросить кости";
 
     if (!backlog.length) {
-      btn.disabled = true;
       if (neverPlayed > 0) {
         // цифра есть, списка нет: данные собирались вручную / выгрузка неполная
         $("#fateCount").textContent = "В бэклоге " + num(neverPlayed) + " " +
@@ -539,7 +563,9 @@
       });
     }
 
-    btn.addEventListener("click", function () {
+    // onclick, а не addEventListener: повторный boot перезаписывает обработчик
+    // вместо дублирования (иначе одна кнопка крутила бы рулетку дважды)
+    btn.onclick = function () {
       btn.disabled = true;
       var ticks = 0;
       var spin = setInterval(function () {
@@ -551,7 +577,7 @@
           btn.textContent = "Ещё раз 🎲";
         }
       }, 70);
-    });
+    };
   })();
 
   /* ---------- 06 · карточка для шаринга ---------- */
@@ -568,12 +594,13 @@
   if (D.meta && D.meta.avatar) {
     avatarImg = new Image();
     avatarImg.crossOrigin = "anonymous";
-    avatarImg.onload = function () { redrawCard(); };
-    avatarImg.onerror = function () { avatarImg = null; redrawCard(); };
+    avatarImg.onload = function () { if (myBoot === bootSeq) redrawCard(); };
+    avatarImg.onerror = function () { if (myBoot !== bootSeq) return; avatarImg = null; redrawCard(); };
     avatarImg.src = D.meta.avatar;
   }
 
   function redrawCard() {
+    if (myBoot !== bootSeq) return;   // устаревший вызов после повторного boot
     var c = shareCanvas, x = c.getContext("2d");
     var W = c.width, H = c.height;
     var INK = "#EDEDEF", NEAR = "#F7F7F8", DIM = "#A7A7AD", FAINT = "#6E6E75";
@@ -1019,7 +1046,9 @@
     say("Карточка скачана ✓");
   }
 
-  $("#dlBtn").addEventListener("click", downloadCard);
+  // Все кнопки ниже — через onclick: повторный boot перезаписывает обработчик,
+  // addEventListener плодил бы дубли (двойные скачивания, окна шаринга).
+  $("#dlBtn").onclick = downloadCard;
 
   function copyCard() {
     // Промис: карточка в буфер обмена. Соцсети не умеют принимать файл
@@ -1034,12 +1063,12 @@
     });
   }
 
-  $("#copyBtn").addEventListener("click", function () {
+  $("#copyBtn").onclick = function () {
     copyCard().then(
       function () { say("Скопировано в буфер ✓"); },
       function () { say("Не вышло скопировать — скачай PNG"); }
     );
-  });
+  };
 
   /* ---------- поделиться в соцсети ---------- */
 
@@ -1098,35 +1127,35 @@
 
   var tg = $("#tgBtn"), li = $("#liBtn"), dc = $("#dcBtn");
 
-  if (tg) tg.addEventListener("click", function () {
+  if (tg) tg.onclick = function () {
     shareVia(function (text) {
       return "https://t.me/share/url?url=" + encodeURIComponent(PAGE_URL) +
              "&text=" + encodeURIComponent(text);
     }, "Telegram");
-  });
+  };
 
-  if (li) li.addEventListener("click", function () {
+  if (li) li.onclick = function () {
     // LinkedIn берёт из ссылки только URL, текст подставляем через буфер
     shareVia(function () {
       return "https://www.linkedin.com/sharing/share-offsite/?url=" + encodeURIComponent(PAGE_URL);
     }, "LinkedIn");
-  });
+  };
 
-  if (dc) dc.addEventListener("click", function () {
+  if (dc) dc.onclick = function () {
     // у Discord нет окна публикации: кладём в буфер подпись и ссылку,
     // а карточку отдаём скачиванием — PNG прикрепляешь к сообщению вручную.
     copyText(caption() + "\n" + PAGE_URL);
     downloadCard();
-  });
+  };
 
   var capCopy = $("#capCopyBtn"), capReset = $("#capResetBtn");
-  if (capCopy) capCopy.addEventListener("click", function () {
+  if (capCopy) capCopy.onclick = function () {
     copyText(caption() + "\n" + PAGE_URL);
-  });
-  if (capReset) capReset.addEventListener("click", function () {
+  };
+  if (capReset) capReset.onclick = function () {
     capBox.value = defaultCaption();
     say("Подпись возвращена");
-  });
+  };
 
   /* ---------- появление секций ---------- */
 
@@ -1172,7 +1201,7 @@
     return url.href;
   }
 
-  function wireProfileForm(dataLayer) {
+  function wireProfileForm(dataLayer, rules) {
     var form = document.getElementById("profileForm");
     var input = document.getElementById("profileInput");
     var reset = document.getElementById("profileReset");
@@ -1198,6 +1227,18 @@
 
     input.addEventListener("input", function () { input.removeAttribute("aria-invalid"); });
 
+    // Состояние загрузки: кнопка гаснет (.btn[disabled] уже в CSS) и честно
+    // говорит «Загружаю…», поле блокируется от правок на время запроса.
+    var submitBtn = form.querySelector('button[type="submit"]');
+    var submitLabel = submitBtn ? submitBtn.textContent : "";
+    function setFormBusy(busy) {
+      if (submitBtn) {
+        submitBtn.disabled = !!busy;
+        submitBtn.textContent = busy ? "Загружаю…" : submitLabel;
+      }
+      input.disabled = !!busy;
+    }
+
     form.addEventListener("submit", function (event) {
       event.preventDefault();
       var value = input.value.trim();
@@ -1207,9 +1248,31 @@
         input.focus();
         return;
       }
-      var url = new URL(window.location.href);
-      url.searchParams.set("profile", value);
-      window.location.assign(url.href);
+      // CORS сознательно ограничен опубликованным GitHub Pages (см. start):
+      // на preview подгрузка недоступна — сообщаем сразу, без перезагрузки.
+      if (window.location.origin !== PAGES_ORIGIN) {
+        setProfileStatus("Живой профиль доступен на опубликованной GitHub Pages-странице.", "error");
+        return;
+      }
+      setProfileStatus("Получаю публичные данные Steam…", "loading");
+      setFormBusy(true);
+      loadLiveProfile(value, rules, dataLayer).then(function (result) {
+        announceLiveResult(result);
+        // адрес обновляем без перезагрузки: страницу с ?profile= можно шарить,
+        // а прямой заход по ней сразу строит живой профиль (см. start).
+        var url = new URL(window.location.href);
+        url.searchParams.set("profile", value);
+        window.history.replaceState(null, "", url.href);
+        if (reset) {
+          reset.hidden = false;
+          reset.href = resetProfileUrl();
+        }
+        try { boot(rules, result.data, false); }
+        finally { setFormBusy(false); }
+      }, function (error) {
+        setProfileStatus(workerErrorMessage(error && error.code), "error");
+        setFormBusy(false);
+      });
     });
   }
 
@@ -1224,6 +1287,16 @@
       api_disabled: "Живое обновление временно отключено."
     };
     return messages[code] || "Сервис временно недоступен. Попробуй немного позже.";
+  }
+
+  // Один статус успеха на первичную загрузку и на сабмит без reload.
+  function announceLiveResult(result) {
+    setProfileStatus(
+      result.genreWarning
+        ? "Профиль построен. Часть жанров временно недоступна."
+        : "Профиль построен из публичных данных Steam.",
+      result.genreWarning ? "" : "ok"
+    );
   }
 
   function workerJson(path, options) {
@@ -1304,7 +1377,7 @@
   }
 
   function start(rules, dataLayer) {
-    wireProfileForm(dataLayer);
+    wireProfileForm(dataLayer, rules);
     var staticData = dataLayer.normalizeStaticData(window.STEAM_DATA, rules);
     var requested = profileQuery();
     if (!requested) {
@@ -1326,12 +1399,7 @@
 
     setProfileStatus("Получаю публичные данные Steam…", "loading");
     loadLiveProfile(requested, rules, dataLayer).then(function (result) {
-      setProfileStatus(
-        result.genreWarning
-          ? "Профиль построен. Часть жанров временно недоступна."
-          : "Профиль построен из публичных данных Steam.",
-        result.genreWarning ? "" : "ok"
-      );
+      announceLiveResult(result);
       boot(rules, result.data, false);
     }).catch(function (error) {
       setProfileStatus(workerErrorMessage(error && error.code), "error");
