@@ -68,6 +68,18 @@
     return e;
   }
 
+  // Имя игры: ссылка на её страницу в Steam, если известен appid, иначе текст.
+  function gameLabel(g) {
+    if (g && g.appid) {
+      var a = el("a", "game-link", g.name);
+      a.target = "_blank";
+      a.rel = "noopener";
+      a.href = "https://store.steampowered.com/app/" + encodeURIComponent(g.appid) + "/";
+      return a;
+    }
+    return document.createTextNode(g ? g.name : "");
+  }
+
   function appendBold(parent, text) {
     parent.appendChild(el("b", "", text));
     return parent;
@@ -248,7 +260,9 @@
       ? dataLayer.soulmateUnit(soulmate, rules)
       : { min: 120, word: "вечеров", note: "по два часа, от «на часик» до «ещё один»" };
 
-    $("#smName").textContent = soulmate.name;
+    var smNameEl = $("#smName");
+    smNameEl.textContent = "";
+    smNameEl.appendChild(gameLabel(soulmate));
     if (smArt && soulmate.appid) {
       smArt.alt = soulmate.name;
       smArt.hidden = false;
@@ -337,7 +351,9 @@
       row.appendChild(el("div", "bar__rank", String(i + 1).padStart(2, "0")));
 
       var body = el("div", "bar__body");
-      body.appendChild(el("div", "bar__name", g.name));
+      var barName = el("div", "bar__name");
+      barName.appendChild(gameLabel(g));
+      body.appendChild(barName);
       var track = el("div", "bar__track");
       var fill = el("div", "bar__fill");
       fill.dataset.w = (g.hours / max * 100).toFixed(2) + "%";
@@ -399,7 +415,9 @@
       if (i === 0) eyebrow.appendChild(el("span", "pulse"));
       eyebrow.appendChild(document.createTextNode(i === 0 ? "главное занятие" : "также в ротации"));
       card.appendChild(eyebrow);
-      card.appendChild(el("div", "rcard__name", g.name));
+      var rcardName = el("div", "rcard__name");
+      rcardName.appendChild(gameLabel(g));
+      card.appendChild(rcardName);
       var big = el("div", "rcard__big", smartDec(g.hours2w || 0));
       big.appendChild(el("span", "", "ч за 2 недели"));
       card.appendChild(big);
@@ -576,15 +594,10 @@
       list.forEach(function (g, i) {
         var slot = el("div", "fate__slot" + (rolling ? " is-rolling" : ""));
         slot.appendChild(el("div", "fate__idx", "ВАРИАНТ " + String(i + 1).padStart(2, "0")));
-        slot.appendChild(el("div", "fate__name", g.name));
+        var fateName = el("div", "fate__name");
+        fateName.appendChild(gameLabel(g));
+        slot.appendChild(fateName);
         slot.appendChild(el("div", "fate__tags", (g.genres || []).join(" · ") || "жанр неизвестен"));
-        if (g.appid) {
-          var link = el("a", "fate__link", "страница в Steam ↗");
-          link.target = "_blank";
-          link.rel = "noopener";
-          link.href = "https://store.steampowered.com/app/" + encodeURIComponent(g.appid) + "/";
-          slot.appendChild(link);
-        }
         stage.appendChild(slot);
       });
     }
