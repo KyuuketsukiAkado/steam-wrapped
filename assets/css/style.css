@@ -317,74 +317,160 @@ section { padding: var(--section-pad) 0; }
 .hero > *:nth-child(6) { animation-delay: 0.32s; }
 .hero > *:nth-child(7) { animation-delay: 0.38s; }
 .hero > *:nth-child(8) { animation-delay: 0.44s; }
-.hero__top { display: flex; flex-direction: column; align-items: center; }
-/* моно-строка с ромбом и красными засечками-линейками вместо пилюли:
-   пилюля с пульсом — самый узнаваемый вайбкод-паттерн */
-.hero__badge {
-  display: inline-flex; align-items: center; gap: 14px;
-  margin: 0 0 26px; padding: 0;
-  font-family: var(--mono); font-size: 12px; font-weight: 700;
-  letter-spacing: 0.22em; text-transform: uppercase;
-  color: var(--ink-dim);
+/* ---------- герой: рамка с красной плашкой (по референсу embodaze) ---------- */
+
+/* микро-подписи над рамкой */
+.hero__meta {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  margin: 0 0 18px;
+  font-family: var(--mono); font-size: 11px; font-weight: 700;
+  letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-faint);
 }
-.hero__badge::before, .hero__badge::after {
-  content: ""; width: clamp(28px, 6vw, 84px); height: 1px;
-}
-.hero__badge::before { background: linear-gradient(90deg, transparent, rgba(225, 6, 0, 0.65)); }
-.hero__badge::after { background: linear-gradient(90deg, rgba(225, 6, 0, 0.65), transparent); }
-.hero__badge-dot {
-  width: 8px; height: 8px; flex: none;
+.hero__meta-dot {
+  width: 7px; height: 7px; flex: none;
   background: var(--c1);
   transform: rotate(45deg);
 }
 
+/* тёмная рамка-карточка */
+.frame {
+  position: relative; text-align: left;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 14px; background: #0C0C0E;
+  padding: clamp(8px, 1.2vw, 12px);
+  box-shadow: 0 40px 120px rgba(0, 0, 0, 0.55), 0 0 90px rgba(225, 6, 0, 0.10);
+}
+/* красная тень-отражение под рамкой */
+.frame::after {
+  content: ""; position: absolute; left: 8%; right: 8%; bottom: -22px; height: 44px;
+  background: radial-gradient(50% 100% at 50% 0, rgba(225, 6, 0, 0.32), transparent 70%);
+  filter: blur(8px); z-index: -1; pointer-events: none;
+}
+.frame__panel {
+  position: relative; overflow: hidden; border-radius: 8px;
+  background: linear-gradient(152deg, #F31200 0%, var(--c1) 34%, var(--c2) 68%, var(--c3) 100%);
+}
+/* глубина: затемнение к нижним углам */
+.frame__panel::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(120% 90% at 50% 112%, rgba(0, 0, 0, 0.38), transparent 60%);
+}
+.frame__panel > * { position: relative; z-index: 1; }
+/* на красном виден только светлый фокус */
+.frame :focus-visible { outline-color: #FFFFFF; }
+
+/* мини-нав внутри плашки */
+.frame__nav {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: clamp(14px, 2vw, 22px) clamp(18px, 3vw, 34px) 0;
+  font-family: var(--mono); font-size: 11px; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase; color: #FFFFFF;
+}
+.frame__brand { letter-spacing: 0.1em; }
+.frame__links { display: flex; gap: clamp(12px, 2vw, 24px); }
+.frame__links a { color: rgba(255, 255, 255, 0.72); transition: color 0.12s ease; }
+.frame__links a:hover { color: #FFFFFF; }
+.frame__pill {
+  border: 1px solid rgba(255, 255, 255, 0.55); border-radius: 999px;
+  padding: 7px 14px; white-space: nowrap;
+}
+
+/* сцена с типом в обрезку */
+.frame__stage {
+  position: relative; overflow: hidden;
+  padding: clamp(6px, 1.5vw, 18px) 0 clamp(14px, 2.6vw, 30px);
+}
+/* Плакатный блок: STEAM крупнее в 1.394 раза (замер Unbounded Black c HVAR:
+   4.793 против 6.694) — обе строки одинаковой ширины, блок в обрезку 4%. */
 .hero__title {
-  font-family: var(--display);
-  font-weight: var(--w-display);
-  /* full-bleed постер: 100vw центрируется флексом .hero__top.
-     Замер Black c HVAR: WRAPPED 6.69em — 14.4vw/216px дают микро-поля ~12px. */
-  width: 100vw;
-  font-size: clamp(46px, 14.4vw, 216px);
-  line-height: 0.9;
-  letter-spacing: var(--tight);
-  text-transform: uppercase;
-  margin: 0;
+  font-family: var(--display); font-weight: var(--w-display);
+  font-size: clamp(46px, 11.5vw, 163px);
+  line-height: 0.88; letter-spacing: var(--tight); text-transform: uppercase;
+  color: #FFFFFF; text-align: center;
+  width: 108%; margin: 0 -4%;
 }
-/* STEAM — цветной перелив (красный→коралл→лёд) с медленным течением;
-   строки входят каскадом через маску. WRAPPED — голый контур 1.5px:
-   любой background под stroke дублирует линии, поэтому только stroke. */
-.hero__title-solid {
-  display: inline-block;
-  color: var(--c4);
-  animation: title-in 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.15s both;
+.hero__title .t-steam, .hero__title .t-wrap { display: block; }
+.hero__title .t-steam {
+  font-size: 1.394em;
+  animation: title-in 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.25s both;
 }
-@supports ((-webkit-background-clip: text) or (background-clip: text)) {
-  .hero__title-solid {
-    background: linear-gradient(100deg, var(--c1) 0%, var(--c4) 22%, var(--c5) 42%, #FFFFFF 50%, var(--c5) 58%, var(--c4) 78%, var(--c1) 100%);
-    background-size: 220% 100%;
-    -webkit-background-clip: text; background-clip: text;
-    -webkit-text-fill-color: transparent; color: transparent;
-    animation: title-in 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.15s both,
-               steam-flow 8s ease-in-out 1.2s infinite;
-  }
-}
-/* WRAPPED — сплошной лёд на красной плашке: контур убран,
-   плашка длиной в слово (паддинги в em тянутся за кеглем) */
-.hero__title b {
-  display: inline-block;
-  font-weight: var(--w-display);
-  color: #FFFFFF;
-  background: linear-gradient(96deg, var(--c1), var(--c2));
-  padding: 0 0.1em 0.02em;
-  animation: title-in 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.3s both;
+.hero__title .t-wrap {
+  animation: title-in 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.4s both;
 }
 @keyframes title-in {
   from { opacity: 0; transform: translateY(0.35em); clip-path: inset(0 0 100% 0); }
   to { opacity: 1; transform: none; clip-path: inset(0 0 0 0); }
 }
-@keyframes steam-flow {
-  0%, 100% { background-position: 0% 0; }
-  50% { background-position: 100% 0; }
+
+/* вращающаяся печать поверх типа — кликабельный скролл к форме */
+.frame__disc {
+  position: absolute; z-index: 2; left: 50%; top: 50%;
+  width: clamp(112px, 12vw, 148px); aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  display: grid; place-items: center;
+  filter: drop-shadow(0 10px 28px rgba(0, 0, 0, 0.45));
+  animation: disc-in 0.7s cubic-bezier(0.2, 0.7, 0.3, 1) 0.65s both;
+  transition: scale 0.15s ease;
+}
+.frame__disc:hover { scale: 1.05; }
+@keyframes disc-in { from { opacity: 0; scale: 0.6; } to { opacity: 1; scale: 1; } }
+.frame__disc svg {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  animation: disc-spin 22s linear infinite;
+}
+@keyframes disc-spin { to { transform: rotate(360deg); } }
+.disc-bg { fill: #0A0A0B; }
+.disc-ring { fill: none; stroke: rgba(255, 255, 255, 0.85); stroke-width: 1.5; }
+.disc-text {
+  font-family: var(--mono); font-size: 12px; font-weight: 700;
+  letter-spacing: 1.5px; fill: #FFFFFF; text-transform: uppercase;
+}
+.frame__disc-arrow { font-size: 26px; font-weight: 800; color: var(--c4); line-height: 1; }
+
+/* нижний ряд: подзаголовок + пилюля, микротекст, живые стат-карточки */
+.frame__bottom {
+  display: grid; grid-template-columns: 1.05fr 0.95fr 1fr;
+  gap: clamp(18px, 3vw, 36px); align-items: end;
+  padding: 0 clamp(18px, 3vw, 34px) clamp(20px, 3vw, 34px);
+}
+.frame__sub {
+  margin: 0 0 18px; font-family: var(--display); font-weight: var(--w-display);
+  font-size: clamp(24px, 2.8vw, 36px); line-height: 1.04; letter-spacing: var(--tight);
+  color: #FFFFFF;
+}
+.btn--cream {
+  background: var(--c5); border-color: transparent; color: #101012; font-weight: 800;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.30);
+}
+.btn--cream:hover { background: #FFFFFF; color: var(--c1); box-shadow: 0 16px 38px rgba(0, 0, 0, 0.36); }
+.frame__micro { margin: 0; max-width: 30ch; font-size: 13.5px; line-height: 1.6; color: rgba(255, 255, 255, 0.82); }
+.frame__cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.fcard {
+  background: #FFFFFF; color: #101012; border-radius: 6px;
+  padding: 14px 16px 13px; min-width: 0;
+  transition: transform 0.12s ease;
+}
+.fcard:hover { transform: translateY(-2px); }
+.fcard__value {
+  font-family: var(--display); font-weight: var(--w-display);
+  font-size: clamp(24px, 2.4vw, 34px); line-height: 1; letter-spacing: var(--tight);
+  font-variant-numeric: tabular-nums;
+}
+.fcard__label {
+  margin-top: 7px; font-family: var(--mono); font-size: 10px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase; color: #6E6E75;
+}
+
+@media (max-width: 760px) {
+  .frame__links { display: none; }
+  .frame__bottom { grid-template-columns: 1fr; gap: 20px; align-items: start; }
+  .frame__micro { max-width: none; }
+  .frame__disc { left: auto; right: 6px; top: 44%; transform: translateY(-50%); width: 92px; }
+  .frame__disc-arrow { font-size: 20px; }
+}
+@media (max-width: 400px) {
+  .fcard__value { font-size: 22px; }
+  .hero__meta { font-size: 9px; letter-spacing: 0.12em; }
 }
 
 .hero__profile { display: flex; align-items: center; justify-content: center; gap: clamp(16px, 2vw, 22px); margin-top: clamp(26px, 3.4vw, 44px); }
@@ -418,41 +504,6 @@ section { padding: var(--section-pad) 0; }
   50% { box-shadow: 0 14px 60px rgba(225, 6, 0, 0.32); }
 }
 .avatar img { width: 100%; height: 100%; object-fit: cover; }
-
-.hero__sub { margin: 28px auto 0; max-width: 60ch; color: var(--ink-dim); font-size: clamp(16px, 1.6vw, 18px); }
-.hero__sub b { color: var(--ink); font-weight: 700; }
-/* фичи — редакционные строки с моно-нумерацией, а не карточки:
-   один язык с фактами/барами/легендой ниже по странице */
-.hero__features {
-  list-style: none; margin: 40px auto 0; padding: 0;
-  max-width: 680px;
-  display: grid; grid-template-columns: 1fr;
-  text-align: left;
-  counter-reset: feat;
-  border-top: 1px solid var(--line);
-}
-.hero__features li {
-  counter-increment: feat;
-  display: grid; grid-template-columns: 52px 1fr; gap: 18px; align-items: baseline;
-  border-bottom: 1px solid var(--line);
-  padding: 15px 4px;
-  color: var(--ink-dim); font-size: 15px; line-height: 1.6;
-  transition: background 0.12s ease, padding-left 0.12s ease;
-}
-.hero__features li::before {
-  content: "0" counter(feat);
-  font-family: var(--mono); font-weight: 700; font-size: 12px;
-  letter-spacing: 0.1em;
-  color: var(--fc, var(--c1));
-}
-.hero__features li:nth-child(1) { --fc: var(--c1); }
-.hero__features li:nth-child(2) { --fc: var(--c4); }
-.hero__features li:nth-child(3) { --fc: var(--c2); }
-.hero__features li:hover {
-  background: rgba(255,255,255,0.03); padding-left: 12px;
-  box-shadow: inset 2px 0 0 var(--fc, var(--c1));
-}
-.hero__features b { color: var(--ink); }
 
 .hero__actions { display: flex; gap: 12px; margin-top: 34px; flex-wrap: wrap; justify-content: center; }
 
@@ -917,12 +968,7 @@ section { padding: var(--section-pad) 0; }
 
 /* герой: ник из Unbounded не должен упираться в края */
 @media (max-width: 560px) {
-  /* моно-бейдж в одну строку на 360: мельче кегль, уже трекинг, без линеек */
-  .hero__badge { font-size: 10px; letter-spacing: 0.08em; gap: 10px; }
-  .hero__badge::before, .hero__badge::after { display: none; }
-  .hero__features li { grid-template-columns: 38px 1fr; gap: 12px; padding: 13px 2px; }
   .avatar { width: 76px; height: 76px; border-radius: 20px; font-size: 32px; }
-  .hero__top { gap: 16px; }
   .stat { padding: 22px 18px; }
   .stat__value { font-size: clamp(30px, 10vw, 44px); }
 
