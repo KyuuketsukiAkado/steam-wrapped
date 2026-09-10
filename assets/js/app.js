@@ -970,10 +970,8 @@
       }
 
       x.textAlign = "right";
-      var hg = x.createLinearGradient(pR - 420, 0, pR - 40, 0);
-      hg.addColorStop(0, "#FFFFFF"); hg.addColorStop(1, "#FF3B30");
       var hs = shrinkSingle(num(soulmate.hours), 380, WD, 100, 40);
-      x.fillStyle = hg; x.font = hs.font;
+      x.fillStyle = "#FFFFFF"; x.font = hs.font;
       x.fillText(num(soulmate.hours), pR - 40, py + 136);
       x.fillStyle = DIM; x.font = "600 24px " + SANS;
       x.fillText("часов", pR - 40, py + 196);
