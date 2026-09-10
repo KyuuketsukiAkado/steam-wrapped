@@ -230,6 +230,7 @@ a:hover { color: var(--accent); }
 .sec--red .share__preview { border-color: rgba(255, 255, 255, 0.35); background: #0A0A0B; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45); }
 
 section { padding: var(--section-pad) 0; }
+#share { --section-pad: clamp(56px, 8vw, 110px); }
 
 /* ---------- шапка ---------- */
 
@@ -386,17 +387,24 @@ section { padding: var(--section-pad) 0; }
   to { opacity: 1; transform: none; clip-path: inset(0 0 0 0); }
 }
 
-/* скоростные линии дрейфуют за типом: период 158px, сдвиг на период = бесшовно */
-.hero__stage::before {
-  content: ""; position: absolute; top: 0; bottom: 0; left: 0; right: -170px;
-  z-index: 0; pointer-events: none;
-  background: repeating-linear-gradient(90deg,
-    transparent 0 34px, rgba(255, 255, 255, 0.055) 34px 36px,
-    transparent 36px 90px, rgba(255, 255, 255, 0.09) 90px 94px,
-    transparent 94px 150px, rgba(0, 0, 0, 0.07) 150px 158px);
-  animation: stage-drift 30s linear infinite;
+/* звездопад за типом: три метеора чертят сцену и гаснут */
+.meteor {
+  position: absolute; z-index: 0; pointer-events: none;
+  width: 140px; height: 2px; border-radius: 999px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0) 85%);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.35);
+  opacity: 0;
+  animation: meteor-fall 7s linear infinite;
 }
-@keyframes stage-drift { to { transform: translateX(-158px); } }
+.hero__stage .meteor:nth-child(1) { top: 12%; left: 62%; }
+.hero__stage .meteor:nth-child(2) { top: 38%; left: 78%; width: 200px; animation-duration: 9s; animation-delay: 2.4s; }
+.hero__stage .meteor:nth-child(3) { top: 64%; left: 52%; width: 100px; animation-duration: 6s; animation-delay: 4.8s; }
+@keyframes meteor-fall {
+  0% { transform: rotate(-24deg) translateX(420px); opacity: 0; }
+  6% { opacity: 1; }
+  30% { transform: rotate(-24deg) translateX(-640px); opacity: 0; }
+  100% { transform: rotate(-24deg) translateX(-640px); opacity: 0; }
+}
 
 /* нижний ряд: подзаголовок + пилюля, микротекст, живые стат-карточки */
 .hero__bottom {
