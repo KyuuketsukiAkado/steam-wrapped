@@ -218,6 +218,12 @@
   $("#facts").textContent = "";
   $("#smName").textContent = "—";
   $("#smShare").textContent = "—";
+  var smArt = $("#smArt");
+  if (smArt) {
+    smArt.hidden = true;
+    smArt.removeAttribute("src");
+    smArt.onerror = function () { smArt.hidden = true; };
+  }
   if (soulmate) {
     var h = soulmate.hours;
 
@@ -228,6 +234,11 @@
       : { min: 120, word: "вечеров", note: "по два часа, от «на часик» до «ещё один»" };
 
     $("#smName").textContent = soulmate.name;
+    if (smArt && soulmate.appid) {
+      smArt.alt = soulmate.name;
+      smArt.hidden = false;
+      smArt.src = "https://cdn.cloudflare.steamstatic.com/steam/apps/" + soulmate.appid + "/header.jpg";
+    }
     $("#smShare").textContent =
       "Это " + dec(h / totalHours * 100, 0) + "% всего времени в Steam. " +
       (soulmate.lastPlayed ? "Последний заход — " + fmtDate(soulmate.lastPlayed) + "." : "");
