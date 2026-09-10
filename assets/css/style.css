@@ -1012,15 +1012,6 @@ body::after {
   transform: scaleX(0); transform-origin: 0 50%;
 }
 section[id] { scroll-margin-top: 70px; }
-@media (min-width: 1240px) {
-  .shell::before, .shell::after {
-    content: ""; position: fixed; top: 0; bottom: 0; width: 1px; z-index: 0;
-    background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.09) 12%, rgba(255, 255, 255, 0.09) 88%, transparent);
-    pointer-events: none;
-  }
-  .shell::before { left: max(20px, calc((100vw - 1180px) / 2 - 28px)); }
-  .shell::after { right: max(20px, calc((100vw - 1180px) / 2 - 28px)); }
-}
 .topbar__nav a.is-on { color: var(--c4); }
 .to-top {
   position: fixed; right: 22px; bottom: 22px; z-index: 30;
