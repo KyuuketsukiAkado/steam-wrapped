@@ -547,7 +547,11 @@ section { padding: var(--section-pad) 0; }
   text-underline-offset: 3px;
 }
 @media (max-width: 620px) {
+  /* в колонке flex-basis инпута работал как высота (~360px) — поле
+     становилось гигантским; сбрасываем флекс и ужимаем отступы */
+  .profile-form { padding: 18px; }
   .profile-form__row { flex-direction: column; }
+  .profile-form__input { flex: none; width: 100%; min-height: 52px; padding: 13px 18px; }
   .profile-form__row .btn { width: 100%; }
 }
 
@@ -907,6 +911,8 @@ section { padding: var(--section-pad) 0; }
 /* герой: ник из Unbounded не должен упираться в края */
 @media (max-width: 560px) {
   .hero__title b { display: inline-block; }
+  /* бейдж в одну строку: иначе 12px + широкий трекинг рвут его на две */
+  .hero__badge { font-size: 11px; letter-spacing: 0.08em; padding: 7px 13px 7px 11px; }
   .avatar { width: 76px; height: 76px; border-radius: 20px; font-size: 32px; }
   .hero__top { gap: 16px; }
   .stat { padding: 22px 18px; }
