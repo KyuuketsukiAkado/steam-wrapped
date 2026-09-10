@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Steam Wrapped — статистика Steam-профиля</title>
 <meta name="description" content="Steam Wrapped превращает публичную библиотеку в цифры — от которых одновременно стыдно и радостно.">
-<meta name="theme-color" content="#0A0A0B">
+<meta name="theme-color" content="#0A0807">
 <meta property="og:title" content="Steam Wrapped — твоя библиотека в цифрах">
 <meta property="og:description" content="Инструмент для наглядной статистики публичного Steam-профиля.">
 <meta property="og:type" content="website">
@@ -26,7 +26,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400..900&family=JetBrains+Mono:wght@400..800&display=swap">
 <!-- ?v= — бамп версии при ручных правках css/js, иначе браузер отдаст кэш -->
-<link rel="stylesheet" href="assets/css/style.css?v=20260908-27">
+<link rel="stylesheet" href="assets/css/style.css?v=20260910-43">
 </head>
 <body>
 <a class="skip-link" href="#hero">К содержимому</a>
@@ -43,6 +43,7 @@
         <a href="#now">Сейчас</a>
         <a href="#genres">Жанры</a>
         <a href="#fate">Судьба вечера</a>
+        <a href="#versus">Против друга</a>
       </nav>
       <button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="mobileNav" aria-label="Меню">
         <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
@@ -54,29 +55,43 @@
       <a href="#now">Сейчас</a>
       <a href="#genres">Жанры</a>
       <a href="#fate">Судьба вечера</a>
+      <a href="#versus">Против друга</a>
     </nav>
   </header>
 
   <!-- ============ ГЕРОЙ ============ -->
-  <section class="hero wrap" id="hero">
-    <div class="hero__top">
-      <p class="hero__badge"><span class="hero__badge-dot" aria-hidden="true"></span>Инструмент для публичного Steam-профиля</p>
-      <h1 class="hero__title">Steam<br><b>Wrapped</b></h1>
+  <section class="hero" id="hero">
+    <div class="hero__red sec--red">
+      <div class="wrap">
+        <div class="hero__nav">
+          <span class="hero__brand">Steam—Wrapped</span>
+          <span class="hero__pill">RU · 2026</span>
+        </div>
+        <div class="hero__stage">
+          <span class="meteor" aria-hidden="true"></span>
+          <span class="meteor" aria-hidden="true"></span>
+          <span class="meteor" aria-hidden="true"></span>
+          <h1 class="hero__title"><span class="t-steam">Steam</span><span class="t-wrap">Wrapped</span></h1>
+        </div>
+        <div class="hero__bottom">
+          <div>
+            <p class="hero__sub">Твоя библиотека —<br>в цифрах.</p>
+            <a class="btn btn--cream" href="#profileForm">Собрать свой ↓</a>
+          </div>
+          <p class="hero__micro">Часы в днях, топ игр, жанры и карточка для шаринга. Без регистрации и ключей — только открытые данные Steam.</p>
+          <ul class="hero__points">
+            <li><i>01</i>Часы — в днях и смыслах</li>
+            <li><i>02</i>Топ игр и жанры</li>
+            <li><i>03</i>Карточка для шаринга</li>
+          </ul>
+        </div>
+      </div>
     </div>
 
-    <p class="hero__sub">
-      Вставь ссылку на профиль — получишь часы в днях, топ игр, жанры
-      и карточку для шаринга. <b>Без регистрации и ключей: только открытые данные Steam.</b>
-    </p>
-
-    <ul class="hero__features">
-      <li><b>Часы — в днях и смыслах:</b> нон-стоп, годы жизни и «Властелин колец» в режиссёрской версии.</li>
-      <li><b>Топ игр и жанры:</b> десятка с долями, донат жанров и чем ты занят прямо сейчас.</li>
-      <li><b>Карточка для шаринга:</b> постер 1080×1350 — скачать, скопировать, кинуть в Telegram или Discord.</li>
-    </ul>
-
+    <div class="wrap hero__tools">
     <form class="profile-form" id="profileForm" novalidate>
       <label class="profile-form__label" for="profileInput">Собери свой wrapped</label>
+      <p class="profile-form__invite">Вставь ссылку на профиль — остальное посчитаем сами.</p>
       <div class="profile-form__row">
         <input class="profile-form__input" id="profileInput" name="profile" type="text"
                inputmode="url" autocomplete="url" maxlength="400"
@@ -87,25 +102,19 @@
       <div class="profile-form__chips">
         <span class="profile-form__chips-label">Попробовать:</span>
         <button type="button" class="chip" data-fill="https://steamcommunity.com/id/K_Ak4d0/">демо: mormyszka</button>
-        <button type="button" class="chip" data-fill="https://steamcommunity.com/id/">заготовка ссылки</button>
+        <button type="button" class="chip" data-fill="https://steamcommunity.com/id/">шаблон ссылки</button>
       </div>
       <p class="profile-form__status" id="profileStatus" aria-live="polite">
-        Библиотека в Steam должна быть открыта для просмотра.
+        Ниже — живой пример на демо-данных ↓
       </p>
-      <a class="profile-form__reset" id="profileReset" href="./" hidden>Вернуться к исходной статистике</a>
+      <a class="profile-form__reset" id="profileReset" href="./" hidden>Вернуться к демо-профилю</a>
     </form>
-
-    <div class="hero__demo">
-      <span class="hero__demo-line" aria-hidden="true"></span>
-      <span class="eyebrow">Живой пример — демо-профиль</span>
-      <span class="hero__demo-line" aria-hidden="true"></span>
-    </div>
 
     <div class="hero__profile">
       <div class="avatar" id="avatar">M</div>
       <div class="hero__profile-side">
         <div class="hero__nick" id="heroNick">mormyszka</div>
-        <p class="eyebrow" id="heroEyebrow">Демо-профиль · данные от —</p>
+        <p class="eyebrow" id="heroEyebrow">данные от —</p>
       </div>
     </div>
 
@@ -132,6 +141,7 @@
         <div class="stat__hint" id="hint2w">—</div>
       </div>
     </div>
+    </div>
   </section>
 
   <div class="marquee" aria-hidden="true">
@@ -139,17 +149,18 @@
   </div>
 
   <!-- ============ ГЛАВНАЯ ИГРА ЖИЗНИ ============ -->
-  <section id="soulmate" class="sec sec--c1" data-num="01">
+  <section id="soulmate" class="sec sec--red sec--c1">
     <div class="wrap">
-      <div class="section-head reveal">
-        <span class="section-num">01</span>
-        <h2 class="section-title">Главная игра <b>жизни</b></h2>
-        <p class="section-note">Игра, в которую ушло больше всего часов — и что эти часы значат, если перевести их в человеческие единицы.</p>
+      <div class="sec-head">
+        <span class="sec-index">01</span>
+        <h2 class="sec-title">Главная игра <b>жизни</b></h2>
+        <p class="sec-note">Игра, в которую ушло больше всего часов — и что эти часы значат, если перевести их в человеческие единицы.</p>
       </div>
 
-      <div class="soulmate reveal">
+      <div class="soulmate">
         <div>
           <p class="eyebrow">Абсолютный чемпион</p>
+          <div class="soulmate__art"><img id="smArt" width="460" height="215" alt="" hidden></div>
           <h3 class="soulmate__name" id="smName">—</h3>
           <div class="soulmate__hours"><span data-count="smHours">0</span> <span>часов</span></div>
           <p class="soulmate__share" id="smShare">—</p>
@@ -160,39 +171,39 @@
   </section>
 
   <!-- ============ ТОП ИГР ============ -->
-  <section id="top" class="sec sec--c2" data-num="02">
+  <section id="top" class="sec sec--c2">
     <div class="wrap">
-      <div class="section-head reveal">
-        <span class="section-num">02</span>
-        <h2 class="section-title">Топ игр <b>по часам</b></h2>
-        <p class="section-note" id="topNote">Десять игр, которые забрали больше всего времени. Длина полосы — доля от лидера.</p>
+      <div class="sec-head">
+        <span class="sec-index">02</span>
+        <h2 class="sec-title">Топ игр <b>по часам</b></h2>
+        <p class="sec-note" id="topNote">Десять игр, которые забрали больше всего времени. Длина полосы — доля от лидера.</p>
       </div>
-      <div class="bars reveal" id="bars"></div>
+      <div class="bars" id="bars"></div>
     </div>
   </section>
 
   <!-- ============ СЕЙЧАС ============ -->
-  <section id="now" class="sec sec--c3" data-num="03">
+  <section id="now" class="sec sec--wine sec--c3">
     <div class="wrap">
-      <div class="section-head reveal">
-        <span class="section-num">03</span>
-        <h2 class="section-title">Чем занимаюсь <b>сейчас</b></h2>
-        <p class="section-note">Активность за последние две недели — прямо из Steam.</p>
+      <div class="sec-head">
+        <span class="sec-index">03</span>
+        <h2 class="sec-title">Чем занимаюсь <b>сейчас</b></h2>
+        <p class="sec-note">Активность за последние две недели — прямо из Steam.</p>
       </div>
-      <div class="recent reveal" id="recent"></div>
+      <div class="recent" id="recent"></div>
     </div>
   </section>
 
   <!-- ============ ЖАНРЫ ============ -->
-  <section id="genres" class="sec sec--c4" data-num="04">
+  <section id="genres" class="sec sec--c4">
     <div class="wrap">
-      <div class="section-head reveal">
-        <span class="section-num">04</span>
-        <h2 class="section-title">Вкус <b>по жанрам</b></h2>
-        <p class="section-note">Часы, разложенные по жанрам из карточек магазина Steam.</p>
+      <div class="sec-head">
+        <span class="sec-index">04</span>
+        <h2 class="sec-title">Вкус <b>по жанрам</b></h2>
+        <p class="sec-note">Часы, разложенные по жанрам из карточек магазина Steam.</p>
       </div>
 
-      <div class="genres reveal">
+      <div class="genres">
         <div class="donut-wrap">
           <svg class="donut" id="donut" viewBox="0 0 200 200" role="img" aria-label="Распределение часов по жанрам"></svg>
           <div class="donut-center">
@@ -206,15 +217,15 @@
   </section>
 
   <!-- ============ СУДЬБА ВЕЧЕРА ============ -->
-  <section id="fate" class="sec sec--c5" data-num="05">
+  <section id="fate" class="sec sec--wine sec--c5">
     <div class="wrap">
-      <div class="section-head reveal">
-        <span class="section-num">05</span>
-        <h2 class="section-title">Судьба <b>вечера</b></h2>
-        <p class="section-note">Три случайные игры из бэклога — те, что куплены, но ни разу не запущены. Решать не тебе.</p>
+      <div class="sec-head">
+        <span class="sec-index">05</span>
+        <h2 class="sec-title">Судьба <b>вечера</b></h2>
+        <p class="sec-note">Три случайные игры из бэклога — те, что куплены, но ни разу не запущены. Решать не тебе.</p>
       </div>
 
-      <div class="fate reveal">
+      <div class="fate">
         <div class="fate__stage" id="fateStage">
           <div class="fate__slot fate__slot--empty">нажми кнопку —<br>и судьба решит</div>
           <div class="fate__slot fate__slot--empty">три игры<br>из бэклога</div>
@@ -229,22 +240,48 @@
   </section>
 
   <!-- ============ ПОДЕЛИТЬСЯ ============ -->
-  <section id="share" class="sec sec--c6" data-num="06">
+  <!-- ============ ПРОТИВ ДРУГА ============ -->
+  <section id="versus" class="sec sec--c6">
     <div class="wrap">
-      <div class="section-head reveal">
-        <span class="section-num">06</span>
-        <h2 class="section-title">Забрать <b>карточку</b></h2>
-        <p class="section-note">PNG рисуется прямо в браузере на canvas — можно кидать в сторис или чат.</p>
+      <div class="sec-head">
+        <span class="sec-index">06</span>
+        <h2 class="sec-title">Против <b>друга</b></h2>
+        <p class="sec-note">Введи профиль друга — столкнём цифры лицом к лицу: часы, бэклог, чемпион и жанры.</p>
       </div>
 
-      <div class="share reveal">
+      <form class="versus-form" id="versusForm" novalidate>
+        <input class="versus-form__input" id="versusInput" name="versus" type="text"
+               inputmode="url" autocomplete="url" maxlength="400"
+               placeholder="SteamID64, ник или ссылка на steamcommunity.com"
+               aria-describedby="versusStatus" aria-label="Профиль друга для сравнения">
+        <button class="btn btn--solid" type="submit">Сравнить →</button>
+      </form>
+      <p class="versus-status" id="versusStatus" aria-live="polite">Твоя сторона — данные, показанные на странице.</p>
+      <table class="versus-grid" id="versusTable" hidden></table>
+      <p class="versus-verdict" id="versusVerdict" hidden></p>
+    </div>
+  </section>
+
+  <section id="share" class="sec sec--red sec--c6">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-index">07</span>
+        <h2 class="sec-title">Забрать <b>карточку</b></h2>
+      </div>
+
+      <div class="share">
         <div>
           <p class="share__text">
             Карточка собирается из тех же данных, что и страница: главные цифры,
             игра жизни и топ-3. Никаких сервисов и загрузок — всё локально.
           </p>
+          <div class="theme-switch" role="group" aria-label="Оформление карточки">
+            <span class="theme-switch__label">Оформление:</span>
+            <button type="button" class="btn btn--mini theme-switch__btn is-on" data-card-theme="dark" aria-pressed="true">Тёмная</button>
+            <button type="button" class="btn btn--mini theme-switch__btn" data-card-theme="red" aria-pressed="false">Красная</button>
+          </div>
           <div class="hero__actions">
-            <button type="button" class="btn btn--solid" id="dlBtn">Скачать PNG</button>
+            <button type="button" class="btn btn--cream" id="dlBtn">Скачать PNG</button>
             <button type="button" class="btn" id="copyBtn">Скопировать в буфер</button>
           </div>
 
@@ -279,10 +316,13 @@
   </section>
 
   <footer class="footer">
-    <div class="wrap footer__inner">
+    <div class="wrap">
+      <div class="footer__big" aria-hidden="true">Steam Wrapped<b>.</b></div>
+      <div class="footer__inner">
       <span>© <span id="year"></span> Steam Wrapped · сделано вручную, без фреймворков by Kyuuketsuki Akado</span>
       <span class="badge" id="sourceBadge">источник данных: <b>образец</b></span>
       <span><a href="https://github.com/KyuuketsukiAkado" target="_blank" rel="noopener">github</a> · <a href="https://kyuuketsukiakado.github.io/hannamuzyka/" target="_blank" rel="noopener">портфолио</a></span>
+      </div>
     </div>
   </footer>
 
@@ -293,7 +333,7 @@
 
 <script src="assets/js/data.js"></script>
 <script src="assets/js/profile-data.js"></script>
-<script src="assets/js/app.js?v=20260908-11"></script>
+<script src="assets/js/app.js?v=20260910-18"></script>
   <button class="to-top" id="toTop" type="button" aria-label="Наверх">↑</button>
 </body>
 </html>

@@ -5,6 +5,59 @@
 (function () {
   "use strict";
 
+  // Подгрузка без перезагрузки (задача 4): boot() может вызываться повторно.
+  // bootSeq отменяет устаревшие асинхронные перерисовки (аватар, fonts.ready).
+  var bootSeq = 0;
+
+  // Versus: актуальные данные страницы (обновляются каждый boot).
+  var currentPVD = null;
+
+  /* Тема шаринг-карточки живёт вне boot: переживает смену профиля.
+     redrawCardLive всегда указывает на redrawCard актуального boot. */
+  var cardTheme = "dark";
+  var redrawCardLive = null;
+  Array.prototype.forEach.call(document.querySelectorAll(".theme-switch__btn"), function (b) {
+    b.addEventListener("click", function () {
+      cardTheme = b.getAttribute("data-card-theme") === "red" ? "red" : "dark";
+      Array.prototype.forEach.call(document.querySelectorAll(".theme-switch__btn"), function (o) {
+        o.classList.toggle("is-on", o === b);
+        o.setAttribute("aria-pressed", o === b ? "true" : "false");
+      });
+      if (redrawCardLive) redrawCardLive();
+    });
+  });
+
+  /* Вау: лёгкий 3D-наклон карточек за курсором. Делегирование — карточки
+     перерендериваются boot'ом, прямые подписки слетели бы. Только точный
+     указатель без reduced-motion; тач и клавиатура остаются со статикой. */
+  if (window.matchMedia &&
+      window.matchMedia("(pointer: fine)").matches &&
+      window.matchMedia("(prefers-reduced-motion: no-preference)").matches) {
+    var tiltCard = null;
+    document.addEventListener("pointermove", function (ev) {
+      var card = ev.target && ev.target.closest ? ev.target.closest(".stat, .rcard") : null;
+      if (tiltCard && tiltCard !== card) {
+        tiltCard.style.setProperty("--rx", "0deg");
+        tiltCard.style.setProperty("--ry", "0deg");
+      }
+      tiltCard = card;
+      if (!card) return;
+      var r = card.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      var px = (ev.clientX - r.left) / r.width - 0.5;
+      var py = (ev.clientY - r.top) / r.height - 0.5;
+      card.style.setProperty("--ry", (-px * 7).toFixed(2) + "deg");
+      card.style.setProperty("--rx", (py * 7).toFixed(2) + "deg");
+    });
+    document.addEventListener("pointerleave", function () {
+      if (tiltCard) {
+        tiltCard.style.setProperty("--rx", "0deg");
+        tiltCard.style.setProperty("--ry", "0deg");
+        tiltCard = null;
+      }
+    });
+  }
+
   // Страница рисуется из одного ProfileViewData: сейчас это статичный data.js,
   // позже сюда же придёт нормализованный ответ Worker для профиля друга.
   function boot(rules, profileViewData, isDemoProfile) {
@@ -14,6 +67,10 @@
     // Для исходного data.js сохраняем прежний путь нормализации. Данные,
     // полученные Worker, уже нормализованы через normalizeSteamData() до boot.
     if (dataLayer && !profileViewData) D = dataLayer.normalizeStaticData(D, rules);
+    currentPVD = D;
+    resetVersus();
+    bootSeq += 1;
+    var myBoot = bootSeq;
 
   var $  = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
@@ -45,6 +102,18 @@
     if (cls) e.className = cls;
     if (text !== undefined) e.textContent = text;
     return e;
+  }
+
+  // Имя игры: ссылка на её страницу в Steam, если известен appid, иначе текст.
+  function gameLabel(g) {
+    if (g && g.appid) {
+      var a = el("a", "game-link", g.name);
+      a.target = "_blank";
+      a.rel = "noopener";
+      a.href = "https://store.steampowered.com/app/" + encodeURIComponent(g.appid) + "/";
+      return a;
+    }
+    return document.createTextNode(g ? g.name : "");
   }
 
   function appendBold(parent, text) {
@@ -112,20 +181,22 @@
   document.title = "Steam Wrapped · " + (isDemoProfile ? "пример: " : "") + profileName;
   $("#year").textContent = new Date().getFullYear();
   $("#heroNick").textContent = profileName;
-  $("#heroEyebrow").textContent = (isDemoProfile ? "Демо-профиль" : "Профиль Steam") +
-    (D.meta.memberSince ? " · в Steam с " + fmtDate(D.meta.memberSince) : "") +
-    " · данные от " + fmtDate(D.meta.generatedAt);
+  $("#heroEyebrow").textContent =
+    (D.meta.memberSince ? "в Steam с " + fmtDate(D.meta.memberSince) + " · " : "") +
+    "данные от " + fmtDate(D.meta.generatedAt);
+
 
   var pl = $("#profileLink");
-  if (D.meta.profileUrl) pl.href = D.meta.profileUrl; else pl.style.display = "none";
+  if (D.meta.profileUrl) { pl.href = D.meta.profileUrl; pl.style.display = ""; }
+  else pl.style.display = "none";
 
   var av = $("#avatar");
   if (D.meta.avatar) {
     var img = new Image();
     img.src = D.meta.avatar;
     img.alt = D.meta.persona || "avatar";
-    img.onload = function () { av.textContent = ""; av.appendChild(img); };
-    img.onerror = function () { av.textContent = (D.meta.persona || "?").charAt(0).toUpperCase(); };
+    img.onload = function () { if (myBoot !== bootSeq) return; av.textContent = ""; av.appendChild(img); };
+    img.onerror = function () { if (myBoot !== bootSeq) return; av.textContent = (D.meta.persona || "?").charAt(0).toUpperCase(); };
   } else {
     av.textContent = (D.meta.persona || "?").charAt(0).toUpperCase();
   }
@@ -200,6 +271,16 @@
 
   /* ---------- 01 · главная игра жизни ---------- */
 
+  // повторный boot: чистим динамические контейнеры, иначе строки задвоятся
+  $("#facts").textContent = "";
+  $("#smName").textContent = "—";
+  $("#smShare").textContent = "—";
+  var smArt = $("#smArt");
+  if (smArt) {
+    smArt.hidden = true;
+    smArt.removeAttribute("src");
+    smArt.onerror = function () { smArt.hidden = true; };
+  }
   if (soulmate) {
     var h = soulmate.hours;
 
@@ -209,7 +290,14 @@
       ? dataLayer.soulmateUnit(soulmate, rules)
       : { min: 120, word: "вечеров", note: "по два часа, от «на часик» до «ещё один»" };
 
-    $("#smName").textContent = soulmate.name;
+    var smNameEl = $("#smName");
+    smNameEl.textContent = "";
+    smNameEl.appendChild(gameLabel(soulmate));
+    if (smArt && soulmate.appid) {
+      smArt.alt = soulmate.name;
+      smArt.hidden = false;
+      smArt.src = "https://cdn.cloudflare.steamstatic.com/steam/apps/" + soulmate.appid + "/header.jpg";
+    }
     $("#smShare").textContent =
       "Это " + dec(h / totalHours * 100, 0) + "% всего времени в Steam. " +
       (soulmate.lastPlayed ? "Последний заход — " + fmtDate(soulmate.lastPlayed) + "." : "");
@@ -240,6 +328,7 @@
 
   (function topGames() {
     var top = played.slice(0, 10);
+    $("#bars").textContent = "";
     if (!top.length) return;
     var max = top[0].hours;
     var wrap = $("#bars");
@@ -292,7 +381,9 @@
       row.appendChild(el("div", "bar__rank", String(i + 1).padStart(2, "0")));
 
       var body = el("div", "bar__body");
-      body.appendChild(el("div", "bar__name", g.name));
+      var barName = el("div", "bar__name");
+      barName.appendChild(gameLabel(g));
+      body.appendChild(barName);
       var track = el("div", "bar__track");
       var fill = el("div", "bar__fill");
       fill.dataset.w = (g.hours / max * 100).toFixed(2) + "%";
@@ -322,6 +413,8 @@
 
   (function recent() {
     var wrap = $("#recent");
+    wrap.textContent = "";
+    wrap.classList.remove("is-single");
     var list = games.filter(function (g) { return (g.hours2w || 0) > 0; })
                     .sort(function (a, b) { return b.hours2w - a.hours2w; })
                     .slice(0, 4);
@@ -352,7 +445,9 @@
       if (i === 0) eyebrow.appendChild(el("span", "pulse"));
       eyebrow.appendChild(document.createTextNode(i === 0 ? "главное занятие" : "также в ротации"));
       card.appendChild(eyebrow);
-      card.appendChild(el("div", "rcard__name", g.name));
+      var rcardName = el("div", "rcard__name");
+      rcardName.appendChild(gameLabel(g));
+      card.appendChild(rcardName);
       var big = el("div", "rcard__big", smartDec(g.hours2w || 0));
       big.appendChild(el("span", "", "ч за 2 недели"));
       card.appendChild(big);
@@ -391,8 +486,13 @@
 
   (function donut() {
     var svg = $("#donut"), legend = $("#legend");
+    svg.textContent = ""; legend.textContent = "";
     var sum = genreData.reduce(function (s, x) { return s + x.hours; }, 0);
-    if (!sum) return;
+    if (!sum) {
+      $("#donutValue").textContent = "—";
+      $("#donutLabel").textContent = "жанров";
+      return;
+    }
 
     var R = 78, C = 2 * Math.PI * R, off = 0;
     var palette = ["#E10600", "#8E8E93", "#6E6E73", "#636366", "#48484E",
@@ -477,9 +577,14 @@
 
   (function fate() {
     var stage = $("#fateStage"), btn = $("#fateBtn");
+    // повторный boot: сцену возвращаем к заглушкам (исходный HTML — один раз),
+    // кнопку включаем заново и возвращаем исходную подпись
+    if (stage.dataset.base === undefined) stage.dataset.base = stage.innerHTML;
+    else stage.innerHTML = stage.dataset.base;
+    btn.disabled = !backlog.length;
+    btn.textContent = "Бросить кости";
 
     if (!backlog.length) {
-      btn.disabled = true;
       if (neverPlayed > 0) {
         // цифра есть, списка нет: данные собирались вручную / выгрузка неполная
         $("#fateCount").textContent = "В бэклоге " + num(neverPlayed) + " " +
@@ -519,20 +624,17 @@
       list.forEach(function (g, i) {
         var slot = el("div", "fate__slot" + (rolling ? " is-rolling" : ""));
         slot.appendChild(el("div", "fate__idx", "ВАРИАНТ " + String(i + 1).padStart(2, "0")));
-        slot.appendChild(el("div", "fate__name", g.name));
+        var fateName = el("div", "fate__name");
+        fateName.appendChild(gameLabel(g));
+        slot.appendChild(fateName);
         slot.appendChild(el("div", "fate__tags", (g.genres || []).join(" · ") || "жанр неизвестен"));
-        if (g.appid) {
-          var link = el("a", "fate__link", "страница в Steam ↗");
-          link.target = "_blank";
-          link.rel = "noopener";
-          link.href = "https://store.steampowered.com/app/" + encodeURIComponent(g.appid) + "/";
-          slot.appendChild(link);
-        }
         stage.appendChild(slot);
       });
     }
 
-    btn.addEventListener("click", function () {
+    // onclick, а не addEventListener: повторный boot перезаписывает обработчик
+    // вместо дублирования (иначе одна кнопка крутила бы рулетку дважды)
+    btn.onclick = function () {
       btn.disabled = true;
       var ticks = 0;
       var spin = setInterval(function () {
@@ -544,7 +646,7 @@
           btn.textContent = "Ещё раз 🎲";
         }
       }, 70);
-    });
+    };
   })();
 
   /* ---------- 06 · карточка для шаринга ---------- */
@@ -561,36 +663,91 @@
   if (D.meta && D.meta.avatar) {
     avatarImg = new Image();
     avatarImg.crossOrigin = "anonymous";
-    avatarImg.onload = function () { redrawCard(); };
-    avatarImg.onerror = function () { avatarImg = null; redrawCard(); };
+    avatarImg.onload = function () { if (myBoot === bootSeq) redrawCard(); };
+    avatarImg.onerror = function () { if (myBoot !== bootSeq) return; avatarImg = null; redrawCard(); };
     avatarImg.src = D.meta.avatar;
   }
 
   function redrawCard() {
+    if (myBoot !== bootSeq) return;   // устаревший вызов после повторного boot
     var c = shareCanvas, x = c.getContext("2d");
+    // возврат из широкой: вертикальный расчёт всегда идёт от 1080
+    if (c.width !== 1080) { c.width = 1080; x = c.getContext("2d"); }
     var W = c.width, H = c.height;
     var INK = "#EDEDEF", NEAR = "#F7F7F8", DIM = "#A7A7AD", FAINT = "#6E6E75";
     var C1 = "#E10600", C2 = "#C0130A", C3 = "#8E0D08", C4 = "#FF5A4D", C5 = "#EDEDEF";
+    var RED = cardTheme === "red";
     var css = getComputedStyle(document.documentElement);
     var SANS = (css.getPropertyValue("--display") || "").trim() || 'Arial, sans-serif';
     var WD = (css.getPropertyValue("--w-display") || "700").trim();
-
-    // фон + цветные пятна
-    x.fillStyle = "#0A0A0B"; x.fillRect(0, 0, W, H);
-    function blob(cx, cy, r, color) {
-      var g = x.createRadialGradient(cx, cy, 0, cx, cy, r);
-      g.addColorStop(0, color); g.addColorStop(1, "rgba(0,0,0,0)");
-      x.fillStyle = g; x.fillRect(0, 0, W, H);
-    }
-    blob(W * 0.5, H * 0.28, W * 0.80, "rgba(225,6,0,0.10)");
-    blob(W * 0.10, H * 0.92, W * 0.70, "rgba(192,19,10,0.10)");
-    blob(W * 0.92, H * 0.82, W * 0.65, "rgba(142,13,8,0.12)");
-    blob(W * 0.15, H * 0.52, W * 0.50, "rgba(255,90,77,0.07)");
-
     var M = 88;
 
+    /* Текстовый движок без обрезок: только автоподгон кегля и переносы.
+       Старого fit() с «…» больше нет — ни одна строка не режется. */
+    function fontOf(weight, size) { return weight + " " + size + "px " + SANS; }
+    function textW(t, font) { x.font = font; return x.measureText(t).width; }
+    function shrinkTo(t, maxW, weight, start, min) {
+      var fs = start, f = fontOf(weight, fs);
+      while (fs > min && textW(t, f) > maxW) { fs -= 2; f = fontOf(weight, fs); }
+      return { size: fs, font: f };
+    }
+    // однострочники без переноса (цифры, подпись): жмёмся до пола 12px, лишь бы без «…»
+    function shrinkSingle(t, maxW, weight, start, min) {
+      var r = shrinkTo(t, maxW, weight, start, min);
+      var fs = r.size, f = r.font;
+      while (fs > 12 && textW(t, f) > maxW) { fs -= 2; f = fontOf(weight, fs); }
+      return { size: fs, font: f };
+    }
+    function chunkWord(word, maxW, font) {
+      var parts = [], cur = "", i, trial;
+      for (i = 0; i < word.length; i++) {
+        trial = cur + word.charAt(i);
+        x.font = font;
+        if (x.measureText(trial).width <= maxW || !cur) cur = trial;
+        else { parts.push(cur); cur = word.charAt(i); }
+      }
+      if (cur) parts.push(cur);
+      return parts.length ? parts : [word];
+    }
+    function wrapLines(t, maxW, font) {
+      var words = String(t).split(/\s+/).filter(function (w) { return w; });
+      var lines = [], cur = "";
+      if (!words.length) return [""];
+      words.forEach(function (word) {
+        x.font = font;
+        if (x.measureText(word).width > maxW) {
+          if (cur) { lines.push(cur); cur = ""; }
+          var chunks = chunkWord(word, maxW, font);
+          for (var i = 0; i < chunks.length - 1; i++) lines.push(chunks[i]);
+          cur = chunks[chunks.length - 1];
+          return;
+        }
+        var trial = cur ? cur + " " + word : word;
+        if (x.measureText(trial).width <= maxW) cur = trial;
+        else { lines.push(cur); cur = word; }
+      });
+      if (cur) lines.push(cur);
+      return lines;
+    }
+    function fitWrapped(t, maxW, weight, start, min, maxLines) {
+      var fs = start, f = fontOf(weight, fs), lines = wrapLines(t, maxW, f);
+      while (lines.length > maxLines && fs > min) {
+        fs -= 2; f = fontOf(weight, fs); lines = wrapLines(t, maxW, f);
+      }
+      while (lines.length > maxLines && fs > 12) {
+        fs -= 2; f = fontOf(weight, fs); lines = wrapLines(t, maxW, f);
+      }
+      return { size: fs, font: f, lines: lines };
+    }
+    // одна строка, если влезла читаемым кеглем, иначе перенос в две — без «…»
+    function fitOneOrTwo(t, maxW, weight, singleStart, singleMin, wrapStart, wrapMin) {
+      var s = shrinkTo(t, maxW, weight, singleStart, singleMin);
+      if (textW(t, s.font) <= maxW) return { size: s.size, font: s.font, lines: [t] };
+      return fitWrapped(t, maxW, weight, wrapStart, wrapMin, 2);
+    }
+
     function line(y) {
-      x.strokeStyle = "rgba(255,255,255,0.12)"; x.lineWidth = 1;
+      x.strokeStyle = RED ? "rgba(255,255,255,0.22)" : "rgba(255,255,255,0.12)"; x.lineWidth = 1;
       x.beginPath(); x.moveTo(M, y + 0.5); x.lineTo(W - M, y + 0.5); x.stroke();
     }
     function label(t, y, color, xPos) {
@@ -598,21 +755,6 @@
       if ("letterSpacing" in x) x.letterSpacing = "4px";
       x.fillText(t.toUpperCase(), xPos === undefined ? M : xPos, y);
       if ("letterSpacing" in x) x.letterSpacing = "0px";
-    }
-    function fit(t, maxW, font) {
-      x.font = font;
-      var s2 = t;
-      while (x.measureText(s2).width > maxW && s2.length > 4) s2 = s2.slice(0, -2);
-      return s2 === t ? t : s2 + "…";
-    }
-    function fitSize(t, maxW, size) {
-      var fs = size;
-      x.font = WD + " " + fs + "px " + SANS;
-      while (x.measureText(t).width > maxW && fs > 40) {
-        fs -= 4;
-        x.font = WD + " " + fs + "px " + SANS;
-      }
-      return fs;
     }
     function roundRect(px, py, pw, ph, rr) {
       x.beginPath();
@@ -624,18 +766,513 @@
       x.closePath();
     }
 
+    /* Раскладка считается до первого пикселя: обычные данные дают те же
+       координаты, что раньше (lineY=372 и т.д.), длинные сдвигают низ вниз,
+       а холст при необходимости вытягивается выше 1350. */
+    var persona = D.meta.persona || "profile";
+    var nameX = M + 144 + 36, nameW = (W - M) - (M + 144 + 36);
+    var nick = fitOneOrTwo(persona, nameW, WD, 80, 48, 56, 36);
+    var nickLineH = Math.round(nick.size * 1.12);
+    var nickFirstY, sloganY, lineY;
+    if (nick.lines.length < 2) {
+      nickFirstY = 246;
+      sloganY = 302;
+    } else {
+      nickFirstY = 218;
+      sloganY = nickFirstY + nickLineH * (nick.lines.length - 1) + 56;
+    }
+    lineY = sloganY + 70;
+
+    var cols = [
+      [num(gamesOwned), "игр", num(neverPlayed) + " в бэклоге"],
+      [num(totalHours), "часов", "≈ " + dec(totalHours / 24, 0) + " " +
+        plural(totalHours / 24, ["день", "дня", "дней"]) + " нон-стоп"],
+      [num(hours2w), "за 2 недели", "≈ " + dec(hours2w / 14, 1) + " ч в день"]
+    ];
+    var colW = (W - M * 2) / 3;
+    var valY = lineY + 128, labY = lineY + 176, ctxY = lineY + 214;
+
+    var smUnit = (soulmate && dataLayer && dataLayer.soulmateUnit)
+      ? dataLayer.soulmateUnit(soulmate, rules) : null;
+    var hasShare = !!(soulmate && totalHours);
+    var sm = null, smLineH = 0, smFirstY = 0, smDaysY = 0, smShareY = 0, smUnitY = 0;
+    var py = 0, ph = 0, panelBottom = 0;
+    if (soulmate) {
+      py = lineY + 276;
+      sm = fitOneOrTwo(soulmate.name, 440, WD, 44, 32, 40, 28);
+      smLineH = Math.round(sm.size * 1.15);
+      var smLastRel;
+      if (sm.lines.length < 2) {
+        smFirstY = py + 132;
+        smLastRel = 132;
+        smDaysY = py + 178;
+      } else {
+        smFirstY = py + 120;
+        smLastRel = 120 + smLineH * (sm.lines.length - 1);
+        smDaysY = py + smLastRel + 46;
+      }
+      smShareY = smDaysY + 40;
+      smUnitY = hasShare ? smShareY + 36 : smDaysY + 76;
+      var smLastY = smDaysY;
+      if (hasShare) smLastY = smShareY;
+      if (smUnit) smLastY = smUnitY;
+      ph = smLastY - py + 42;
+      if (ph < 296) ph = 296;
+      panelBottom = py + ph;
+    } else {
+      panelBottom = lineY + 276;
+    }
+
+    var tcol = RED ? ["#FFFFFF", "#FFFFFF", "#FFFFFF"] : [C1, "#FF5A4D", C5];
+    var topList = played.slice(0, 3);
+    var topRows = [];
+    var curY = panelBottom + 64, lastTopY = curY;
+    topList.forEach(function (g, i) {
+      var hoursText = num(g.hours) + " ч" +
+        (totalHours ? " · " + dec(g.hours / totalHours * 100, 0) + "%" : "");
+      var hoursFont = fontOf(WD, 26);
+      var nameStartX = M + 64;
+      var nameMaxW = (W - M - textW(hoursText, hoursFont) - 24) - nameStartX;
+      if (nameMaxW < 200) nameMaxW = 200;
+      var nm = fitOneOrTwo(g.name, nameMaxW, "700", 26, 20, 24, 18);
+      var lh = Math.round(nm.size * 1.3);
+      topRows.push({ g: g, i: i, hoursText: hoursText, hoursFont: hoursFont,
+        name: nm, lineH: lh, y: curY });
+      lastTopY = curY + lh * (nm.lines.length - 1);
+      curY = lastTopY + 58;
+    });
+
+    var genreSum = genreData.reduce(function (s, g) { return s + g.hours; }, 0);
+    var gTop = genreSum > 0 ? genreData.slice(0, 3) : [];
+    var gCols = RED ? ["#FFFFFF", "#FFFFFF", "#FFFFFF"] : [C1, C4, "#C9C9CE"];
+    var gParts = gTop.map(function (g) {
+      return g.name + " " + dec(g.hours / genreSum * 100, 0) + "%";
+    });
+    var genreY = 0, genreSecondY = 0, genreLines = [], genreFont = "600 21px " + SANS;
+    var contentBottom = panelBottom;
+    if (gParts.length) {
+      genreY = (topRows.length ? lastTopY + 68 : panelBottom + 64);
+      var gMaxW = W - M * 2;
+      var gFull = "Жанры: " + gParts.join(" · ");
+      if (textW(gFull, genreFont) <= gMaxW) {
+        genreLines = [{ prefix: "Жанры: ", parts: gParts }];
+        contentBottom = genreY;
+      } else {
+        var gSmall = shrinkSingle(gFull, gMaxW, "600", 21, 18);
+        if (textW(gFull, gSmall.font) <= gMaxW) {
+          genreFont = gSmall.font;
+          genreLines = [{ prefix: "Жанры: ", parts: gParts }];
+          contentBottom = genreY;
+        } else {
+          genreFont = "600 21px " + SANS;
+          var line1 = { prefix: "Жанры: ", parts: [] }, line2 = { prefix: "", parts: [] };
+          var wCur = textW("Жанры: ", genreFont), first = true;
+          var sepW = textW(" · ", genreFont);
+          gParts.forEach(function (part) {
+            var pw = textW(part, genreFont);
+            var need = first ? pw : pw + sepW;
+            if (first || wCur + need <= gMaxW) {
+              line1.parts.push(part);
+              wCur += need;
+              first = false;
+            } else {
+              line2.parts.push(part);
+            }
+          });
+          if (!line1.parts.length && line2.parts.length) {
+            line1.parts = line2.parts; line2.parts = [];
+          }
+          genreLines = line2.parts.length ? [line1, line2] : [line1];
+          genreSecondY = genreY + 30;
+          contentBottom = line2.parts.length ? genreSecondY : genreY;
+        }
+      }
+    } else if (topRows.length) {
+      contentBottom = lastTopY;
+    } else if (soulmate) {
+      contentBottom = panelBottom;
+    } else {
+      contentBottom = ctxY;
+    }
+
+    /* Теснота вертикали: ник или игры упёрлись в пол кегля даже в две
+       строки — уходим в широкую карточку, где тем же строкам просторно. */
+    var pinched = nick.size < 36 || (sm && sm.size < 28) ||
+      topRows.some(function (row) { return row.name.size < 18; });
+
+    /* Широкая карточка 1600×N: те же данные и темы, просторные боксы.
+       W мутирует наружу осознанно: line()/label() строят по новой ширине,
+       после return вертикальный код не выполняется. */
+    function drawWide() {
+      W = 1600;
+      // ник: бокс почти на всю ширину
+      var wNameX = M + 64 + 64 + 32, wNameW = (W - M) - wNameX;
+      var wNick = fitOneOrTwo(persona, wNameW, WD, 88, 52, 64, 40);
+      var wNickLh = Math.round(wNick.size * 1.12);
+      var wNickY, wSloganY;
+      if (wNick.lines.length < 2) { wNickY = 248; wSloganY = 304; }
+      else { wNickY = 212; wSloganY = wNickY + wNickLh * (wNick.lines.length - 1) + 54; }
+      var wLineY = wSloganY + 66;
+      // статы — компактная строка вместо трёх колонок
+      var wColLab = RED ? ["#FFFFFF", "#FFFFFF", "#FFFFFF"] : [C1, C4, C5];
+      var wDim = RED ? "rgba(255,255,255,0.7)" : DIM;
+      var wStripY = wLineY + 58;
+      var segs = [];
+      cols.forEach(function (col, i) {
+        if (i) segs.push({ t: "  ·  ", f: 20, w: "600", c: wDim });
+        segs.push({ t: col[0], f: 30, w: "700", c: NEAR });
+        segs.push({ t: " " + col[1], f: 22, w: "600", c: wColLab[i] });
+        segs.push({ t: " (" + col[2] + ")", f: 20, w: "600", c: wDim });
+      });
+      function segW(k) {
+        var s = 0;
+        segs.forEach(function (g) { s += textW(g.t, fontOf(g.w, Math.max(12, Math.round(g.f * k)))); });
+        return s;
+      }
+      var wBox = W - M * 2, k = 1;
+      if (segW(1) > wBox) {
+        // сначала выбрасываем контексты в скобках, потом жмём кегль
+        segs = segs.filter(function (g) { return g.t.charAt(1) !== "("; });
+        k = wBox / segW(1);
+        if (k > 1) k = 1;
+        if (k < 0.7) k = 0.7;
+      }
+      // панель игры жизни: имя получает бокс 1000 вместо 440
+      var wPy = wStripY + 52, wPh = 0, wPanelBottom = 0;
+      var wSm = null, wSmLh = 0, wSmFirstY = 0, wSmDaysY = 0, wSmShareY = 0, wSmUnitY = 0;
+      if (soulmate) {
+        wSm = fitOneOrTwo(soulmate.name, 1000, WD, 48, 34, 44, 30);
+        wSmLh = Math.round(wSm.size * 1.15);
+        var wLastRel;
+        if (wSm.lines.length < 2) { wSmFirstY = wPy + 128; wLastRel = 128; wSmDaysY = wPy + 178; }
+        else { wSmFirstY = wPy + 116; wLastRel = 116 + wSmLh * (wSm.lines.length - 1); wSmDaysY = wPy + wLastRel + 46; }
+        wSmShareY = wSmDaysY + 38;
+        wSmUnitY = hasShare ? wSmShareY + 34 : wSmDaysY + 72;
+        var wSmLastY = wSmDaysY;
+        if (hasShare) wSmLastY = wSmShareY;
+        if (smUnit) wSmLastY = wSmUnitY;
+        wPh = wSmLastY - wPy + 40;
+        if (wPh < 280) wPh = 280;
+        wPanelBottom = wPy + wPh;
+      } else {
+        wPanelBottom = wPy;
+      }
+      // топ-3: бокс названий ~1080 вместо ~586
+      var wTopRows = [], wCurY = wPanelBottom + 58, wLastTopY = wCurY;
+      topList.forEach(function (g, i) {
+        var hoursText = num(g.hours) + " ч" +
+          (totalHours ? " · " + dec(g.hours / totalHours * 100, 0) + "%" : "");
+        var hoursFont = fontOf(WD, 26);
+        var wNameMaxW = (W - M - textW(hoursText, hoursFont) - 24) - (M + 64);
+        var nm = fitOneOrTwo(g.name, wNameMaxW, "700", 28, 22, 26, 20);
+        var lh = Math.round(nm.size * 1.3);
+        wTopRows.push({ g: g, i: i, hoursText: hoursText, hoursFont: hoursFont,
+          name: nm, lineH: lh, y: wCurY });
+        wLastTopY = wCurY + lh * (nm.lines.length - 1);
+        wCurY = wLastTopY + 50;
+      });
+      // жанры — тот же алгоритм, якоря свои
+      var wGenreY = 0, wGenreSecondY = 0, wGenreLines = [], wGenreFont = "600 21px " + SANS;
+      var wContentBottom = wPanelBottom;
+      if (gParts.length) {
+        wGenreY = (wTopRows.length ? wLastTopY + 62 : wPanelBottom + 54);
+        var wGMaxW = W - M * 2;
+        var wGFull = "Жанры: " + gParts.join(" · ");
+        if (textW(wGFull, wGenreFont) <= wGMaxW) {
+          wGenreLines = [{ prefix: "Жанры: ", parts: gParts }];
+          wContentBottom = wGenreY;
+        } else {
+          var wGSmall = shrinkSingle(wGFull, wGMaxW, "600", 21, 18);
+          if (textW(wGFull, wGSmall.font) <= wGMaxW) {
+            wGenreFont = wGSmall.font;
+            wGenreLines = [{ prefix: "Жанры: ", parts: gParts }];
+            wContentBottom = wGenreY;
+          } else {
+            wGenreFont = "600 21px " + SANS;
+            var wL1 = { prefix: "Жанры: ", parts: [] }, wL2 = { prefix: "", parts: [] };
+            var wCur = textW("Жанры: ", wGenreFont), wFirst = true;
+            var wSepW = textW(" · ", wGenreFont);
+            gParts.forEach(function (part) {
+              var pw = textW(part, wGenreFont);
+              var need = wFirst ? pw : pw + wSepW;
+              if (wFirst || wCur + need <= wGMaxW) {
+                wL1.parts.push(part); wCur += need; wFirst = false;
+              } else {
+                wL2.parts.push(part);
+              }
+            });
+            if (!wL1.parts.length && wL2.parts.length) { wL1.parts = wL2.parts; wL2.parts = []; }
+            wGenreLines = wL2.parts.length ? [wL1, wL2] : [wL1];
+            wGenreSecondY = wGenreY + 30;
+            wContentBottom = wL2.parts.length ? wGenreSecondY : wGenreY;
+          }
+        }
+      } else if (wTopRows.length) {
+        wContentBottom = wLastTopY;
+      } else if (soulmate) {
+        wContentBottom = wPanelBottom;
+      } else {
+        wContentBottom = wStripY;
+      }
+      var wFootLineY = wContentBottom + 50;
+      var wNeedH = wFootLineY + 104;
+      if (wNeedH < 900) wNeedH = 900;
+      c.width = 1600; c.height = wNeedH; x = c.getContext("2d");
+      H = wNeedH;
+      var wFootY = H - 48;
+
+      // фон — те же темы, пятна масштабируются от W/H
+      if (!RED) {
+        x.fillStyle = "#0A0807"; x.fillRect(0, 0, W, H);
+      } else {
+        var wBg = x.createLinearGradient(0, 0, W, H);
+        wBg.addColorStop(0, "#F31200"); wBg.addColorStop(0.35, "#E10600");
+        wBg.addColorStop(0.7, "#C0130A"); wBg.addColorStop(1, "#8E0D08");
+        x.fillStyle = wBg; x.fillRect(0, 0, W, H);
+      }
+      (function paintWideBlobs() {
+        function blob(cx, cy, r, color) {
+          var g = x.createRadialGradient(cx, cy, 0, cx, cy, r);
+          g.addColorStop(0, color); g.addColorStop(1, "rgba(0,0,0,0)");
+          x.fillStyle = g; x.fillRect(0, 0, W, H);
+        }
+        if (!RED) {
+          blob(W * 0.5, H * 0.28, W * 0.80, "rgba(225,6,0,0.10)");
+          blob(W * 0.10, H * 0.92, W * 0.70, "rgba(192,19,10,0.10)");
+          blob(W * 0.92, H * 0.82, W * 0.65, "rgba(142,13,8,0.12)");
+          blob(W * 0.15, H * 0.52, W * 0.50, "rgba(255,90,77,0.07)");
+        } else {
+          blob(W * 0.5, H * 1.05, W * 0.85, "rgba(142,13,8,0.45)");
+          blob(W * 0.5, H * -0.08, W * 0.7, "rgba(255,255,255,0.10)");
+        }
+      })();
+
+      // шапка
+      label("STEAM WRAPPED", 92, C5);
+      x.fillStyle = RED ? "#FFFFFF" : C4; x.font = "700 22px " + SANS;
+      x.textAlign = "right"; x.fillText((D.meta.generatedAt || "").slice(0, 7), W - M, 92); x.textAlign = "left";
+      line(120);
+
+      // аватар
+      var wAvCx = M + 64, wAvCy = 225, wAvR = 64;
+      (function paintWideGlow() {
+        function blob(cx, cy, r, color) {
+          var g = x.createRadialGradient(cx, cy, 0, cx, cy, r);
+          g.addColorStop(0, color); g.addColorStop(1, "rgba(0,0,0,0)");
+          x.fillStyle = g; x.fillRect(0, 0, W, H);
+        }
+        blob(wAvCx, wAvCy, 230, RED ? "rgba(142,13,8,0.35)" : "rgba(225,6,0,0.20)");
+        blob(wAvCx, wAvCy, 140, RED ? "rgba(142,13,8,0.28)" : "rgba(192,19,10,0.16)");
+      })();
+      x.save();
+      x.beginPath(); x.arc(wAvCx, wAvCy, wAvR, 0, Math.PI * 2); x.clip();
+      if (avatarImg && avatarImg.complete && avatarImg.naturalWidth) {
+        var ws = Math.max((wAvR * 2) / avatarImg.naturalWidth, (wAvR * 2) / avatarImg.naturalHeight);
+        var wdw = avatarImg.naturalWidth * ws, wdh = avatarImg.naturalHeight * ws;
+        x.drawImage(avatarImg, wAvCx - wdw / 2, wAvCy - wdh / 2, wdw, wdh);
+      } else {
+        var wag = x.createLinearGradient(wAvCx - wAvR, wAvCy - wAvR, wAvCx + wAvR, wAvCy + wAvR);
+        wag.addColorStop(0, C1); wag.addColorStop(1, C4);
+        x.fillStyle = wag; x.fillRect(wAvCx - wAvR, wAvCy - wAvR, wAvR * 2, wAvR * 2);
+        x.fillStyle = "#FFFFFF"; x.font = "800 68px " + SANS;
+        x.textAlign = "center"; x.textBaseline = "middle";
+        x.fillText(persona.charAt(0).toUpperCase(), wAvCx, wAvCy + 6);
+        x.textAlign = "left"; x.textBaseline = "alphabetic";
+      }
+      x.restore();
+      var wRing = x.createLinearGradient(wAvCx - wAvR, wAvCy - wAvR, wAvCx + wAvR, wAvCy + wAvR);
+      wRing.addColorStop(0, RED ? "#FFFFFF" : C1); wRing.addColorStop(0.55, RED ? "#FFFFFF" : C4); wRing.addColorStop(1, RED ? "#FFFFFF" : C2);
+      x.strokeStyle = wRing; x.lineWidth = 7;
+      x.beginPath(); x.arc(wAvCx, wAvCy, wAvR + 11, 0, Math.PI * 2); x.stroke();
+
+      // ник + слоган
+      x.fillStyle = NEAR; x.font = wNick.font;
+      x.fillText(wNick.lines[0], wNameX, wNickY);
+      for (var wni = 1; wni < wNick.lines.length; wni++) {
+        x.fillText(wNick.lines[wni], wNameX, wNickY + wNickLh * wni);
+      }
+      var wTag = x.createLinearGradient(wNameX, 0, wNameX + 520, 0);
+      wTag.addColorStop(0, RED ? "#FFFFFF" : C1); wTag.addColorStop(1, RED ? "#FFFFFF" : C4);
+      x.fillStyle = wTag; x.font = fontOf(WD, 34);
+      x.fillText("steam-профиль в цифрах", wNameX, wSloganY);
+      line(wLineY);
+
+      // строка статов
+      var sX = M;
+      segs.forEach(function (g) {
+        var f = fontOf(g.w, Math.max(12, Math.round(g.f * k)));
+        x.font = f; x.fillStyle = g.c;
+        x.fillText(g.t, sX, wStripY);
+        sX += textW(g.t, f);
+      });
+
+      // панель игры жизни
+      if (soulmate) {
+        var wPL = M, wPR = W - M, wRR = 30;
+        x.save();
+        roundRect(wPL, wPy, wPR - wPL, wPh, wRR); x.clip();
+        x.fillStyle = RED ? "#FFFFFF" : "rgba(20, 20, 22, 0.92)";
+        x.fillRect(wPL, wPy, wPR - wPL, wPh);
+        var wHl = x.createLinearGradient(wPL, 0, wPR, 0);
+        wHl.addColorStop(0, C1); wHl.addColorStop(1, C4);
+        x.fillStyle = wHl; x.fillRect(wPL, wPy, wPR - wPL, 5);
+        x.restore();
+        x.strokeStyle = RED ? "rgba(142,13,8,0.18)" : "rgba(255,255,255,0.08)"; x.lineWidth = 1.5;
+        roundRect(wPL + 0.75, wPy + 0.75, wPR - wPL - 1.5, wPh - 1.5, wRR); x.stroke();
+
+        label("ГЛАВНАЯ ИГРА ЖИЗНИ", wPy + 52, RED ? C1 : C4, wPL + 40);
+        var wNg = x.createLinearGradient(wPL + 40, 0, wPL + 560, 0);
+        wNg.addColorStop(0, "#FFFFFF"); wNg.addColorStop(1, C5);
+        x.fillStyle = RED ? "#141416" : wNg; x.font = wSm.font;
+        x.fillText(wSm.lines[0], wPL + 40, wSmFirstY);
+        for (var wsi = 1; wsi < wSm.lines.length; wsi++) {
+          x.fillText(wSm.lines[wsi], wPL + 40, wSmFirstY + wSmLh * wsi);
+        }
+        var wDays = soulmate.hours / 24;
+        var wDaysText = "≈ " + dec(wDays, wDays >= 100 ? 0 : 1) + " " +
+          plural(Math.round(wDays), ["день", "дня", "дней"]) + " нон-стоп";
+        var wDaysFit = shrinkSingle(wDaysText, 700, "600", 24, 16);
+        x.fillStyle = RED ? "#3F3F46" : DIM; x.font = wDaysFit.font;
+        x.fillText(wDaysText, wPL + 40, wSmDaysY);
+        if (hasShare) {
+          var wShareText = dec(soulmate.hours / totalHours * 100, 0) + "% всего времени";
+          var wShareFit = shrinkSingle(wShareText, 700, "600", 23, 16);
+          x.fillStyle = RED ? C1 : C4; x.font = wShareFit.font;
+          x.fillText(wShareText, wPL + 40, wSmShareY);
+        }
+        if (smUnit) {
+          var wUnitText = "≈ " + num(soulmate.hours * 60 / smUnit.min) + " " + smUnit.word;
+          var wUnitFit = shrinkSingle(wUnitText, 700, "600", 23, 16);
+          x.fillStyle = RED ? "#3F3F46" : DIM; x.font = wUnitFit.font;
+          x.fillText(wUnitText, wPL + 40, wSmUnitY);
+        }
+
+        x.textAlign = "right";
+        var wHs = shrinkSingle(num(soulmate.hours), 320, WD, 100, 40);
+        x.fillStyle = RED ? C1 : "#FFFFFF"; x.font = wHs.font;
+        x.fillText(num(soulmate.hours), wPR - 40, wPy + 132);
+        x.fillStyle = RED ? "#3F3F46" : DIM; x.font = "600 24px " + SANS;
+        x.fillText("часов", wPR - 40, wPy + 190);
+        x.textAlign = "left";
+      }
+
+      // топ-3
+      wTopRows.forEach(function (row) {
+        x.fillStyle = tcol[row.i]; x.font = "700 22px " + SANS;
+        x.fillText(String(row.i + 1).padStart(2, "0"), M, row.y);
+        x.fillStyle = RED ? "#FFFFFF" : "#C9C9CE"; x.font = row.name.font;
+        x.fillText(row.name.lines[0], M + 64, row.y);
+        for (var li = 1; li < row.name.lines.length; li++) {
+          x.fillText(row.name.lines[li], M + 64, row.y + row.lineH * li);
+        }
+        x.fillStyle = tcol[row.i]; x.font = row.hoursFont;
+        x.textAlign = "right"; x.fillText(row.hoursText, W - M, row.y); x.textAlign = "left";
+      });
+
+      // жанры
+      if (wGenreLines.length) {
+        var wGMaxW2 = W - M * 2;
+        wGenreLines.forEach(function (gl, gi) {
+          var gy = gi ? wGenreSecondY : wGenreY;
+          var totalStr = (gl.prefix || "") + gl.parts.join(" · ");
+          var wLineFont = wGenreFont;
+          if (textW(totalStr, wLineFont) > wGMaxW2) {
+            wLineFont = shrinkSingle(totalStr, wGMaxW2, "600", 21, 12).font;
+          }
+          var gX = M;
+          x.font = wLineFont;
+          if (gl.prefix) {
+            x.fillStyle = RED ? "rgba(255,255,255,0.7)" : DIM; x.fillText(gl.prefix, gX, gy);
+            gX += textW(gl.prefix, wLineFont);
+            x.font = wLineFont;
+          }
+          var partIndex = gi ? wGenreLines[0].parts.length : 0;
+          gl.parts.forEach(function (part, pi) {
+            if (pi) {
+              x.fillStyle = RED ? "rgba(255,255,255,0.7)" : DIM; x.font = wLineFont; x.fillText(" · ", gX, gy);
+              gX += textW(" · ", wLineFont);
+            }
+            x.fillStyle = gCols[(partIndex + pi) % gCols.length];
+            x.font = wLineFont;
+            x.fillText(part, gX, gy);
+            gX += textW(part, wLineFont);
+          });
+        });
+      }
+
+      // подвал
+      line(wFootLineY);
+      var wFootUrl = "kyuuketsukiakado.github.io/steam-wrapped";
+      var wFootFit = shrinkSingle(wFootUrl, 680, "600", 18, 14);
+      x.fillStyle = RED ? "#FFFFFF" : C4; x.font = wFootFit.font;
+      x.fillText(wFootUrl, M, wFootY);
+      if (D.meta.memberSince) {
+        x.textAlign = "right";
+        x.fillStyle = RED ? "rgba(255,255,255,0.7)" : DIM; x.font = "600 18px " + SANS;
+        x.fillText("в Steam с " + String(D.meta.memberSince).slice(0, 4), W - M, wFootY);
+        x.textAlign = "left";
+      }
+    }
+
+    if (pinched) { drawWide(); return; }
+
+    /* Холст вытягивается под длинные данные, обычные остаются 1080×1350.
+       Низ (линейка + подпись) всегда на фиксированных отступах от контента. */
+    var footLineY = contentBottom + 52;
+    var needH = footLineY + 106;
+    if (needH < 1350) needH = 1350;
+    if (c.height !== needH) {
+      c.height = needH;
+      x = c.getContext("2d");
+    }
+    H = c.height;
+    W = c.width;
+    var footY = H - 50;
+
+    /* ---------- рисуем ---------- */
+    if (!RED) {
+      x.fillStyle = "#0A0807"; x.fillRect(0, 0, W, H);
+    } else {
+      var cardBg = x.createLinearGradient(0, 0, W, H);
+      cardBg.addColorStop(0, "#F31200"); cardBg.addColorStop(0.35, "#E10600");
+      cardBg.addColorStop(0.7, "#C0130A"); cardBg.addColorStop(1, "#8E0D08");
+      x.fillStyle = cardBg; x.fillRect(0, 0, W, H);
+    }
+    (function paintBlobs() {
+      function blob(cx, cy, r, color) {
+        var g = x.createRadialGradient(cx, cy, 0, cx, cy, r);
+        g.addColorStop(0, color); g.addColorStop(1, "rgba(0,0,0,0)");
+        x.fillStyle = g; x.fillRect(0, 0, W, H);
+      }
+      if (!RED) {
+        blob(W * 0.5, H * 0.28, W * 0.80, "rgba(225,6,0,0.10)");
+        blob(W * 0.10, H * 0.92, W * 0.70, "rgba(192,19,10,0.10)");
+        blob(W * 0.92, H * 0.82, W * 0.65, "rgba(142,13,8,0.12)");
+        blob(W * 0.15, H * 0.52, W * 0.50, "rgba(255,90,77,0.07)");
+      } else {
+        blob(W * 0.5, H * 1.05, W * 0.85, "rgba(142,13,8,0.45)");
+        blob(W * 0.5, H * -0.08, W * 0.7, "rgba(255,255,255,0.10)");
+      }
+    })();
+
     // шапка
     label("STEAM WRAPPED", 92, C5);
-    x.fillStyle = C4; x.font = "700 22px " + SANS;
+    x.fillStyle = RED ? "#FFFFFF" : C4; x.font = "700 22px " + SANS;
     x.textAlign = "right"; x.fillText((D.meta.generatedAt || "").slice(0, 7), W - M, 92); x.textAlign = "left";
     line(120);
 
     // аватар: круг с градиентным кольцом, как в wrapped-постере. Пока
     // картинка не загрузилась — градиентная плашка с первой буквой ника.
-    var persona = D.meta.persona || "profile";
     var avCx = M + 72, avCy = 234, avR = 72;
-    blob(avCx, avCy, 250, "rgba(225,6,0,0.20)");
-    blob(avCx, avCy, 150, "rgba(192,19,10,0.16)");
+    (function paintAvatarGlow() {
+      function blob(cx, cy, r, color) {
+        var g = x.createRadialGradient(cx, cy, 0, cx, cy, r);
+        g.addColorStop(0, color); g.addColorStop(1, "rgba(0,0,0,0)");
+        x.fillStyle = g; x.fillRect(0, 0, W, H);
+      }
+      blob(avCx, avCy, 250, RED ? "rgba(142,13,8,0.35)" : "rgba(225,6,0,0.20)");
+      blob(avCx, avCy, 150, RED ? "rgba(142,13,8,0.28)" : "rgba(192,19,10,0.16)");
+    })();
     x.save();
     x.beginPath(); x.arc(avCx, avCy, avR, 0, Math.PI * 2); x.clip();
     if (avatarImg && avatarImg.complete && avatarImg.naturalWidth) {
@@ -654,145 +1291,144 @@
     }
     x.restore();
     var ring = x.createLinearGradient(avCx - avR, avCy - avR, avCx + avR, avCy + avR);
-    ring.addColorStop(0, C1); ring.addColorStop(0.55, C4); ring.addColorStop(1, C2);
+    ring.addColorStop(0, RED ? "#FFFFFF" : C1); ring.addColorStop(0.55, RED ? "#FFFFFF" : C4); ring.addColorStop(1, RED ? "#FFFFFF" : C2);
     x.strokeStyle = ring; x.lineWidth = 7;
     x.beginPath(); x.arc(avCx, avCy, avR + 11, 0, Math.PI * 2); x.stroke();
 
-    // строка профиля: аватар слева, ник и слоган справа. Горизонталь
-    // отдаёт низу ~190px воздуха, а ник остаётся крупным.
-    var nameX = M + 144 + 36, nameW = (W - M) - (M + 144 + 36);
-    x.fillStyle = NEAR; x.font = WD + " 80px " + SANS;
-    x.fillText(fit(persona, nameW, WD + " 80px " + SANS), nameX, 246);
+    // ник (до двух строк) + слоган; линейка едет за слоганом
+    x.fillStyle = NEAR; x.font = nick.font;
+    x.fillText(nick.lines[0], nameX, nickFirstY);
+    for (var ni = 1; ni < nick.lines.length; ni++) {
+      x.fillText(nick.lines[ni], nameX, nickFirstY + nickLineH * ni);
+    }
     var tag = x.createLinearGradient(nameX, 0, nameX + 520, 0);
-    tag.addColorStop(0, C1); tag.addColorStop(0.5, C4); tag.addColorStop(1, C2);
-    x.fillStyle = tag; x.font = WD + " 36px " + SANS;
-    x.fillText(fit("steam-профиль в цифрах", nameW, WD + " 36px " + SANS), nameX, 302);
-    line(372);
+    tag.addColorStop(0, RED ? "#FFFFFF" : C1); tag.addColorStop(1, RED ? "#FFFFFF" : C4);
+    x.fillStyle = tag; x.font = fontOf(WD, 36);
+    x.fillText("steam-профиль в цифрах", nameX, sloganY);
+    line(lineY);
 
-    // три числа-колосса: значение, подпись и строка контекста под ней.
-    // Цветных маркеров над числами нет: цифры сами держат композицию.
-    var cols = [
-      [num(gamesOwned), "игр", num(neverPlayed) + " в бэклоге"],
-      [num(totalHours), "часов", "≈ " + dec(totalHours / 24, 0) + " " +
-        plural(totalHours / 24, ["день", "дня", "дней"]) + " нон-стоп"],
-      [num(hours2w), "за 2 недели", "≈ " + dec(hours2w / 14, 1) + " ч в день"]
-    ];
-    var colW = (W - M * 2) / 3;
-    var colLab = [C1, C4, C3];
+    // три числа-колосса: значение, подпись и строка контекста под ней
+    var colLab = RED ? ["#FFFFFF", "#FFFFFF", "#FFFFFF"] : [C1, C4, C5];
     cols.forEach(function (col, i) {
       var cx = M + colW * i + colW / 2;
-      var vs = fitSize(col[0], colW - 8, 80);
+      var vs = shrinkSingle(col[0], colW - 8, WD, 80, 40);
       x.textAlign = "center";
-      x.fillStyle = NEAR; x.font = WD + " " + vs + "px " + SANS;
-      x.fillText(col[0], cx, 500);
+      x.fillStyle = NEAR; x.font = vs.font;
+      x.fillText(col[0], cx, valY);
       x.fillStyle = colLab[i]; x.font = "600 26px " + SANS;
-      x.fillText(col[1], cx, 548);
-      x.fillStyle = FAINT; x.font = "600 20px " + SANS;
-      x.fillText(fit(col[2], colW - 16, "600 20px " + SANS), cx, 586);
+      x.fillText(col[1], cx, labY);
+      var sub = shrinkSingle(col[2], colW - 16, "600", 20, 14);
+      x.fillStyle = RED ? "rgba(255,255,255,0.82)" : DIM; x.font = sub.font;
+      x.fillText(col[2], cx, ctxY);
       x.textAlign = "left";
     });
 
-    // игра жизни — плашка с градиентной полосой сверху
+    // игра жизни — плашка тянется под двустрочное название
     if (soulmate) {
-      var py = 648, ph = 296, rr = 30;
-      var pL = M, pR = W - M;
+      var pL = M, pR = W - M, rr = 30;
       x.save();
       roundRect(pL, py, pR - pL, ph, rr); x.clip();
-      x.fillStyle = "rgba(20, 20, 22, 0.92)"; x.fillRect(pL, py, pR - pL, ph);
+      x.fillStyle = RED ? "#FFFFFF" : "rgba(20, 20, 22, 0.92)"; x.fillRect(pL, py, pR - pL, ph);
       var hl = x.createLinearGradient(pL, 0, pR, 0);
       hl.addColorStop(0, C1); hl.addColorStop(1, C4);
       x.fillStyle = hl; x.fillRect(pL, py, pR - pL, 5);
       x.restore();
-      x.strokeStyle = "rgba(255,255,255,0.08)"; x.lineWidth = 1.5;
+      x.strokeStyle = RED ? "rgba(142,13,8,0.18)" : "rgba(255,255,255,0.08)"; x.lineWidth = 1.5;
       roundRect(pL + 0.75, py + 0.75, pR - pL - 1.5, ph - 1.5, rr); x.stroke();
 
-      label("ГЛАВНАЯ ИГРА ЖИЗНИ", py + 56, C1, pL + 40);
+      label("ГЛАВНАЯ ИГРА ЖИЗНИ", py + 56, RED ? C1 : C4, pL + 40);
       var ng = x.createLinearGradient(pL + 40, 0, pL + 500, 0);
       ng.addColorStop(0, "#FFFFFF"); ng.addColorStop(1, C5);
-      x.fillStyle = ng; x.font = WD + " 44px " + SANS;
-      x.fillText(fit(soulmate.name, 440, WD + " 44px " + SANS), pL + 40, py + 132);
-      var days = soulmate.hours / 24;
-      x.fillStyle = DIM; x.font = "600 24px " + SANS;
-      x.fillText("≈ " + dec(days, days >= 100 ? 0 : 1) + " " +
-        plural(Math.round(days), ["день", "дня", "дней"]) + " нон-стоп", pL + 40, py + 178);
-      // Каждая цифра — своей строкой: доля и единица из soulmateUnit
-      // гарантированно влезают, обрезков вида «4498 …» больше нет.
-      if (totalHours) {
-        x.fillStyle = C3; x.font = "600 23px " + SANS;
-        x.fillText(dec(soulmate.hours / totalHours * 100, 0) + "% всего времени", pL + 40, py + 218);
+      x.fillStyle = RED ? "#141416" : ng; x.font = sm.font;
+      x.fillText(sm.lines[0], pL + 40, smFirstY);
+      for (var si = 1; si < sm.lines.length; si++) {
+        x.fillText(sm.lines[si], pL + 40, smFirstY + smLineH * si);
       }
-      var smUnit = dataLayer && dataLayer.soulmateUnit
-        ? dataLayer.soulmateUnit(soulmate, rules) : null;
+      var days = soulmate.hours / 24;
+      var daysText = "≈ " + dec(days, days >= 100 ? 0 : 1) + " " +
+        plural(Math.round(days), ["день", "дня", "дней"]) + " нон-стоп";
+      var daysFit = shrinkSingle(daysText, 440, "600", 24, 16);
+      x.fillStyle = RED ? "#3F3F46" : DIM; x.font = daysFit.font;
+      x.fillText(daysText, pL + 40, smDaysY);
+      if (hasShare) {
+        var shareText = dec(soulmate.hours / totalHours * 100, 0) + "% всего времени";
+        var shareFit = shrinkSingle(shareText, 440, "600", 23, 16);
+        x.fillStyle = RED ? C1 : C4; x.font = shareFit.font;
+        x.fillText(shareText, pL + 40, smShareY);
+      }
       if (smUnit) {
-        x.fillStyle = FAINT; x.font = "600 23px " + SANS;
-        x.fillText("≈ " + num(soulmate.hours * 60 / smUnit.min) + " " + smUnit.word, pL + 40, py + 254);
+        var unitText = "≈ " + num(soulmate.hours * 60 / smUnit.min) + " " + smUnit.word;
+        var unitFit = shrinkSingle(unitText, 440, "600", 23, 16);
+        x.fillStyle = RED ? "#3F3F46" : DIM; x.font = unitFit.font;
+        x.fillText(unitText, pL + 40, smUnitY);
       }
 
       x.textAlign = "right";
-      var hg = x.createLinearGradient(pR - 420, 0, pR - 40, 0);
-      hg.addColorStop(0, "#FFFFFF"); hg.addColorStop(1, "#FF3B30");
-      var hs = fitSize(num(soulmate.hours), 380, 100);
-      x.fillStyle = hg; x.font = WD + " " + hs + "px " + SANS;
+      var hs = shrinkSingle(num(soulmate.hours), 380, WD, 100, 40);
+      x.fillStyle = RED ? C1 : "#FFFFFF"; x.font = hs.font;
       x.fillText(num(soulmate.hours), pR - 40, py + 136);
-      x.fillStyle = DIM; x.font = "600 24px " + SANS;
+      x.fillStyle = RED ? "#3F3F46" : DIM; x.font = "600 24px " + SANS;
       x.fillText("часов", pR - 40, py + 196);
       x.textAlign = "left";
     }
 
-    // топ-3 по часам: часы и доля от всего времени, много воздуха
-    var tcol = [C1, "#FF5A4D", C3];
-    played.slice(0, 3).forEach(function (g, i) {
-      var ry = 1008 + i * 58;
-      x.fillStyle = tcol[i]; x.font = "700 22px " + SANS;
-      x.fillText(String(i + 1).padStart(2, "0"), M, ry);
-      x.fillStyle = "#C9C9CE"; x.font = "700 26px " + SANS;
-      x.fillText(fit(g.name, 520, "700 26px " + SANS), M + 64, ry);
-      var hourShare = totalHours ? " · " + dec(g.hours / totalHours * 100, 0) + "%" : "";
-      x.fillStyle = tcol[i]; x.font = WD + " 26px " + SANS;
-      x.textAlign = "right"; x.fillText(num(g.hours) + " ч" + hourShare, W - M, ry); x.textAlign = "left";
+    // топ-3: ширина названия отмеряется от часов справа, длинные — в две строки
+    topRows.forEach(function (row) {
+      x.fillStyle = tcol[row.i]; x.font = "700 22px " + SANS;
+      x.fillText(String(row.i + 1).padStart(2, "0"), M, row.y);
+      x.fillStyle = RED ? "#FFFFFF" : "#C9C9CE"; x.font = row.name.font;
+      x.fillText(row.name.lines[0], M + 64, row.y);
+      for (var li = 1; li < row.name.lines.length; li++) {
+        x.fillText(row.name.lines[li], M + 64, row.y + row.lineH * li);
+      }
+      x.fillStyle = tcol[row.i]; x.font = row.hoursFont;
+      x.textAlign = "right"; x.fillText(row.hoursText, W - M, row.y); x.textAlign = "left";
     });
 
-    // жанры — одна строка, каждый жанр своим цветом; если живому профилю
-    // с длинными названиями не хватило ширины — однострочный фолбэк
-    var genreSum = genreData.reduce(function (s, g) { return s + g.hours; }, 0);
-    if (genreSum > 0) {
-      var gTop = genreData.slice(0, 3);
-      var gCols = [C1, C2, C3];
-      var gParts = gTop.map(function (g) {
-        return g.name + " " + dec(g.hours / genreSum * 100, 0) + "%";
-      });
-      x.font = "600 21px " + SANS;
-      var gFull = "Жанры: " + gParts.join(" · ");
-      if (x.measureText(gFull).width <= W - M * 2) {
+    // жанры: одна строка, при переполнении — две; обрезок нет
+    if (genreLines.length) {
+      var gMaxW2 = W - M * 2;
+      genreLines.forEach(function (gl, gi) {
+        var gy = gi ? genreSecondY : genreY;
+        var totalStr = (gl.prefix || "") + gl.parts.join(" · ");
+        var lineFont = genreFont;
+        if (textW(totalStr, lineFont) > gMaxW2) {
+          lineFont = shrinkSingle(totalStr, gMaxW2, "600", 21, 12).font;
+        }
         var gX = M;
-        x.fillStyle = FAINT; x.fillText("Жанры: ", gX, 1192);
-        gX += x.measureText("Жанры: ").width;
-        gParts.forEach(function (part, i) {
-          if (i) {
-            x.fillStyle = FAINT; x.fillText(" · ", gX, 1192);
-            gX += x.measureText(" · ").width;
+        x.font = lineFont;
+        if (gl.prefix) {
+          x.fillStyle = RED ? "rgba(255,255,255,0.7)" : DIM; x.fillText(gl.prefix, gX, gy);
+          gX += textW(gl.prefix, lineFont);
+          x.font = lineFont;
+        }
+        var partIndex = gi ? genreLines[0].parts.length : 0;
+        gl.parts.forEach(function (part, pi) {
+          if (pi) {
+            x.fillStyle = RED ? "rgba(255,255,255,0.7)" : DIM; x.font = lineFont; x.fillText(" · ", gX, gy);
+            gX += textW(" · ", lineFont);
           }
-          x.fillStyle = gCols[i % gCols.length]; x.fillText(part, gX, 1192);
-          gX += x.measureText(part).width;
+          x.fillStyle = gCols[(partIndex + pi) % gCols.length];
+          x.font = lineFont;
+          x.fillText(part, gX, gy);
+          gX += textW(part, lineFont);
         });
-      } else {
-        x.fillStyle = DIM;
-        x.fillText(fit(gFull, W - M * 2, "600 21px " + SANS), M, 1192);
-      }
+      });
     }
 
-    // подпись: линия отбивки далеко и от жанров, и от самой подписи —
-    // иначе низ выглядит слипшимся.
-    line(1244);
-    x.fillStyle = C4; x.font = "600 18px " + SANS;
-    x.fillText(fit("kyuuketsukiakado.github.io/steam-wrapped", 680, "600 18px " + SANS), M, H - 50);
+    line(footLineY);
+    var footUrl = "kyuuketsukiakado.github.io/steam-wrapped";
+    var footFit = shrinkSingle(footUrl, 680, "600", 18, 14);
+    x.fillStyle = RED ? "#FFFFFF" : C4; x.font = footFit.font;
+    x.fillText(footUrl, M, footY);
     if (D.meta.memberSince) {
       x.textAlign = "right";
-      x.fillStyle = DIM; x.font = "600 18px " + SANS;
-      x.fillText("в Steam с " + String(D.meta.memberSince).slice(0, 4), W - M, H - 50);
+      x.fillStyle = RED ? "rgba(255,255,255,0.7)" : DIM; x.font = "600 18px " + SANS;
+      x.fillText("в Steam с " + String(D.meta.memberSince).slice(0, 4), W - M, footY);
       x.textAlign = "left";
     }
   }
+  redrawCardLive = redrawCard;
   redrawCard();
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(redrawCard);
 
@@ -814,7 +1450,9 @@
     say("Карточка скачана ✓");
   }
 
-  $("#dlBtn").addEventListener("click", downloadCard);
+  // Все кнопки ниже — через onclick: повторный boot перезаписывает обработчик,
+  // addEventListener плодил бы дубли (двойные скачивания, окна шаринга).
+  $("#dlBtn").onclick = downloadCard;
 
   function copyCard() {
     // Промис: карточка в буфер обмена. Соцсети не умеют принимать файл
@@ -829,12 +1467,12 @@
     });
   }
 
-  $("#copyBtn").addEventListener("click", function () {
+  $("#copyBtn").onclick = function () {
     copyCard().then(
       function () { say("Скопировано в буфер ✓"); },
       function () { say("Не вышло скопировать — скачай PNG"); }
     );
-  });
+  };
 
   /* ---------- поделиться в соцсети ---------- */
 
@@ -893,35 +1531,35 @@
 
   var tg = $("#tgBtn"), li = $("#liBtn"), dc = $("#dcBtn");
 
-  if (tg) tg.addEventListener("click", function () {
+  if (tg) tg.onclick = function () {
     shareVia(function (text) {
       return "https://t.me/share/url?url=" + encodeURIComponent(PAGE_URL) +
              "&text=" + encodeURIComponent(text);
     }, "Telegram");
-  });
+  };
 
-  if (li) li.addEventListener("click", function () {
+  if (li) li.onclick = function () {
     // LinkedIn берёт из ссылки только URL, текст подставляем через буфер
     shareVia(function () {
       return "https://www.linkedin.com/sharing/share-offsite/?url=" + encodeURIComponent(PAGE_URL);
     }, "LinkedIn");
-  });
+  };
 
-  if (dc) dc.addEventListener("click", function () {
+  if (dc) dc.onclick = function () {
     // у Discord нет окна публикации: кладём в буфер подпись и ссылку,
     // а карточку отдаём скачиванием — PNG прикрепляешь к сообщению вручную.
     copyText(caption() + "\n" + PAGE_URL);
     downloadCard();
-  });
+  };
 
   var capCopy = $("#capCopyBtn"), capReset = $("#capResetBtn");
-  if (capCopy) capCopy.addEventListener("click", function () {
+  if (capCopy) capCopy.onclick = function () {
     copyText(caption() + "\n" + PAGE_URL);
-  });
-  if (capReset) capReset.addEventListener("click", function () {
+  };
+  if (capReset) capReset.onclick = function () {
     capBox.value = defaultCaption();
     say("Подпись возвращена");
-  });
+  };
 
   /* ---------- появление секций ---------- */
 
@@ -931,16 +1569,10 @@
     });
   }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
 
-  // Каскад внутри групп: каждая строка встаёт чуть позже предыдущей.
-  // Задержка работает один раз (unobserve), reduced-motion перекрыт глобально.
-  ["#bars .bar", "#facts .fact", ".fate__slot"].forEach(function (sel) {
-    $$(sel).forEach(function (n, i) {
-      n.classList.add("reveal");
-      n.style.transitionDelay = Math.min(i * 70, 560) + "ms";
-    });
-  });
-
-  $$(".reveal").forEach(function (n) { revealObserver.observe(n); });
+  /* Вау: красный вайп. Класс на body — до observe, чтобы секции ниже
+     сгиба прятались до первого пересечения, а не мигали. */
+  document.body.classList.add("wipe-on");
+  $$(".sec--red").forEach(function (n) { revealObserver.observe(n); });
   }
 
   // Статичная карточка не вызывает Worker сама. Живой запрос возможен только
@@ -967,7 +1599,7 @@
     return url.href;
   }
 
-  function wireProfileForm(dataLayer) {
+  function wireProfileForm(dataLayer, rules) {
     var form = document.getElementById("profileForm");
     var input = document.getElementById("profileInput");
     var reset = document.getElementById("profileReset");
@@ -993,6 +1625,18 @@
 
     input.addEventListener("input", function () { input.removeAttribute("aria-invalid"); });
 
+    // Состояние загрузки: кнопка гаснет (.btn[disabled] уже в CSS) и честно
+    // говорит «Загружаю…», поле блокируется от правок на время запроса.
+    var submitBtn = form.querySelector('button[type="submit"]');
+    var submitLabel = submitBtn ? submitBtn.textContent : "";
+    function setFormBusy(busy) {
+      if (submitBtn) {
+        submitBtn.disabled = !!busy;
+        submitBtn.textContent = busy ? "Загружаю…" : submitLabel;
+      }
+      input.disabled = !!busy;
+    }
+
     form.addEventListener("submit", function (event) {
       event.preventDefault();
       var value = input.value.trim();
@@ -1002,9 +1646,31 @@
         input.focus();
         return;
       }
-      var url = new URL(window.location.href);
-      url.searchParams.set("profile", value);
-      window.location.assign(url.href);
+      // CORS сознательно ограничен опубликованным GitHub Pages (см. start):
+      // на preview подгрузка недоступна — сообщаем сразу, без перезагрузки.
+      if (window.location.origin !== PAGES_ORIGIN) {
+        setProfileStatus("Живой профиль доступен на опубликованной GitHub Pages-странице.", "error");
+        return;
+      }
+      setProfileStatus("Получаю публичные данные Steam…", "loading");
+      setFormBusy(true);
+      loadLiveProfile(value, rules, dataLayer).then(function (result) {
+        announceLiveResult(result);
+        // адрес обновляем без перезагрузки: страницу с ?profile= можно шарить,
+        // а прямой заход по ней сразу строит живой профиль (см. start).
+        var url = new URL(window.location.href);
+        url.searchParams.set("profile", value);
+        window.history.replaceState(null, "", url.href);
+        if (reset) {
+          reset.hidden = false;
+          reset.href = resetProfileUrl();
+        }
+        try { boot(rules, result.data, false); }
+        finally { setFormBusy(false); }
+      }, function (error) {
+        setProfileStatus(workerErrorMessage(error && error.code), "error");
+        setFormBusy(false);
+      });
     });
   }
 
@@ -1019,6 +1685,16 @@
       api_disabled: "Живое обновление временно отключено."
     };
     return messages[code] || "Сервис временно недоступен. Попробуй немного позже.";
+  }
+
+  // Один статус успеха на первичную загрузку и на сабмит без reload.
+  function announceLiveResult(result) {
+    setProfileStatus(
+      result.genreWarning
+        ? "Профиль построен. Часть жанров временно недоступна."
+        : "Профиль построен из публичных данных Steam.",
+      result.genreWarning ? "" : "ok"
+    );
   }
 
   function workerJson(path, options) {
@@ -1098,8 +1774,173 @@
     });
   }
 
+  /* ---------- против друга ---------- */
+
+  var vnf = new Intl.NumberFormat("ru-RU");
+  function vnum(n) { return vnf.format(Math.round(n)); }
+  function vpct(n) { return (Math.round(n * 10) / 10).toString().replace(".", ",") + "%"; }
+  function vEl(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text !== undefined) e.textContent = text;
+    return e;
+  }
+
+  /* Метрики любого ProfileViewData — те же деривации, что в boot. */
+  function versusMetrics(pvd) {
+    var games = ((pvd && pvd.games) || []).slice().sort(function (a, b) { return b.hours - a.hours; });
+    var played = games.filter(function (g) { return g.hours > 0; });
+    var totals = (pvd && pvd.totals) || {};
+    var totalHours = totals.hoursTotal != null ? totals.hoursTotal
+      : played.reduce(function (s, g) { return s + g.hours; }, 0);
+    var hours2w = totals.hoursTwoWeeks != null ? totals.hoursTwoWeeks
+      : games.reduce(function (s, g) { return s + (g.hours2w || 0); }, 0);
+    var gamesOwned = totals.gamesOwned != null ? totals.gamesOwned : games.length;
+    var backlog = games.filter(function (g) { return !g.hours; });
+    var neverPlayed = totals.gamesNeverPlayed != null ? totals.gamesNeverPlayed : backlog.length;
+    var soulmate = (pvd && pvd.soulmateAppid &&
+      games.filter(function (g) { return g.appid === pvd.soulmateAppid; })[0]) || played[0] || null;
+    var gh = (pvd && pvd.genreHours && pvd.genreHours.length) ? pvd.genreHours.slice()
+      : (function () {
+          var map = {};
+          played.forEach(function (g) {
+            var gs = (g.genres && g.genres.length) ? g.genres : ["Без жанра"];
+            gs.forEach(function (name) { map[name] = (map[name] || 0) + g.hours / gs.length; });
+          });
+          return Object.keys(map).map(function (k) { return { name: k, hours: map[k] }; })
+            .sort(function (a, b) { return b.hours - a.hours; });
+        })();
+    var gsum = gh.reduce(function (s, x) { return s + x.hours; }, 0);
+    return {
+      nick: (pvd && pvd.meta && pvd.meta.persona) || "профиль",
+      totalHours: totalHours, hours2w: hours2w, gamesOwned: gamesOwned,
+      backlogPct: gamesOwned ? neverPlayed / gamesOwned * 100 : 0,
+      soulmateHours: soulmate ? soulmate.hours : 0,
+      soulmateName: soulmate ? soulmate.name : "—",
+      genreShare: gsum && gh.length ? gh[0].hours / gsum * 100 : 0,
+      genreName: gh.length ? gh[0].name : "—"
+    };
+  }
+
+  var VROWS = [
+    { label: "Часов всего", key: "totalHours", fmt: vnum },
+    { label: "Игр в библиотеке", key: "gamesOwned", fmt: vnum },
+    { label: "Бэклог", key: "backlogPct", fmt: vpct, low: true },
+    { label: "Часов за 2 недели", key: "hours2w", fmt: vnum },
+    { label: "Часы чемпиона", key: "soulmateHours", fmt: vnum, sub: "soulmateName" },
+    { label: "Доля топ-жанра", key: "genreShare", fmt: vpct, sub: "genreName" }
+  ];
+
+  function renderVersus(a, b) {
+    var table = document.getElementById("versusTable");
+    var verdict = document.getElementById("versusVerdict");
+    var status = document.getElementById("versusStatus");
+    if (!table || !verdict) return;
+    table.textContent = "";
+    var head = vEl("tr");
+    head.appendChild(vEl("th", "", ""));
+    var tha = vEl("th", "nick", a.nick); tha.scope = "col";
+    var thb = vEl("th", "nick", b.nick); thb.scope = "col";
+    head.appendChild(tha); head.appendChild(thb);
+    var thead = vEl("thead"); thead.appendChild(head); table.appendChild(thead);
+    var body = vEl("tbody"), sa = 0, sb = 0;
+    VROWS.forEach(function (row) {
+      var va = a[row.key], vb = b[row.key];
+      var winner = va === vb ? 0 : ((row.low ? va < vb : va > vb) ? 1 : 2);
+      if (winner === 1) sa++; else if (winner === 2) sb++;
+      var tr = vEl("tr");
+      var label = vEl("th", "", row.label); label.scope = "row";
+      tr.appendChild(label);
+      [[va, winner === 1, a], [vb, winner === 2, b]].forEach(function (cell) {
+        var td = vEl("td", cell[1] ? "is-winner" : "");
+        td.appendChild(vEl("div", "vs-main", row.fmt(cell[0])));
+        if (row.sub) td.appendChild(vEl("div", "vs-sub", cell[2][row.sub]));
+        tr.appendChild(td);
+      });
+      body.appendChild(tr);
+    });
+    table.appendChild(body);
+    table.hidden = false;
+    verdict.textContent = "";
+    if (sa === sb) {
+      verdict.appendChild(document.createTextNode("Ничья " + sa + ":" + sb + " — равные соперники."));
+    } else {
+      verdict.appendChild(document.createTextNode("Счёт " + sa + ":" + sb + " — впереди "));
+      verdict.appendChild(vEl("b", "", sa > sb ? a.nick : b.nick));
+    }
+    verdict.hidden = false;
+    if (status) { status.textContent = ""; status.className = "versus-status"; }
+  }
+
+  function resetVersus() {
+    var table = document.getElementById("versusTable");
+    var verdict = document.getElementById("versusVerdict");
+    var status = document.getElementById("versusStatus");
+    if (table) { table.textContent = ""; table.hidden = true; }
+    if (verdict) { verdict.textContent = ""; verdict.hidden = true; }
+    if (status) {
+      status.textContent = "Твоя сторона — данные, показанные на странице.";
+      status.className = "versus-status";
+    }
+  }
+
+  function wireVersus(dataLayer, rules) {
+    var form = document.getElementById("versusForm");
+    var input = document.getElementById("versusInput");
+    if (!form || !input) return;
+    function setStatus(msg, state) {
+      var node = document.getElementById("versusStatus");
+      if (!node) return;
+      node.textContent = msg;
+      node.className = "versus-status" + (state ? " is-" + state : "");
+    }
+    var btn = form.querySelector('button[type="submit"]');
+    var btnLabel = btn ? btn.textContent : "";
+    function setBusy(busy) {
+      if (btn) { btn.disabled = !!busy; btn.textContent = busy ? "Загружаю…" : btnLabel; }
+      input.disabled = !!busy;
+    }
+    form.addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      var value = input.value.trim();
+      if (!dataLayer || !dataLayer.validateProfileInput(value)) {
+        setStatus("Введи SteamID64, ник или обычную ссылку на профиль Steam.", "error");
+        input.setAttribute("aria-invalid", "true");
+        input.focus();
+        return;
+      }
+      if (window.location.origin !== PAGES_ORIGIN) {
+        setStatus("Сравнение доступно на опубликованной GitHub Pages-странице.", "error");
+        return;
+      }
+      if (!currentPVD) {
+        setStatus("Данные страницы ещё не готовы.", "error");
+        return;
+      }
+      setStatus("Получаю публичные данные Steam…", "loading");
+      setBusy(true);
+      loadLiveProfile(value, rules, dataLayer).then(function (result) {
+        try { renderVersus(versusMetrics(currentPVD), versusMetrics(result.data)); }
+        finally { setBusy(false); }
+      }, function (error) {
+        setStatus(workerErrorMessage(error && error.code), "error");
+        setBusy(false);
+      });
+    });
+    input.addEventListener("input", function () { input.removeAttribute("aria-invalid"); });
+  }
+
+  /* Демо для preview (fetch там закрыт CORS): демо против демо — все ничьи.
+     Вызвать из консоли: __versusDemo() */
+  window.__versusDemo = function () {
+    if (!currentPVD) return "нет данных";
+    renderVersus(versusMetrics(currentPVD), versusMetrics(currentPVD));
+    return "ok";
+  };
+
   function start(rules, dataLayer) {
-    wireProfileForm(dataLayer);
+    wireProfileForm(dataLayer, rules);
+    wireVersus(dataLayer, rules);
     var staticData = dataLayer.normalizeStaticData(window.STEAM_DATA, rules);
     var requested = profileQuery();
     if (!requested) {
@@ -1121,12 +1962,7 @@
 
     setProfileStatus("Получаю публичные данные Steam…", "loading");
     loadLiveProfile(requested, rules, dataLayer).then(function (result) {
-      setProfileStatus(
-        result.genreWarning
-          ? "Профиль построен. Часть жанров временно недоступна."
-          : "Профиль построен из публичных данных Steam.",
-        result.genreWarning ? "" : "ok"
-      );
+      announceLiveResult(result);
       boot(rules, result.data, false);
     }).catch(function (error) {
       setProfileStatus(workerErrorMessage(error && error.code), "error");
