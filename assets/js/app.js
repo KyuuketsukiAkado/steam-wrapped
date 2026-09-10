@@ -1611,6 +1611,8 @@
   document.body.classList.add("wipe-on");
   $$(".sec--red").forEach(function (n) { revealObserver.observe(n); });
   $$(".reveal").forEach(function (n) { revealObserver.observe(n); });
+  // Шапки без блочного вылета (reveal снят), is-in нужен каскаду букв.
+  $$(".sec-head").forEach(function (n) { revealObserver.observe(n); });
   }
 
   // Статичная карточка не вызывает Worker сама. Живой запрос возможен только
