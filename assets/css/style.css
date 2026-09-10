@@ -341,17 +341,20 @@ section { padding: var(--section-pad) 0; }
 .hero__title {
   font-family: var(--display);
   font-weight: var(--w-display);
-  font-size: clamp(44px, 14.2vw, 168px);
+  /* full-bleed постер: 100vw центрируется флексом .hero__top,
+     кегль считается от вьюпорта, а не от контентной колонки */
+  width: 100vw;
+  font-size: clamp(48px, 15vw, 224px);
   line-height: 0.9;
   letter-spacing: var(--tight);
   text-transform: uppercase;
   margin: 0;
 }
-/* WRAPPED — тонкий красный контур без заливки и эффектов: чистый постер.
-   Замер по woff2: слово 6.25em, поэтому 14.2vw/168px встают впритык
-   к контейнеру на любой ширине. Без text-stroke — сплошной красный. */
+/* WRAPPED — semibold-контур вместо Black: у лёгкого скелета чище линии,
+   без тяжеловесных округлостей. Замер по woff2 с HVAR: слово 6.45em,
+   15vw/224px дают боковые поля ~10px на любой ширине. */
 .hero__title b {
-  font-weight: var(--w-display);
+  font-weight: 600;
   color: var(--c1);
 }
 @supports (-webkit-text-stroke: 1px black) {
