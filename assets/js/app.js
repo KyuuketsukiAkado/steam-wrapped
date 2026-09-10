@@ -9,6 +9,20 @@
   // bootSeq отменяет устаревшие асинхронные перерисовки (аватар, fonts.ready).
   var bootSeq = 0;
 
+  /* Тема шаринг-карточки живёт вне boot: переживает смену профиля.
+     redrawCardLive всегда указывает на redrawCard актуального boot. */
+  var cardTheme = "dark";
+  var redrawCardLive = null;
+  Array.prototype.forEach.call(document.querySelectorAll(".theme-switch__btn"), function (b) {
+    b.addEventListener("click", function () {
+      cardTheme = b.getAttribute("data-card-theme") === "red" ? "red" : "dark";
+      Array.prototype.forEach.call(document.querySelectorAll(".theme-switch__btn"), function (o) {
+        o.classList.toggle("is-on", o === b);
+      });
+      if (redrawCardLive) redrawCardLive();
+    });
+  });
+
   // Страница рисуется из одного ProfileViewData: сейчас это статичный data.js,
   // позже сюда же придёт нормализованный ответ Worker для профиля друга.
   function boot(rules, profileViewData, isDemoProfile) {
@@ -616,6 +630,7 @@
     var W = c.width, H = c.height;
     var INK = "#EDEDEF", NEAR = "#F7F7F8", DIM = "#A7A7AD", FAINT = "#6E6E75";
     var C1 = "#E10600", C2 = "#C0130A", C3 = "#8E0D08", C4 = "#FF5A4D", C5 = "#EDEDEF";
+    var RED = cardTheme === "red";
     var css = getComputedStyle(document.documentElement);
     var SANS = (css.getPropertyValue("--display") || "").trim() || 'Arial, sans-serif';
     var WD = (css.getPropertyValue("--w-display") || "700").trim();
@@ -686,7 +701,7 @@
     }
 
     function line(y) {
-      x.strokeStyle = "rgba(255,255,255,0.12)"; x.lineWidth = 1;
+      x.strokeStyle = RED ? "rgba(255,255,255,0.22)" : "rgba(255,255,255,0.12)"; x.lineWidth = 1;
       x.beginPath(); x.moveTo(M, y + 0.5); x.lineTo(W - M, y + 0.5); x.stroke();
     }
     function label(t, y, color, xPos) {
@@ -762,7 +777,7 @@
       panelBottom = lineY + 276;
     }
 
-    var tcol = [C1, "#FF5A4D", C5];
+    var tcol = RED ? ["#FFFFFF", "#FFFFFF", "#FFFFFF"] : [C1, "#FF5A4D", C5];
     var topList = played.slice(0, 3);
     var topRows = [];
     var curY = panelBottom + 64, lastTopY = curY;
@@ -783,7 +798,7 @@
 
     var genreSum = genreData.reduce(function (s, g) { return s + g.hours; }, 0);
     var gTop = genreSum > 0 ? genreData.slice(0, 3) : [];
-    var gCols = [C1, C4, "#C9C9CE"];
+    var gCols = RED ? ["#FFFFFF", "#FFFFFF", "#FFFFFF"] : [C1, C4, "#C9C9CE"];
     var gParts = gTop.map(function (g) {
       return g.name + " " + dec(g.hours / genreSum * 100, 0) + "%";
     });
@@ -848,22 +863,34 @@
     var footY = H - 50;
 
     /* ---------- рисуем ---------- */
-    x.fillStyle = "#0A0807"; x.fillRect(0, 0, W, H);
+    if (!RED) {
+      x.fillStyle = "#0A0807"; x.fillRect(0, 0, W, H);
+    } else {
+      var cardBg = x.createLinearGradient(0, 0, W, H);
+      cardBg.addColorStop(0, "#F31200"); cardBg.addColorStop(0.35, "#E10600");
+      cardBg.addColorStop(0.7, "#C0130A"); cardBg.addColorStop(1, "#8E0D08");
+      x.fillStyle = cardBg; x.fillRect(0, 0, W, H);
+    }
     (function paintBlobs() {
       function blob(cx, cy, r, color) {
         var g = x.createRadialGradient(cx, cy, 0, cx, cy, r);
         g.addColorStop(0, color); g.addColorStop(1, "rgba(0,0,0,0)");
         x.fillStyle = g; x.fillRect(0, 0, W, H);
       }
-      blob(W * 0.5, H * 0.28, W * 0.80, "rgba(225,6,0,0.10)");
-      blob(W * 0.10, H * 0.92, W * 0.70, "rgba(192,19,10,0.10)");
-      blob(W * 0.92, H * 0.82, W * 0.65, "rgba(142,13,8,0.12)");
-      blob(W * 0.15, H * 0.52, W * 0.50, "rgba(255,90,77,0.07)");
+      if (!RED) {
+        blob(W * 0.5, H * 0.28, W * 0.80, "rgba(225,6,0,0.10)");
+        blob(W * 0.10, H * 0.92, W * 0.70, "rgba(192,19,10,0.10)");
+        blob(W * 0.92, H * 0.82, W * 0.65, "rgba(142,13,8,0.12)");
+        blob(W * 0.15, H * 0.52, W * 0.50, "rgba(255,90,77,0.07)");
+      } else {
+        blob(W * 0.5, H * 1.05, W * 0.85, "rgba(0,0,0,0.35)");
+        blob(W * 0.5, H * -0.08, W * 0.7, "rgba(255,255,255,0.10)");
+      }
     })();
 
     // шапка
     label("STEAM WRAPPED", 92, C5);
-    x.fillStyle = C4; x.font = "700 22px " + SANS;
+    x.fillStyle = RED ? "#FFFFFF" : C4; x.font = "700 22px " + SANS;
     x.textAlign = "right"; x.fillText((D.meta.generatedAt || "").slice(0, 7), W - M, 92); x.textAlign = "left";
     line(120);
 
@@ -876,8 +903,8 @@
         g.addColorStop(0, color); g.addColorStop(1, "rgba(0,0,0,0)");
         x.fillStyle = g; x.fillRect(0, 0, W, H);
       }
-      blob(avCx, avCy, 250, "rgba(225,6,0,0.20)");
-      blob(avCx, avCy, 150, "rgba(192,19,10,0.16)");
+      blob(avCx, avCy, 250, RED ? "rgba(0,0,0,0.28)" : "rgba(225,6,0,0.20)");
+      blob(avCx, avCy, 150, RED ? "rgba(0,0,0,0.22)" : "rgba(192,19,10,0.16)");
     })();
     x.save();
     x.beginPath(); x.arc(avCx, avCy, avR, 0, Math.PI * 2); x.clip();
@@ -897,7 +924,7 @@
     }
     x.restore();
     var ring = x.createLinearGradient(avCx - avR, avCy - avR, avCx + avR, avCy + avR);
-    ring.addColorStop(0, C1); ring.addColorStop(0.55, C4); ring.addColorStop(1, C2);
+    ring.addColorStop(0, RED ? "#FFFFFF" : C1); ring.addColorStop(0.55, RED ? "#FFFFFF" : C4); ring.addColorStop(1, RED ? "#FFFFFF" : C2);
     x.strokeStyle = ring; x.lineWidth = 7;
     x.beginPath(); x.arc(avCx, avCy, avR + 11, 0, Math.PI * 2); x.stroke();
 
@@ -908,13 +935,13 @@
       x.fillText(nick.lines[ni], nameX, nickFirstY + nickLineH * ni);
     }
     var tag = x.createLinearGradient(nameX, 0, nameX + 520, 0);
-    tag.addColorStop(0, C1); tag.addColorStop(1, C4);
+    tag.addColorStop(0, RED ? "#FFFFFF" : C1); tag.addColorStop(1, RED ? "#FFFFFF" : C4);
     x.fillStyle = tag; x.font = fontOf(WD, 36);
     x.fillText("steam-профиль в цифрах", nameX, sloganY);
     line(lineY);
 
     // три числа-колосса: значение, подпись и строка контекста под ней
-    var colLab = [C1, C4, C5];
+    var colLab = RED ? ["#FFFFFF", "#FFFFFF", "#FFFFFF"] : [C1, C4, C5];
     cols.forEach(function (col, i) {
       var cx = M + colW * i + colW / 2;
       var vs = shrinkSingle(col[0], colW - 8, WD, 80, 40);
@@ -924,7 +951,7 @@
       x.fillStyle = colLab[i]; x.font = "600 26px " + SANS;
       x.fillText(col[1], cx, labY);
       var sub = shrinkSingle(col[2], colW - 16, "600", 20, 14);
-      x.fillStyle = DIM; x.font = sub.font;
+      x.fillStyle = RED ? "rgba(255,255,255,0.82)" : DIM; x.font = sub.font;
       x.fillText(col[2], cx, ctxY);
       x.textAlign = "left";
     });
@@ -982,7 +1009,7 @@
     topRows.forEach(function (row) {
       x.fillStyle = tcol[row.i]; x.font = "700 22px " + SANS;
       x.fillText(String(row.i + 1).padStart(2, "0"), M, row.y);
-      x.fillStyle = "#C9C9CE"; x.font = row.name.font;
+      x.fillStyle = RED ? "#FFFFFF" : "#C9C9CE"; x.font = row.name.font;
       x.fillText(row.name.lines[0], M + 64, row.y);
       for (var li = 1; li < row.name.lines.length; li++) {
         x.fillText(row.name.lines[li], M + 64, row.y + row.lineH * li);
@@ -1004,14 +1031,14 @@
         var gX = M;
         x.font = lineFont;
         if (gl.prefix) {
-          x.fillStyle = DIM; x.fillText(gl.prefix, gX, gy);
+          x.fillStyle = RED ? "rgba(255,255,255,0.7)" : DIM; x.fillText(gl.prefix, gX, gy);
           gX += textW(gl.prefix, lineFont);
           x.font = lineFont;
         }
         var partIndex = gi ? genreLines[0].parts.length : 0;
         gl.parts.forEach(function (part, pi) {
           if (pi) {
-            x.fillStyle = DIM; x.font = lineFont; x.fillText(" · ", gX, gy);
+            x.fillStyle = RED ? "rgba(255,255,255,0.7)" : DIM; x.font = lineFont; x.fillText(" · ", gX, gy);
             gX += textW(" · ", lineFont);
           }
           x.fillStyle = gCols[(partIndex + pi) % gCols.length];
@@ -1025,15 +1052,16 @@
     line(footLineY);
     var footUrl = "kyuuketsukiakado.github.io/steam-wrapped";
     var footFit = shrinkSingle(footUrl, 680, "600", 18, 14);
-    x.fillStyle = C4; x.font = footFit.font;
+    x.fillStyle = RED ? "#FFFFFF" : C4; x.font = footFit.font;
     x.fillText(footUrl, M, footY);
     if (D.meta.memberSince) {
       x.textAlign = "right";
-      x.fillStyle = DIM; x.font = "600 18px " + SANS;
+      x.fillStyle = RED ? "rgba(255,255,255,0.7)" : DIM; x.font = "600 18px " + SANS;
       x.fillText("в Steam с " + String(D.meta.memberSince).slice(0, 4), W - M, footY);
       x.textAlign = "left";
     }
   }
+  redrawCardLive = redrawCard;
   redrawCard();
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(redrawCard);
 

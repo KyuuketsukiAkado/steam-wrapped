@@ -817,6 +817,8 @@ section { padding: var(--section-pad) 0; }
 }
 .share__hint b { color: var(--ink-dim); font-weight: 700; }
 
+.theme-switch { display: flex; gap: 8px; margin: 0 0 4px; }
+.sec--red .theme-switch__btn.is-on { background: #FFFFFF; border-color: #FFFFFF; color: var(--c1); }
 .share__nets { margin-top: 0; }
 
 /* у каждой сети свой акцент из нашей же палитры — фирменных цветов
