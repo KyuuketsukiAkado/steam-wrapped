@@ -9,6 +9,9 @@
   // bootSeq отменяет устаревшие асинхронные перерисовки (аватар, fonts.ready).
   var bootSeq = 0;
 
+  // Versus: актуальные данные страницы (обновляются каждый boot).
+  var currentPVD = null;
+
   /* Тема шаринг-карточки живёт вне boot: переживает смену профиля.
      redrawCardLive всегда указывает на redrawCard актуального boot. */
   var cardTheme = "dark";
@@ -64,6 +67,8 @@
     // Для исходного data.js сохраняем прежний путь нормализации. Данные,
     // полученные Worker, уже нормализованы через normalizeSteamData() до boot.
     if (dataLayer && !profileViewData) D = dataLayer.normalizeStaticData(D, rules);
+    currentPVD = D;
+    resetVersus();
     bootSeq += 1;
     var myBoot = bootSeq;
 
@@ -1807,8 +1812,173 @@
     });
   }
 
+  /* ---------- против друга ---------- */
+
+  var vnf = new Intl.NumberFormat("ru-RU");
+  function vnum(n) { return vnf.format(Math.round(n)); }
+  function vpct(n) { return (Math.round(n * 10) / 10).toString().replace(".", ",") + "%"; }
+  function vEl(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text !== undefined) e.textContent = text;
+    return e;
+  }
+
+  /* Метрики любого ProfileViewData — те же деривации, что в boot. */
+  function versusMetrics(pvd) {
+    var games = ((pvd && pvd.games) || []).slice().sort(function (a, b) { return b.hours - a.hours; });
+    var played = games.filter(function (g) { return g.hours > 0; });
+    var totals = (pvd && pvd.totals) || {};
+    var totalHours = totals.hoursTotal != null ? totals.hoursTotal
+      : played.reduce(function (s, g) { return s + g.hours; }, 0);
+    var hours2w = totals.hoursTwoWeeks != null ? totals.hoursTwoWeeks
+      : games.reduce(function (s, g) { return s + (g.hours2w || 0); }, 0);
+    var gamesOwned = totals.gamesOwned != null ? totals.gamesOwned : games.length;
+    var backlog = games.filter(function (g) { return !g.hours; });
+    var neverPlayed = totals.gamesNeverPlayed != null ? totals.gamesNeverPlayed : backlog.length;
+    var soulmate = (pvd && pvd.soulmateAppid &&
+      games.filter(function (g) { return g.appid === pvd.soulmateAppid; })[0]) || played[0] || null;
+    var gh = (pvd && pvd.genreHours && pvd.genreHours.length) ? pvd.genreHours.slice()
+      : (function () {
+          var map = {};
+          played.forEach(function (g) {
+            var gs = (g.genres && g.genres.length) ? g.genres : ["Без жанра"];
+            gs.forEach(function (name) { map[name] = (map[name] || 0) + g.hours / gs.length; });
+          });
+          return Object.keys(map).map(function (k) { return { name: k, hours: map[k] }; })
+            .sort(function (a, b) { return b.hours - a.hours; });
+        })();
+    var gsum = gh.reduce(function (s, x) { return s + x.hours; }, 0);
+    return {
+      nick: (pvd && pvd.meta && pvd.meta.persona) || "профиль",
+      totalHours: totalHours, hours2w: hours2w, gamesOwned: gamesOwned,
+      backlogPct: gamesOwned ? neverPlayed / gamesOwned * 100 : 0,
+      soulmateHours: soulmate ? soulmate.hours : 0,
+      soulmateName: soulmate ? soulmate.name : "—",
+      genreShare: gsum && gh.length ? gh[0].hours / gsum * 100 : 0,
+      genreName: gh.length ? gh[0].name : "—"
+    };
+  }
+
+  var VROWS = [
+    { label: "Часов всего", key: "totalHours", fmt: vnum },
+    { label: "Игр в библиотеке", key: "gamesOwned", fmt: vnum },
+    { label: "Бэклог", key: "backlogPct", fmt: vpct, low: true },
+    { label: "Часов за 2 недели", key: "hours2w", fmt: vnum },
+    { label: "Часы чемпиона", key: "soulmateHours", fmt: vnum, sub: "soulmateName" },
+    { label: "Доля топ-жанра", key: "genreShare", fmt: vpct, sub: "genreName" }
+  ];
+
+  function renderVersus(a, b) {
+    var table = document.getElementById("versusTable");
+    var verdict = document.getElementById("versusVerdict");
+    var status = document.getElementById("versusStatus");
+    if (!table || !verdict) return;
+    table.textContent = "";
+    var head = vEl("tr");
+    head.appendChild(vEl("th", "", ""));
+    var tha = vEl("th", "nick", a.nick); tha.scope = "col";
+    var thb = vEl("th", "nick", b.nick); thb.scope = "col";
+    head.appendChild(tha); head.appendChild(thb);
+    var thead = vEl("thead"); thead.appendChild(head); table.appendChild(thead);
+    var body = vEl("tbody"), sa = 0, sb = 0;
+    VROWS.forEach(function (row) {
+      var va = a[row.key], vb = b[row.key];
+      var winner = va === vb ? 0 : ((row.low ? va < vb : va > vb) ? 1 : 2);
+      if (winner === 1) sa++; else if (winner === 2) sb++;
+      var tr = vEl("tr");
+      var label = vEl("th", "", row.label); label.scope = "row";
+      tr.appendChild(label);
+      [[va, winner === 1, a], [vb, winner === 2, b]].forEach(function (cell) {
+        var td = vEl("td", cell[1] ? "is-winner" : "");
+        td.appendChild(vEl("div", "vs-main", row.fmt(cell[0])));
+        if (row.sub) td.appendChild(vEl("div", "vs-sub", cell[2][row.sub]));
+        tr.appendChild(td);
+      });
+      body.appendChild(tr);
+    });
+    table.appendChild(body);
+    table.hidden = false;
+    verdict.textContent = "";
+    if (sa === sb) {
+      verdict.appendChild(document.createTextNode("Ничья " + sa + ":" + sb + " — равные соперники."));
+    } else {
+      verdict.appendChild(document.createTextNode("Счёт " + sa + ":" + sb + " — впереди "));
+      verdict.appendChild(vEl("b", "", sa > sb ? a.nick : b.nick));
+    }
+    verdict.hidden = false;
+    if (status) { status.textContent = ""; status.className = "versus-status"; }
+  }
+
+  function resetVersus() {
+    var table = document.getElementById("versusTable");
+    var verdict = document.getElementById("versusVerdict");
+    var status = document.getElementById("versusStatus");
+    if (table) { table.textContent = ""; table.hidden = true; }
+    if (verdict) { verdict.textContent = ""; verdict.hidden = true; }
+    if (status) {
+      status.textContent = "Твоя сторона — данные, показанные на странице.";
+      status.className = "versus-status";
+    }
+  }
+
+  function wireVersus(dataLayer, rules) {
+    var form = document.getElementById("versusForm");
+    var input = document.getElementById("versusInput");
+    if (!form || !input) return;
+    function setStatus(msg, state) {
+      var node = document.getElementById("versusStatus");
+      if (!node) return;
+      node.textContent = msg;
+      node.className = "versus-status" + (state ? " is-" + state : "");
+    }
+    var btn = form.querySelector('button[type="submit"]');
+    var btnLabel = btn ? btn.textContent : "";
+    function setBusy(busy) {
+      if (btn) { btn.disabled = !!busy; btn.textContent = busy ? "Загружаю…" : btnLabel; }
+      input.disabled = !!busy;
+    }
+    form.addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      var value = input.value.trim();
+      if (!dataLayer || !dataLayer.validateProfileInput(value)) {
+        setStatus("Введи SteamID64, ник или обычную ссылку на профиль Steam.", "error");
+        input.setAttribute("aria-invalid", "true");
+        input.focus();
+        return;
+      }
+      if (window.location.origin !== PAGES_ORIGIN) {
+        setStatus("Сравнение доступно на опубликованной GitHub Pages-странице.", "error");
+        return;
+      }
+      if (!currentPVD) {
+        setStatus("Данные страницы ещё не готовы.", "error");
+        return;
+      }
+      setStatus("Получаю публичные данные Steam…", "loading");
+      setBusy(true);
+      loadLiveProfile(value, rules, dataLayer).then(function (result) {
+        try { renderVersus(versusMetrics(currentPVD), versusMetrics(result.data)); }
+        finally { setBusy(false); }
+      }, function (error) {
+        setStatus(workerErrorMessage(error && error.code), "error");
+        setBusy(false);
+      });
+    });
+    input.addEventListener("input", function () { input.removeAttribute("aria-invalid"); });
+  }
+
+  /* Демо для preview (fetch там закрыт CORS): демо против демо — все ничьи.
+     Вызвать из консоли: __versusDemo() */
+  window.__versusDemo = function () {
+    if (!currentPVD) return "нет данных";
+    renderVersus(versusMetrics(currentPVD), versusMetrics(currentPVD));
+    return "ok";
+  };
+
   function start(rules, dataLayer) {
     wireProfileForm(dataLayer, rules);
+    wireVersus(dataLayer, rules);
     var staticData = dataLayer.normalizeStaticData(window.STEAM_DATA, rules);
     var requested = profileQuery();
     if (!requested) {

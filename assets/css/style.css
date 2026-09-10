@@ -274,6 +274,7 @@ section { padding: var(--section-pad) 0; }
 .topbar__nav a:nth-child(3):hover { color: var(--c3); }
 .topbar__nav a:nth-child(4):hover { color: var(--c4); }
 .topbar__nav a:nth-child(5):hover { color: var(--c5); }
+.topbar__nav a:nth-child(6):hover { color: var(--c6); }
 
 @media (max-width: 780px) { .topbar__nav { display: none; } }
 
@@ -1094,4 +1095,35 @@ body.wipe-on .sec--red.is-in { clip-path: inset(0 0 0 0); transition: clip-path 
 @media (prefers-reduced-motion: reduce) {
   body.wipe-on .sec--red { clip-path: none; }
   .sec-head .ch { opacity: 1; }
+}
+
+/* ---------- против друга ---------- */
+.versus-form { display: flex; gap: 10px; max-width: 720px; margin: 0 auto; }
+.versus-form__input { flex: 1 1 auto; min-width: 0; border: 1px solid var(--line); border-radius: 999px; background: rgba(255,255,255,.03); color: var(--ink); font: inherit; font-size: 16px; padding: 14px 22px; }
+.versus-form__input::placeholder { color: var(--ink-faint); opacity: 1; }
+.versus-form__input:focus { outline: none; border-color: var(--c1); box-shadow: 0 0 0 3px rgba(225,6,0,.20); }
+.versus-form__input[aria-invalid="true"] { border-color: #FF5A4D; }
+.versus-form .btn { flex: none; }
+.versus-status { max-width: 720px; margin: 10px auto 0; min-height: 1.5em; font-size: 13px; line-height: 1.5; color: var(--ink-faint); text-align: center; }
+.versus-status.is-error { color: #FF5A4D; }
+.versus-status.is-loading { color: var(--c4); }
+.versus-grid { width: 100%; max-width: 860px; margin: 34px auto 0; border-collapse: collapse; font-size: 15px; }
+.versus-grid th, .versus-grid td { padding: 12px 14px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+.versus-grid thead th { font-family: var(--mono); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: var(--ink-dim); border-bottom: 1px solid rgba(255,255,255,.2); }
+.versus-grid thead th.nick { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink); }
+.versus-grid tbody th { color: var(--ink-dim); font-weight: 600; font-size: 14px; }
+.versus-grid td { font-variant-numeric: tabular-nums; }
+.versus-grid td.is-winner { color: #FFFFFF; box-shadow: inset 2px 0 0 var(--c1); }
+.versus-grid td.is-winner .vs-main { font-weight: 800; }
+.vs-sub { font-size: 12px; color: var(--ink-faint); margin-top: 2px; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.versus-verdict { max-width: 860px; margin: 24px auto 0; text-align: center; font-family: var(--display); font-weight: var(--w-display); font-size: clamp(18px, 2.4vw, 26px); letter-spacing: var(--tight); }
+.versus-verdict b { color: var(--c4); }
+@media (max-width: 560px) {
+  .versus-form { flex-direction: column; }
+  .versus-form .btn { width: 100%; }
+  .versus-grid { font-size: 13px; }
+  .versus-grid th, .versus-grid td { padding: 10px 8px; }
+  .versus-grid thead th.nick { max-width: 104px; }
+  .versus-grid tbody th { font-size: 12px; }
+  .vs-sub { max-width: 120px; }
 }

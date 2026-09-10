@@ -26,7 +26,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400..900&family=JetBrains+Mono:wght@400..800&display=swap">
 <!-- ?v= — бамп версии при ручных правках css/js, иначе браузер отдаст кэш -->
-<link rel="stylesheet" href="assets/css/style.css?v=20260910-40">
+<link rel="stylesheet" href="assets/css/style.css?v=20260910-41">
 </head>
 <body>
 <a class="skip-link" href="#hero">К содержимому</a>
@@ -43,6 +43,7 @@
         <a href="#now">Сейчас</a>
         <a href="#genres">Жанры</a>
         <a href="#fate">Судьба вечера</a>
+        <a href="#versus">Против друга</a>
       </nav>
       <button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="mobileNav" aria-label="Меню">
         <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
@@ -54,6 +55,7 @@
       <a href="#now">Сейчас</a>
       <a href="#genres">Жанры</a>
       <a href="#fate">Судьба вечера</a>
+      <a href="#versus">Против друга</a>
     </nav>
   </header>
 
@@ -238,10 +240,32 @@
   </section>
 
   <!-- ============ ПОДЕЛИТЬСЯ ============ -->
-  <section id="share" class="sec sec--red sec--c6">
+  <!-- ============ ПРОТИВ ДРУГА ============ -->
+  <section id="versus" class="sec sec--c6">
     <div class="wrap">
       <div class="sec-head reveal">
         <span class="sec-index">06</span>
+        <h2 class="sec-title">Против <b>друга</b></h2>
+        <p class="sec-note">Введи профиль друга — столкнём цифры лицом к лицу: часы, бэклог, чемпион и жанры.</p>
+      </div>
+
+      <form class="versus-form reveal" id="versusForm" novalidate>
+        <input class="versus-form__input" id="versusInput" name="versus" type="text"
+               inputmode="url" autocomplete="url" maxlength="400"
+               placeholder="SteamID64, ник или ссылка на steamcommunity.com"
+               aria-describedby="versusStatus" aria-label="Профиль друга для сравнения">
+        <button class="btn btn--solid" type="submit">Сравнить →</button>
+      </form>
+      <p class="versus-status" id="versusStatus" aria-live="polite">Твоя сторона — данные, показанные на странице.</p>
+      <table class="versus-grid" id="versusTable" hidden></table>
+      <p class="versus-verdict" id="versusVerdict" hidden></p>
+    </div>
+  </section>
+
+  <section id="share" class="sec sec--red sec--c6">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <span class="sec-index">07</span>
         <h2 class="sec-title">Забрать <b>карточку</b></h2>
       </div>
 
@@ -309,7 +333,7 @@
 
 <script src="assets/js/data.js"></script>
 <script src="assets/js/profile-data.js"></script>
-<script src="assets/js/app.js?v=20260910-14"></script>
+<script src="assets/js/app.js?v=20260910-15"></script>
   <button class="to-top" id="toTop" type="button" aria-label="Наверх">↑</button>
 </body>
 </html>
