@@ -18,6 +18,7 @@
       cardTheme = b.getAttribute("data-card-theme") === "red" ? "red" : "dark";
       Array.prototype.forEach.call(document.querySelectorAll(".theme-switch__btn"), function (o) {
         o.classList.toggle("is-on", o === b);
+        o.setAttribute("aria-pressed", o === b ? "true" : "false");
       });
       if (redrawCardLive) redrawCardLive();
     });
@@ -883,7 +884,7 @@
         blob(W * 0.92, H * 0.82, W * 0.65, "rgba(142,13,8,0.12)");
         blob(W * 0.15, H * 0.52, W * 0.50, "rgba(255,90,77,0.07)");
       } else {
-        blob(W * 0.5, H * 1.05, W * 0.85, "rgba(0,0,0,0.35)");
+        blob(W * 0.5, H * 1.05, W * 0.85, "rgba(142,13,8,0.45)");
         blob(W * 0.5, H * -0.08, W * 0.7, "rgba(255,255,255,0.10)");
       }
     })();
@@ -903,8 +904,8 @@
         g.addColorStop(0, color); g.addColorStop(1, "rgba(0,0,0,0)");
         x.fillStyle = g; x.fillRect(0, 0, W, H);
       }
-      blob(avCx, avCy, 250, RED ? "rgba(0,0,0,0.28)" : "rgba(225,6,0,0.20)");
-      blob(avCx, avCy, 150, RED ? "rgba(0,0,0,0.22)" : "rgba(192,19,10,0.16)");
+      blob(avCx, avCy, 250, RED ? "rgba(142,13,8,0.35)" : "rgba(225,6,0,0.20)");
+      blob(avCx, avCy, 150, RED ? "rgba(142,13,8,0.28)" : "rgba(192,19,10,0.16)");
     })();
     x.save();
     x.beginPath(); x.arc(avCx, avCy, avR, 0, Math.PI * 2); x.clip();
@@ -961,18 +962,18 @@
       var pL = M, pR = W - M, rr = 30;
       x.save();
       roundRect(pL, py, pR - pL, ph, rr); x.clip();
-      x.fillStyle = "rgba(20, 20, 22, 0.92)"; x.fillRect(pL, py, pR - pL, ph);
+      x.fillStyle = RED ? "#FFFFFF" : "rgba(20, 20, 22, 0.92)"; x.fillRect(pL, py, pR - pL, ph);
       var hl = x.createLinearGradient(pL, 0, pR, 0);
       hl.addColorStop(0, C1); hl.addColorStop(1, C4);
       x.fillStyle = hl; x.fillRect(pL, py, pR - pL, 5);
       x.restore();
-      x.strokeStyle = "rgba(255,255,255,0.08)"; x.lineWidth = 1.5;
+      x.strokeStyle = RED ? "rgba(142,13,8,0.18)" : "rgba(255,255,255,0.08)"; x.lineWidth = 1.5;
       roundRect(pL + 0.75, py + 0.75, pR - pL - 1.5, ph - 1.5, rr); x.stroke();
 
-      label("ГЛАВНАЯ ИГРА ЖИЗНИ", py + 56, C4, pL + 40);
+      label("ГЛАВНАЯ ИГРА ЖИЗНИ", py + 56, RED ? C1 : C4, pL + 40);
       var ng = x.createLinearGradient(pL + 40, 0, pL + 500, 0);
       ng.addColorStop(0, "#FFFFFF"); ng.addColorStop(1, C5);
-      x.fillStyle = ng; x.font = sm.font;
+      x.fillStyle = RED ? "#141416" : ng; x.font = sm.font;
       x.fillText(sm.lines[0], pL + 40, smFirstY);
       for (var si = 1; si < sm.lines.length; si++) {
         x.fillText(sm.lines[si], pL + 40, smFirstY + smLineH * si);
@@ -981,26 +982,26 @@
       var daysText = "≈ " + dec(days, days >= 100 ? 0 : 1) + " " +
         plural(Math.round(days), ["день", "дня", "дней"]) + " нон-стоп";
       var daysFit = shrinkSingle(daysText, 440, "600", 24, 16);
-      x.fillStyle = DIM; x.font = daysFit.font;
+      x.fillStyle = RED ? "#3F3F46" : DIM; x.font = daysFit.font;
       x.fillText(daysText, pL + 40, smDaysY);
       if (hasShare) {
         var shareText = dec(soulmate.hours / totalHours * 100, 0) + "% всего времени";
         var shareFit = shrinkSingle(shareText, 440, "600", 23, 16);
-        x.fillStyle = C4; x.font = shareFit.font;
+        x.fillStyle = RED ? C1 : C4; x.font = shareFit.font;
         x.fillText(shareText, pL + 40, smShareY);
       }
       if (smUnit) {
         var unitText = "≈ " + num(soulmate.hours * 60 / smUnit.min) + " " + smUnit.word;
         var unitFit = shrinkSingle(unitText, 440, "600", 23, 16);
-        x.fillStyle = DIM; x.font = unitFit.font;
+        x.fillStyle = RED ? "#3F3F46" : DIM; x.font = unitFit.font;
         x.fillText(unitText, pL + 40, smUnitY);
       }
 
       x.textAlign = "right";
       var hs = shrinkSingle(num(soulmate.hours), 380, WD, 100, 40);
-      x.fillStyle = "#FFFFFF"; x.font = hs.font;
+      x.fillStyle = RED ? C1 : "#FFFFFF"; x.font = hs.font;
       x.fillText(num(soulmate.hours), pR - 40, py + 136);
-      x.fillStyle = DIM; x.font = "600 24px " + SANS;
+      x.fillStyle = RED ? "#3F3F46" : DIM; x.font = "600 24px " + SANS;
       x.fillText("часов", pR - 40, py + 196);
       x.textAlign = "left";
     }
