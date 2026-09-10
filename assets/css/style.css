@@ -986,6 +986,10 @@ section { padding: var(--section-pad) 0; }
   .fate__slot--empty { font-size: 15.5px; }
 
   .footer__inner { flex-direction: column; gap: 10px; align-items: center; text-align: center; }
+
+  /* бренд 15px + бургер не влезают в 360: суффикс прячем, кегль ужимаем */
+  .topbar__brand { font-size: 13px; gap: 10px; }
+  .topbar__brand b { display: none; }
 }
 
 /* совсем узкие экраны: цифры статистики в одну колонку уже с 760,
