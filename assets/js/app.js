@@ -24,6 +24,37 @@
     });
   });
 
+  /* Вау: лёгкий 3D-наклон карточек за курсором. Делегирование — карточки
+     перерендериваются boot'ом, прямые подписки слетели бы. Только точный
+     указатель без reduced-motion; тач и клавиатура остаются со статикой. */
+  if (window.matchMedia &&
+      window.matchMedia("(pointer: fine)").matches &&
+      window.matchMedia("(prefers-reduced-motion: no-preference)").matches) {
+    var tiltCard = null;
+    document.addEventListener("pointermove", function (ev) {
+      var card = ev.target && ev.target.closest ? ev.target.closest(".stat, .rcard") : null;
+      if (tiltCard && tiltCard !== card) {
+        tiltCard.style.setProperty("--rx", "0deg");
+        tiltCard.style.setProperty("--ry", "0deg");
+      }
+      tiltCard = card;
+      if (!card) return;
+      var r = card.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      var px = (ev.clientX - r.left) / r.width - 0.5;
+      var py = (ev.clientY - r.top) / r.height - 0.5;
+      card.style.setProperty("--ry", (-px * 7).toFixed(2) + "deg");
+      card.style.setProperty("--rx", (py * 7).toFixed(2) + "deg");
+    });
+    document.addEventListener("pointerleave", function () {
+      if (tiltCard) {
+        tiltCard.style.setProperty("--rx", "0deg");
+        tiltCard.style.setProperty("--ry", "0deg");
+        tiltCard = null;
+      }
+    });
+  }
+
   // Страница рисуется из одного ProfileViewData: сейчас это статичный data.js,
   // позже сюда же придёт нормализованный ответ Worker для профиля друга.
   function boot(rules, profileViewData, isDemoProfile) {
@@ -1542,6 +1573,38 @@
     });
   });
 
+  /* Вау: заголовки встают каскадом букв. Сплит визуальный — spans без
+     семантики, скринридеры читают текст как раньше. dataset.guard на повторный boot. */
+  function splitLetters(root) {
+    if (!root || root.dataset.split) return;
+    root.dataset.split = "1";
+    var i = 0;
+    function walk(node) {
+      Array.prototype.slice.call(node.childNodes).forEach(function (n) {
+        if (n.nodeType === 3) {
+          var frag = document.createDocumentFragment();
+          n.textContent.split("").forEach(function (ch) {
+            if (ch === " ") { frag.appendChild(document.createTextNode(" ")); return; }
+            var s = document.createElement("span");
+            s.className = "ch";
+            s.style.setProperty("--i", String(i++));
+            s.textContent = ch;
+            frag.appendChild(s);
+          });
+          node.replaceChild(frag, n);
+        } else if (n.nodeType === 1 && n.tagName !== "BR") {
+          walk(n);
+        }
+      });
+    }
+    walk(root);
+  }
+  $$(".hero__title, .sec-title").forEach(splitLetters);
+
+  /* Вау: красный вайп. Класс на body — до observe, чтобы секции ниже
+     сгиба прятались до первого пересечения, а не мигали. */
+  document.body.classList.add("wipe-on");
+  $$(".sec--red").forEach(function (n) { revealObserver.observe(n); });
   $$(".reveal").forEach(function (n) { revealObserver.observe(n); });
   }
 
