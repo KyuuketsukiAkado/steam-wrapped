@@ -55,60 +55,6 @@
     });
   }
 
-  /* Вау-2: магнитный CTA, спотлайт на красном, параллакс метеоров.
-     Один pointermove на документ, только точный указатель без reduced-motion. */
-  if (window.matchMedia &&
-      window.matchMedia("(pointer: fine)").matches &&
-      window.matchMedia("(prefers-reduced-motion: no-preference)").matches) {
-    var magBtn = null, meteorStage = document.querySelector(".hero__stage"), meteorOn = false;
-    document.addEventListener("pointermove", function (ev) {
-      if (!ev.target || !ev.target.closest) return;
-      // спотлайт: координаты в пикселях зоны
-      var zone = ev.target.closest(".sec--red, .hero__red");
-      if (zone) {
-        var zr = zone.getBoundingClientRect();
-        zone.style.setProperty("--mx", Math.round(ev.clientX - zr.left) + "px");
-        zone.style.setProperty("--my", Math.round(ev.clientY - zr.top) + "px");
-      }
-      // магнит: кнопка тянется к курсору, отпущенная — домой
-      var btn = ev.target.closest(".hero .btn");
-      if (btn && btn.disabled) btn = null;
-      if (magBtn && magBtn !== btn) magBtn.style.transform = "";
-      magBtn = btn;
-      if (btn) {
-        var br = btn.getBoundingClientRect();
-        var mdx = ev.clientX - (br.left + br.width / 2);
-        var mdy = ev.clientY - (br.top + br.height / 2);
-        btn.style.transform = "translate(" +
-          Math.max(-8, Math.min(8, mdx * 0.22)).toFixed(1) + "px," +
-          Math.max(-8, Math.min(8, mdy * 0.22)).toFixed(1) + "px)";
-      }
-      // метеоры едут против курсора — глубина сцены
-      var inHero = !!ev.target.closest(".hero");
-      if (meteorStage) {
-        if (inHero) {
-          var hr = meteorStage.getBoundingClientRect();
-          var nx = hr.width ? (ev.clientX - hr.left) / hr.width - 0.5 : 0;
-          var ny = hr.height ? (ev.clientY - hr.top) / hr.height - 0.5 : 0;
-          meteorStage.style.setProperty("--px", (-nx * 32).toFixed(1) + "px");
-          meteorStage.style.setProperty("--py", (-ny * 24).toFixed(1) + "px");
-        } else if (meteorOn) {
-          meteorStage.style.setProperty("--px", "0px");
-          meteorStage.style.setProperty("--py", "0px");
-        }
-      }
-      meteorOn = inHero;
-    });
-    document.addEventListener("pointerleave", function () {
-      if (magBtn) { magBtn.style.transform = ""; magBtn = null; }
-      if (meteorStage) {
-        meteorStage.style.setProperty("--px", "0px");
-        meteorStage.style.setProperty("--py", "0px");
-      }
-      meteorOn = false;
-    });
-  }
-
   // Страница рисуется из одного ProfileViewData: сейчас это статичный data.js,
   // позже сюда же придёт нормализованный ответ Worker для профиля друга.
   function boot(rules, profileViewData, isDemoProfile) {
