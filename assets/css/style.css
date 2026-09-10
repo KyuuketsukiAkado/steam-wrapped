@@ -445,7 +445,7 @@ section { padding: var(--section-pad) 0; }
 .hero__profile-side { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
 .hero__nick {
   font-family: var(--display); font-weight: var(--w-display);
-  font-size: clamp(36px, 4.6vw, 60px); line-height: 1; letter-spacing: var(--tight);
+  font-size: clamp(36px, 4.6vw, 60px); line-height: 1.12; letter-spacing: var(--tight);
   color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
@@ -478,7 +478,7 @@ section { padding: var(--section-pad) 0; }
   display: block;
   margin: 0 0 8px;
   font-family: var(--display); font-weight: var(--w-display);
-  font-size: clamp(30px, 4.4vw, 46px); letter-spacing: var(--tight);
+  font-size: clamp(28px, 4.2vw, 42px); letter-spacing: var(--tight);
   text-transform: uppercase; color: var(--ink);
 }
 .profile-form__invite { margin: 0 0 20px; font-size: 16px; line-height: 1.5; color: var(--ink-dim); }
