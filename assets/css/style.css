@@ -426,13 +426,13 @@ section { padding: var(--section-pad) 0; }
 .hero__micro { margin: 0; max-width: 30ch; font-size: 13.5px; line-height: 1.6; color: rgba(255, 255, 255, 0.82); }
 .hero__points { list-style: none; margin: 0; padding: 0; border-top: 1px solid rgba(255, 255, 255, 0.3); }
 .hero__points li {
-  display: flex; gap: 16px; align-items: baseline;
-  padding: 14px 2px; border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  display: flex; gap: 14px; align-items: baseline;
+  padding: 12px 2px; border-bottom: 1px solid rgba(255, 255, 255, 0.3);
   color: #FFFFFF;
   font-family: var(--display); font-weight: var(--w-display);
-  font-size: clamp(20px, 2.4vw, 30px); line-height: 1.1; letter-spacing: var(--tight);
+  font-size: clamp(17px, 1.8vw, 23px); line-height: 1.15; letter-spacing: var(--tight);
 }
-.hero__points i { font-style: normal; font-family: var(--mono); font-size: 13px; font-weight: 700; color: rgba(255, 255, 255, 0.85); }
+.hero__points i { font-style: normal; font-family: var(--mono); font-size: 12px; font-weight: 700; color: rgba(255, 255, 255, 0.75); }
 
 
 @media (max-width: 760px) {
