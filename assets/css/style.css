@@ -37,8 +37,8 @@
 
 :root {
   /* база */
-  --bg:        #0C0A09;
-  --bg-soft:   #161312;
+  --bg:        #0A0807;
+  --bg-soft:   #141110;
   --line:      rgba(255, 241, 231, 0.10);
   --line-soft: rgba(255, 241, 231, 0.06);
   --ink:       #EDEDEF;
@@ -103,7 +103,7 @@ body {
   overflow-x: hidden;
 }
 
-/* карбон + красный свет сверху + виньетка */
+/* глубокий эспрессо: красный свет сверху/снизу + виньетка, без плетения */
 body::before {
   content: "";
   position: fixed;
@@ -111,10 +111,9 @@ body::before {
   pointer-events: none;
   z-index: 0;
   background:
-    radial-gradient(90% 55% at 50% -5%, rgba(225, 6, 0, 0.07), transparent 70%),
-    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.016) 0 2px, transparent 2px 5px),
-    repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.016) 0 2px, transparent 2px 5px),
-    radial-gradient(120% 100% at 50% 42%, transparent 55%, rgba(0, 0, 0, 0.45) 100%);
+    radial-gradient(90% 55% at 50% -5%, rgba(225, 6, 0, 0.08), transparent 70%),
+    radial-gradient(70% 40% at 50% 108%, rgba(225, 6, 0, 0.06), transparent 70%),
+    radial-gradient(120% 100% at 50% 42%, transparent 55%, rgba(0, 0, 0, 0.5) 100%);
 }
 
 
@@ -149,8 +148,9 @@ a:hover { color: var(--accent); }
   font-weight: 700;
 }
 
-/* секции — кадры на карбоне: рамка вместо линеек и призраков */
+/* секции льются цельными полосами: красные развороты + эспрессо с вином */
 .sec { position: relative; }
+.sec--wine { background: linear-gradient(180deg, #130C0A 0%, var(--bg) 100%); }
 /* старые .section-head удалены: все секции на .sec-head */
 
 /* ---------- кадры секций: общая шапка (тёмная по умолчанию, светлая на красном) ---------- */
@@ -236,7 +236,7 @@ section { padding: var(--section-pad) 0; }
 .topbar {
   position: sticky; top: 0; z-index: 20;
   backdrop-filter: blur(16px);
-  background: rgba(10, 10, 11, 0.74);
+  background: rgba(10, 8, 7, 0.8);
   border-bottom: 1px solid var(--line-soft);
 }
 .topbar::after {
@@ -293,7 +293,7 @@ section { padding: var(--section-pad) 0; }
   .mobilenav {
     display: flex; flex-direction: column;
     position: absolute; top: 100%; left: 0; right: 0;
-    background: rgba(10, 10, 11, 0.96);
+    background: rgba(10, 8, 7, 0.96);
     backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
     border-bottom: 1px solid var(--line);
     padding: 8px clamp(20px, 5vw, 56px) 16px;
@@ -1010,13 +1010,13 @@ section { padding: var(--section-pad) 0; }
 
 
 /* ---------- скроллбар и зерно плёнки ---------- */
-html { scrollbar-width: thin; scrollbar-color: #8E0D08 #0A0A0B; }
+html { scrollbar-width: thin; scrollbar-color: #8E0D08 #0A0807; }
 body::after {
   content: ""; position: fixed; inset: 0; z-index: 60; pointer-events: none; opacity: 0.08;
   background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix type='saturate' values='0'/></filter><rect width='160' height='160' filter='url(%23n)' opacity='0.5'/></svg>");
 }
 ::-webkit-scrollbar { width: 11px; }
-::-webkit-scrollbar-track { background: #0A0A0B; }
+::-webkit-scrollbar-track { background: #0A0807; }
 ::-webkit-scrollbar-thumb {
   background: linear-gradient(180deg, var(--c1), var(--c4));
   border-radius: 8px; border: 2px solid #0A0A0B;
