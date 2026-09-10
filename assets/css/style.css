@@ -482,28 +482,36 @@ section { padding: var(--section-pad) 0; }
   position: relative;
   max-width: 720px;
   margin: 30px auto 0;
-  padding: 24px;
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  background: var(--bg-soft);
-  transition: border-color 0.15s ease;
 }
+/* красная метка вместо карточной рамки: форма дышит воздухом тулзоны */
 .profile-form::before {
-  content: ""; position: absolute; top: -1px; left: 0; right: 0; height: 3px;
-  border-radius: 6px 6px 0 0; background: var(--c1);
+  content: ""; display: block; width: 32px; height: 4px;
+  margin-bottom: 16px; background: var(--c1);
 }
-.profile-form:focus-within { border-color: rgba(225, 6, 0, 0.6); }
 .profile-form__label {
   display: block;
-  margin-bottom: 12px;
-  font-size: 17px;
-  font-weight: 800;
-  letter-spacing: 0;
-  color: var(--ink);
+  margin: 0 0 14px;
+  font-family: var(--display); font-weight: var(--w-display);
+  font-size: clamp(20px, 3vw, 27px); letter-spacing: var(--tight);
+  text-transform: uppercase; color: var(--ink);
 }
-.profile-form__row { display: flex; gap: 10px; align-items: stretch; }
+.profile-form__row {
+  display: flex; align-items: center; gap: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 6px 6px 6px 0;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.profile-form__row:focus-within {
+  border-color: var(--c1);
+  box-shadow: 0 0 0 3px rgba(225, 6, 0, 0.20), 0 0 34px rgba(225, 6, 0, 0.25);
+}
+.profile-form__row:has(.profile-form__input[aria-invalid="true"]) {
+  border-color: #FF5A4D; box-shadow: 0 0 0 3px rgba(255, 126, 157, 0.2);
+}
 .profile-form .btn--solid {
   background: linear-gradient(96deg, var(--c1), var(--c2));
+  border-radius: 999px; border-color: transparent; flex: none;
   white-space: nowrap;
   box-shadow: 0 12px 34px rgba(225, 6, 0, 0.22), 0 0 24px rgba(192, 19, 10, 0.16);
   transition: filter 0.12s ease, box-shadow 0.12s ease, transform 0.12s ease;
@@ -515,14 +523,17 @@ section { padding: var(--section-pad) 0; }
 }
 .profile-form__chips {
   display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-  margin-top: 12px;
+  margin-top: 14px; padding-left: 24px;
 }
-.profile-form__chips-label { font-size: 13px; color: var(--ink-faint); }
+.profile-form__chips-label {
+  font-family: var(--mono); font-size: 11px; font-weight: 700;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--ink-faint);
+}
 .chip {
   appearance: none; cursor: pointer;
   border: 1px solid var(--line); border-radius: 999px;
   background: rgba(225, 6, 0, 0.05);
-  color: var(--ink-dim); font: inherit; font-size: 13px; font-weight: 600;
+  color: var(--ink-dim); font-family: var(--mono); font-size: 12px; font-weight: 700;
   padding: 8px 16px;
   transition: border-color 0.12s ease, color 0.12s ease, box-shadow 0.12s ease;
 }
@@ -532,23 +543,22 @@ section { padding: var(--section-pad) 0; }
 }
 .profile-form__input {
   min-width: 0;
-  flex: 1 1 360px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: #08080A;
+  flex: 1 1 auto;
+  border: none;
+  border-radius: 0;
+  background: transparent;
   color: var(--ink);
   font: inherit;
   font-size: 16px;
-  min-height: 60px;
-  padding: 15px 22px;
-  box-shadow: inset 0 2px 12px rgba(0, 0, 0, 0.45);
+  min-height: 56px;
+  padding: 14px 8px 14px 24px;
+  box-shadow: none;
 }
 .profile-form__input::placeholder { color: var(--ink-faint); opacity: 1; }
-.profile-form__input:focus { border-color: var(--c1); outline: none; box-shadow: 0 0 0 3px rgba(225, 6, 0, 0.20), 0 0 26px rgba(225, 6, 0, 0.22); }
-.profile-form__input[aria-invalid="true"] { border-color: #FF5A4D; box-shadow: 0 0 0 3px rgba(255, 126, 157, 0.2); }
+.profile-form__input:focus { outline: none; box-shadow: none; }
 .profile-form__status {
   min-height: 1.5em;
-  margin: 9px 2px 0;
+  margin: 10px 2px 0 24px;
   color: var(--ink-faint);
   font-size: 13px;
   line-height: 1.5;
@@ -558,7 +568,7 @@ section { padding: var(--section-pad) 0; }
 .profile-form__status.is-ok { color: var(--c3); }
 .profile-form__reset {
   display: inline-block;
-  margin: 5px 2px 0;
+  margin: 6px 2px 0 24px;
   color: var(--ink-dim);
   font-size: 13px;
   text-decoration: underline;
@@ -567,10 +577,11 @@ section { padding: var(--section-pad) 0; }
 @media (max-width: 620px) {
   /* в колонке flex-basis инпута работал как высота (~360px) — поле
      становилось гигантским; сбрасываем флекс и ужимаем отступы */
-  .profile-form { padding: 18px; }
-  .profile-form__row { flex-direction: column; }
+  .profile-form__row { flex-direction: column; align-items: stretch; border-radius: 26px; padding: 8px; }
   .profile-form__input { flex: none; width: 100%; min-height: 52px; padding: 13px 18px; }
   .profile-form__row .btn { width: 100%; }
+  .profile-form__chips { padding-left: 0; }
+  .profile-form__status, .profile-form__reset { margin-left: 2px; }
 }
 
 /* ---------- кнопки ---------- */
