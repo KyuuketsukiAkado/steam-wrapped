@@ -145,16 +145,16 @@
   document.title = "Steam Wrapped · " + (isDemoProfile ? "пример: " : "") + profileName;
   $("#year").textContent = new Date().getFullYear();
   $("#heroNick").textContent = profileName;
-  $("#heroEyebrow").textContent = (isDemoProfile ? "Демо-профиль" : "Профиль Steam") +
-    (D.meta.memberSince ? " · в Steam с " + fmtDate(D.meta.memberSince) : "") +
-    " · данные от " + fmtDate(D.meta.generatedAt);
+  $("#heroEyebrow").textContent =
+    (D.meta.memberSince ? "в Steam с " + fmtDate(D.meta.memberSince) + " · " : "") +
+    "данные от " + fmtDate(D.meta.generatedAt);
 
-  // Подпись-разделитель над профилем тоже зависит от режима: в живом профиле
+  // Бейдж режима у ника тоже зависит от данных: в живом профиле
   // слова про «демо» вводить в заблуждение не должны.
   var demoCaption = $("#demoCaption");
   if (demoCaption) demoCaption.textContent = isDemoProfile
-    ? "Живой пример — демо-профиль"
-    : "Живой профиль — данные из Steam";
+    ? "демо-профиль"
+    : "профиль steam";
 
   var pl = $("#profileLink");
   if (D.meta.profileUrl) { pl.href = D.meta.profileUrl; pl.style.display = ""; }
