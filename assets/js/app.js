@@ -560,8 +560,8 @@
     }
 
     var R = 78, C = 2 * Math.PI * R, off = 0;
-    var palette = ["#E10600", "#8E8E93", "#6E6E73", "#636366", "#48484E",
-                   "#3A3A3F", "#2F2F34", "#26262B", "#1F1F23"];
+    var palette = ["#E10600", "#FF5A4D", "#C0130A", "#EDEDEF", "#8E8E93",
+                   "#6E6E73", "#48484E", "#3A3A3F"];
 
     /* Минимальная дуга. Симулятор и MMO — это 0,4% и 0,1%: их доля
        короче зазора между сегментами, дуга получалась отрицательной
@@ -598,6 +598,7 @@
 
       var row = el("div", "legend__row");
       row.dataset.i = i;
+      row.style.setProperty("--lc", palette[i % palette.length]);
       var dot = el("span", "legend__dot"); dot.style.background = palette[i % palette.length];
       row.appendChild(dot);
       row.appendChild(el("span", "legend__name", g.name));
@@ -626,14 +627,20 @@
       $$(".legend__row", legend).forEach(function (r) { r.classList.remove("is-hover"); });
       if (i === null) {
         svg.classList.remove("has-hover");
-        dv.textContent = defaultValue; dl.textContent = defaultLabel;
+        legend.classList.remove("has-hover");
+        dv.textContent = defaultValue;
+        dv.style.color = "";
+        dl.textContent = defaultLabel;
         return;
       }
       svg.classList.add("has-hover");
-      svg.querySelector('.donut__seg[data-i="' + i + '"]').classList.add("is-hover");
+      legend.classList.add("has-hover");
+      var seg = svg.querySelector('.donut__seg[data-i="' + i + '"]');
+      if (seg) seg.classList.add("is-hover");
       var lrow = legend.querySelector('.legend__row[data-i="' + i + '"]');
       if (lrow) lrow.classList.add("is-hover");
       dv.textContent = pctStr(g.hours / sum * 100) + "%";
+      dv.style.color = palette[i % palette.length];
       dl.textContent = g.name;
     }
   })();
