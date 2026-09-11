@@ -679,6 +679,10 @@ section { padding: var(--section-pad) 0; }
 }
 .soulmate__share { margin-top: 20px; color: var(--ink-dim); font-size: 16px; max-width: 40ch; }
 
+.soulmate__facts-col { display: flex; flex-direction: column; gap: 14px; }
+.facts__bar { display: flex; justify-content: flex-end; margin-top: 4px; }
+.sec--red .facts__bar .btn { border-color: rgba(255, 255, 255, 0.4); color: #FFFFFF; }
+.sec--red .facts__bar .btn:hover { border-color: #FFFFFF; color: #FFFFFF; background: rgba(255, 255, 255, 0.12); }
 .facts { display: grid; border-top: 1px solid var(--line); }
 
 .fact {
