@@ -72,6 +72,46 @@
     });
   }
 
+  /* ---------- scroll-reveal: один наблюдатель на все карточки ---------- */
+  var revealIO = ("IntersectionObserver" in window && window.matchMedia &&
+    !window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+    ? new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (!e.isIntersecting) return;
+          var n = e.target;
+          revealIO.unobserve(n);
+          n.style.animationDelay = (n.dataset.revealDelay || "0") + "ms";
+          n.classList.remove("reveal-wait");
+          n.classList.add("reveal-in");
+          n.addEventListener("animationend", function clean(ev) {
+            if (ev.animationName !== "reveal-rise" &&
+                ev.animationName !== "reveal-luxe") return;
+            n.removeEventListener("animationend", clean);
+            n.classList.remove("reveal-in");
+            n.classList.remove("reveal-luxe");
+            n.style.animationDelay = "";
+          });
+        });
+      }, { threshold: 0.15 })
+    : null;
+
+  /* Вешаем на свежесозданные узлы: до входа в вьюпорт скрыты, дальше едут
+     снизу каскадом 40ms (кап 200ms). Узлы со своей анимацией пропускаем.
+     Без IO или при reduced-motion контент просто виден — скрытие ставит
+     только этот код, не CSS. */
+  function wireReveal(nodes, opts) {
+    if (!revealIO) return;
+    opts = opts || {};
+    var step = opts.step || 40, cap = opts.cap || 200, base = opts.delay || 0;
+    Array.prototype.forEach.call(nodes || [], function (n, i) {
+      if (n.nodeType !== 1 || n.classList.contains("is-entering")) return;
+      n.dataset.revealDelay = String(base + Math.min(i * step, cap));
+      n.classList.add("reveal-wait");
+      if (opts.luxe) n.classList.add("reveal-luxe");
+      revealIO.observe(n);
+    });
+  }
+
   // Страница рисуется из одного ProfileViewData: сейчас это статичный data.js,
   // позже сюда же придёт нормализованный ответ Worker для профиля друга.
   function boot(rules, profileViewData, isDemoProfile) {
@@ -299,46 +339,6 @@
     hours2w: hours2w,
     smHours: soulmate ? soulmate.hours : 0
   };
-
-  /* ---------- scroll-reveal: один наблюдатель на все карточки ---------- */
-  var revealIO = ("IntersectionObserver" in window && window.matchMedia &&
-    !window.matchMedia("(prefers-reduced-motion: reduce)").matches)
-    ? new IntersectionObserver(function (entries) {
-        entries.forEach(function (e) {
-          if (!e.isIntersecting) return;
-          var n = e.target;
-          revealIO.unobserve(n);
-          n.style.animationDelay = (n.dataset.revealDelay || "0") + "ms";
-          n.classList.remove("reveal-wait");
-          n.classList.add("reveal-in");
-          n.addEventListener("animationend", function clean(ev) {
-            if (ev.animationName !== "reveal-rise" &&
-                ev.animationName !== "reveal-luxe") return;
-            n.removeEventListener("animationend", clean);
-            n.classList.remove("reveal-in");
-            n.classList.remove("reveal-luxe");
-            n.style.animationDelay = "";
-          });
-        });
-      }, { threshold: 0.15 })
-    : null;
-
-  /* Вешаем на свежесозданные узлы: до входа в вьюпорт скрыты, дальше едут
-     снизу каскадом 40ms (кап 200ms). Узлы со своей анимацией пропускаем.
-     Без IO или при reduced-motion контент просто виден — скрытие ставит
-     только этот код, не CSS. */
-  function wireReveal(nodes, opts) {
-    if (!revealIO) return;
-    opts = opts || {};
-    var step = opts.step || 40, cap = opts.cap || 200, base = opts.delay || 0;
-    Array.prototype.forEach.call(nodes || [], function (n, i) {
-      if (n.nodeType !== 1 || n.classList.contains("is-entering")) return;
-      n.dataset.revealDelay = String(base + Math.min(i * step, cap));
-      n.classList.add("reveal-wait");
-      if (opts.luxe) n.classList.add("reveal-luxe");
-      revealIO.observe(n);
-    });
-  }
 
   function animate(node, to) {
     var dur = 1200, t0 = null;
@@ -2342,11 +2342,11 @@
   (function chrome() {
     /* Крупные статичные блоки — «дорогой» вход: подъём из расфокуса.
        Вешаем один раз: boot эти узлы не пересоздаёт. */
-    wireReveal($$(".sec-head"), { luxe: true });
-    wireReveal([$(".soulmate > div")], { luxe: true });
-    wireReveal($$(".share > div"), { luxe: true, step: 120, cap: 240 });
-    wireReveal([$(".footer__big")], { luxe: true });
-    wireReveal([$(".footer__inner")], { luxe: true, delay: 140 });
+    wireReveal(document.querySelectorAll(".sec-head"), { luxe: true });
+    wireReveal([document.querySelector(".soulmate > div")], { luxe: true });
+    wireReveal(document.querySelectorAll(".share > div"), { luxe: true, step: 120, cap: 240 });
+    wireReveal([document.querySelector(".footer__big")], { luxe: true });
+    wireReveal([document.querySelector(".footer__inner")], { luxe: true, delay: 140 });
 
     var bar = document.getElementById("scrollProgress");
     var top = document.getElementById("toTop");
