@@ -167,7 +167,8 @@ a:hover { color: var(--accent); }
 }
 .sec-title {
   margin: 0; font-family: var(--display); font-weight: var(--w-display);
-  font-size: clamp(30px, 4.6vw, 62px); line-height: 1;
+  /* 1.06: бревис «Й» в Unbounded (wght 900) доходит до 0.99em — при 1.0 касался строки выше */
+  font-size: clamp(30px, 4.6vw, 62px); line-height: 1.06;
   letter-spacing: var(--tight); text-transform: uppercase;
 }
 .sec-title b { color: var(--accent); font-weight: var(--w-display); }
@@ -683,7 +684,7 @@ section { padding: var(--section-pad) 0; }
 .soulmate { display: grid; grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr); gap: clamp(32px, 5vw, 72px); align-items: start; }
 @media (max-width: 900px) { .soulmate { grid-template-columns: 1fr; } }
 
-.soulmate__name { font-size: clamp(26px, 3.8vw, 46px); font-family: var(--display); font-weight: var(--w-display); line-height: 1.0; letter-spacing: var(--tight); margin: 14px 0 0; }
+.soulmate__name { font-size: clamp(26px, 3.8vw, 46px); font-family: var(--display); font-weight: var(--w-display); line-height: 1.06; letter-spacing: var(--tight); margin: 14px 0 0; }
 .soulmate__genres { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
 .soulmate__genre-tag {
   display: inline-flex; align-items: center;
