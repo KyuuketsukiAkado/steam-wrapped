@@ -450,6 +450,18 @@
     list.forEach(function (g, i) {
       var card = el("div", "rcard");
       card.style.setProperty("--rc", rc[i % rc.length]);
+
+      if (g.appid) {
+        var bg = el("div", "rcard__bg");
+        var bgImg = el("img", "rcard__bg-img");
+        bgImg.src = "https://cdn.cloudflare.steamstatic.com/steam/apps/" + encodeURIComponent(g.appid) + "/header.jpg";
+        bgImg.alt = "";
+        bgImg.loading = "lazy";
+        bgImg.onerror = function () { bg.style.display = "none"; };
+        bg.appendChild(bgImg);
+        card.appendChild(bg);
+      }
+
       var d = daysAgo(g.lastPlayed);
       var eyebrow = el("div", "eyebrow");
       if (i === 0) eyebrow.appendChild(el("span", "pulse"));
