@@ -647,6 +647,10 @@
       });
     }
 
+    // Сразу генерируем 3 игры с обложками при загрузке
+    render(pick3(), false);
+    btn.textContent = "Другие варианты 🎲";
+
     // onclick, а не addEventListener: повторный boot перезаписывает обработчик
     // вместо дублирования (иначе одна кнопка крутила бы рулетку дважды)
     btn.onclick = function () {
@@ -658,7 +662,7 @@
           clearInterval(spin);
           render(pick3(), false);
           btn.disabled = false;
-          btn.textContent = "Ещё раз 🎲";
+          btn.textContent = "Другие варианты 🎲";
         }
       }, 70);
     };
