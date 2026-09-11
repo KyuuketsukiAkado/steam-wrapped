@@ -409,7 +409,7 @@
       ];
     }
 
-    function renderFacts() {
+    function renderFacts(animate) {
       var all = buildAllFacts(h, unit);
       var chosen = [
         ["🎯", num(h * 60 / unit.min), [{ bold: unit.word }, " " + unit.note]]
@@ -422,8 +422,11 @@
       var fw = $("#facts");
       if (!fw) return;
       fw.textContent = "";
-      chosen.forEach(function (f) {
-        var row = el("div", "fact");
+      chosen.forEach(function (f, idx) {
+        var row = el("div", "fact" + (animate ? " is-entering" : ""));
+        if (animate) {
+          row.style.animationDelay = (idx * 35) + "ms";
+        }
         var lead = el("div", "fact__lead");
         lead.appendChild(el("span", "fact__icon", f[0]));
         lead.appendChild(el("span", "fact__num", f[1]));
@@ -435,12 +438,14 @@
       });
     }
 
-    renderFacts();
+    renderFacts(false);
 
     var rerollBtn = $("#rerollFactsBtn");
     if (rerollBtn) {
       rerollBtn.onclick = function () {
-        renderFacts();
+        rerollBtn.classList.add("is-spinning");
+        renderFacts(true);
+        setTimeout(function () { rerollBtn.classList.remove("is-spinning"); }, 400);
       };
     }
   }

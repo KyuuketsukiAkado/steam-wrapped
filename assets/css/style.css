@@ -691,6 +691,12 @@ section { padding: var(--section-pad) 0; }
   transition: background .12s ease, padding-left .12s ease;
 }
 .fact:hover { background: rgba(255,255,255,0.03); padding-left: 12px; box-shadow: inset 2px 0 0 var(--fc, var(--c1)); }
+.fact.is-entering { animation: fact-in 0.28s cubic-bezier(0.2, 0.8, 0.4, 1) both; }
+@keyframes fact-in {
+  from { opacity: 0; transform: translateX(-10px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+#rerollFactsBtn.is-spinning { transform: scale(0.96); }
 .fact__lead { display: flex; align-items: baseline; gap: 10px; min-width: 5.6ch; }
 .fact__icon { font-size: 16px; line-height: 1; flex: none; opacity: 0.9; }
 .fact__num { font-size: clamp(19px, 2.2vw, 27px); font-family: var(--display); font-weight: var(--w-display); line-height: 1; letter-spacing: var(--tight); color: var(--fc, var(--c1)); }
