@@ -730,11 +730,15 @@
       var ticks = 0;
       var spin = setInterval(function () {
         render(pick3(), true);
-        if (++ticks > 9) {
+        if (++ticks > 8) {
           clearInterval(spin);
           render(pick3(), false);
           btn.disabled = false;
           btn.textContent = "Другие варианты 🎲";
+          $$(".fate__slot", stage).forEach(function (slot) {
+            slot.classList.add("is-landed");
+            setTimeout(function () { slot.classList.remove("is-landed"); }, 380);
+          });
         }
       }, 70);
     };

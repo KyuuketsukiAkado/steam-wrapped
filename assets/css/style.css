@@ -825,12 +825,13 @@ section { padding: var(--section-pad) 0; }
 
 /* ---------- судьба вечера ---------- */
 
-.fate__stage { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.fate__stage { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; perspective: 1000px; }
 @media (max-width: 760px) { .fate__stage { grid-template-columns: 1fr; } }
 
 .fate__slot {
   background: var(--bg-soft); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: clamp(20px, 2.5vw, 28px) 22px; min-height: 200px;
   display: flex; flex-direction: column; justify-content: flex-start; gap: 12px; position: relative;
+  transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.4, 1), box-shadow 0.2s ease, border-color 0.15s ease, opacity 0.18s ease;
 }
 .fate__slot::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 4px; border-radius: 6px 6px 0 0; background: var(--fs, var(--c1)); }
 .fate__slot:nth-child(1) { --fs: var(--c1); }
@@ -841,7 +842,7 @@ section { padding: var(--section-pad) 0; }
 .fate__art {
   display: block; width: 100%; aspect-ratio: 460 / 215; border-radius: 4px; overflow: hidden;
   background: rgba(255, 255, 255, 0.03); border: 1px solid var(--line); position: relative;
-  transition: opacity .18s ease, filter .18s ease, border-color .15s ease;
+  transition: border-color .15s ease;
 }
 .fate__art:hover { border-color: rgba(255, 255, 255, 0.25); }
 .fate__img { display: block; width: 100%; height: 100%; object-fit: cover; }
@@ -850,9 +851,27 @@ section { padding: var(--section-pad) 0; }
 .fate__tags { font-size: 13px; color: var(--ink-dim); }
 a.game-link { color: inherit; text-decoration: none; }
 a.game-link:hover { text-decoration: underline; text-decoration-color: currentColor; text-underline-offset: 4px; text-decoration-thickness: 1px; }
+
+.fate__slot.is-rolling {
+  opacity: 0.65;
+}
+.fate__slot.is-rolling:nth-child(1) { transform: scale(0.97) rotateZ(-1.5deg) translateY(4px); }
+.fate__slot.is-rolling:nth-child(2) { transform: scale(0.98) translateY(6px); }
+.fate__slot.is-rolling:nth-child(3) { transform: scale(0.97) rotateZ(1.5deg) translateY(4px); }
 .fate__slot.is-rolling .fate__name,
 .fate__slot.is-rolling .fate__art,
 .fate__slot.is-rolling .fate__tags { opacity: .3; filter: blur(2px); }
+
+.fate__slot.is-landed {
+  animation: fate-land 0.35s cubic-bezier(0.18, 0.89, 0.32, 1.25);
+}
+@keyframes fate-land {
+  0%   { transform: scale(0.95) translateY(5px); opacity: 0.8; }
+  60%  { transform: scale(1.02) translateY(-2px); opacity: 1; }
+  100% { transform: scale(1) translateY(0); }
+}
+
+.fate__slot:hover { transform: translateY(-2px); box-shadow: 0 18px 44px rgba(0, 0, 0, 0.35); border-color: rgba(255, 255, 255, 0.16); }
 
 .fate__bar { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin-top: 26px; }
 .fate__count { font-size: 14px; color: var(--ink-faint); }
@@ -968,8 +987,6 @@ a.game-link:hover { text-decoration: underline; text-decoration-color: currentCo
 .marquee__track { display: flex; gap: 38px; width: max-content; animation: slide 44s linear infinite; }
 .marquee:hover .marquee__track { animation-play-state: paused; }
 .bars .bar__fill { transition: width 1.1s cubic-bezier(0.2, 0.7, 0.3, 1); }
-.fate__slot { transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease; }
-.fate__slot:hover { transform: translateY(-2px); box-shadow: 0 18px 44px rgba(0, 0, 0, 0.35); }
 .marquee span { font-family: var(--display); font-weight: var(--w-display); font-size: clamp(22px, 3.4vw, 40px); letter-spacing: var(--tight); text-transform: uppercase; color: var(--ink); white-space: nowrap; }
 .marquee i { font-style: normal; margin-right: 10px; }
 .marquee span:nth-child(5n+1) i { color: var(--c1); }
