@@ -268,12 +268,18 @@ section { padding: var(--section-pad) 0; }
   padding-bottom: 2px;
 }
 .topbar__nav a:hover, .footer a:hover { background-size: 100% 1px; }
-.topbar__nav a:nth-child(1):hover { color: var(--c1); }
-.topbar__nav a:nth-child(2):hover { color: var(--c2); }
-.topbar__nav a:nth-child(3):hover { color: var(--c3); }
-.topbar__nav a:nth-child(4):hover { color: var(--c4); }
-.topbar__nav a:nth-child(5):hover { color: var(--c5); }
-.topbar__nav a:nth-child(6):hover { color: var(--c6); }
+.topbar__nav a:nth-child(1):hover,
+.topbar__nav a:nth-child(1).is-on { color: var(--c1); }
+.topbar__nav a:nth-child(2):hover,
+.topbar__nav a:nth-child(2).is-on { color: var(--c2); }
+.topbar__nav a:nth-child(3):hover,
+.topbar__nav a:nth-child(3).is-on { color: var(--c3); }
+.topbar__nav a:nth-child(4):hover,
+.topbar__nav a:nth-child(4).is-on { color: var(--c4); }
+.topbar__nav a:nth-child(5):hover,
+.topbar__nav a:nth-child(5).is-on { color: var(--c5); }
+.topbar__nav a:nth-child(6):hover,
+.topbar__nav a:nth-child(6).is-on { color: var(--c6); }
 
 @media (max-width: 780px) { .topbar__nav { display: none; } }
 
@@ -311,6 +317,7 @@ section { padding: var(--section-pad) 0; }
     border-top: 1px solid var(--line-soft);
   }
   .mobilenav a:first-child { border-top: none; }
+.mobilenav a.is-on { color: var(--c4); }
 }
 
 /* ---------- герой ---------- */
@@ -1185,7 +1192,7 @@ body::after {
   transform: scaleX(0); transform-origin: 0 50%;
 }
 section[id] { scroll-margin-top: 70px; }
-.topbar__nav a.is-on { color: var(--c4); }
+.topbar__nav a.is-on { background-size: 100% 1px; }
 .to-top {
   position: fixed; right: 22px; bottom: 22px; z-index: 30;
   width: 48px; height: 48px; border-radius: 50%;

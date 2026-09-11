@@ -2333,18 +2333,22 @@
       }, { passive: true });
     }
 
-    var links = Array.prototype.slice.call(document.querySelectorAll('.topbar__nav a[href^="#"]'));
+    // Подсветка работает в обоих меню: десктопном и бургерном (одинаковые href).
+    var links = Array.prototype.slice.call(
+      document.querySelectorAll('.topbar__nav a[href^="#"], .mobilenav a[href^="#"]'));
     if ("IntersectionObserver" in window && links.length) {
       var map = {};
-      links.forEach(function (a) { map[a.getAttribute("href").slice(1)] = a; });
+      links.forEach(function (a) {
+        var id = a.getAttribute("href").slice(1);
+        (map[id] = map[id] || []).push(a);
+      });
       var spy = new IntersectionObserver(function (entries) {
         entries.forEach(function (e) {
-          var a = map[e.target.id];
-          if (!a) return;
-          if (e.isIntersecting) {
-            links.forEach(function (l) { l.classList.remove("is-on"); });
-            a.classList.add("is-on");
-          }
+          if (!e.isIntersecting) return;
+          var active = map[e.target.id];
+          if (!active) return;
+          links.forEach(function (l) { l.classList.remove("is-on"); });
+          active.forEach(function (l) { l.classList.add("is-on"); });
         });
       }, { rootMargin: "-40% 0px -55% 0px" });
       Object.keys(map).forEach(function (id) {
