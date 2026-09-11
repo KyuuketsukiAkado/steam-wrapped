@@ -715,10 +715,11 @@ section { padding: var(--section-pad) 0; }
 
 .bar {
   display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; align-items: center; gap: 18px;
-  padding: 15px 10px 15px 4px; border-bottom: 1px solid var(--line-soft);
-  transition: background .12s ease;
+  padding: 15px 12px 15px 6px; border-bottom: 1px solid var(--line-soft);
+  color: inherit; text-decoration: none; cursor: pointer;
+  transition: background .12s ease, padding-left .12s ease;
 }
-.bar:hover { background: rgba(255,255,255,0.03); box-shadow: inset 2px 0 0 var(--c1); }
+.bar:hover { background: rgba(255,255,255,0.03); padding-left: 12px; box-shadow: inset 2px 0 0 var(--c1); }
 .bar:hover .bar__name { color: #FFFFFF; }
 
 .bar__rank { font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--bc); opacity: .8; }
@@ -727,9 +728,9 @@ section { padding: var(--section-pad) 0; }
 .bar__thumb {
   width: 44px; height: 21px; flex: none; object-fit: cover; border-radius: 3px;
   border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(255, 255, 255, 0.04);
-  transition: border-color .12s ease;
+  transition: border-color .12s ease, transform .12s ease;
 }
-.bar:hover .bar__thumb { border-color: rgba(255, 255, 255, 0.35); }
+.bar:hover .bar__thumb { border-color: rgba(255, 255, 255, 0.35); transform: scale(1.05); }
 .bar__name { font-size: 16px; font-weight: 600; margin-bottom: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: color .12s ease; flex: 1 1 auto; min-width: 0; }
 .bar__track { height: 12px; background: rgba(255,255,255,0.06); border-radius: 999px; overflow: hidden; }
 .bar__fill {
@@ -738,8 +739,14 @@ section { padding: var(--section-pad) 0; }
   box-shadow: 0 0 14px -6px var(--bc);
   transition: width 1.1s cubic-bezier(.22,.85,.3,1);
 }
-.bar__value { font-family: var(--display); font-size: clamp(15px, 1.8vw, 21px); font-weight: var(--w-display); letter-spacing: var(--tight); white-space: nowrap; }
-.bar__value span { font-size: 11px; font-weight: 600; color: var(--ink-faint); margin-left: 5px; letter-spacing: 0; }
+.bar__value {
+  display: flex; flex-direction: column; align-items: flex-end; justify-content: center;
+  font-family: var(--display); font-size: clamp(15px, 1.8vw, 21px); font-weight: var(--w-display);
+  letter-spacing: var(--tight); white-space: nowrap; line-height: 1.1;
+}
+.bar__hours { font-size: inherit; }
+.bar__pct { font-size: 11px; font-weight: 700; color: var(--ink-faint); letter-spacing: 0.04em; margin-top: 3px; font-family: var(--mono); transition: color .12s ease; }
+.bar:hover .bar__pct { color: var(--c4); }
 
 /* два колосса почти вровень (Dota и CS2): каждому свой акцент,
    чтобы второе место не выглядело безнадёжным */
@@ -1055,7 +1062,7 @@ a.game-link:hover { text-decoration: underline; text-decoration-color: currentCo
   .bar__head { gap: 8px; margin-bottom: 7px; }
   .bar__name { font-size: 14.5px; margin-bottom: 0; }
   .bar__value { font-size: 14.5px; }
-  .bar__value span { display: none; }   /* «ч» прячем, цифры и так говорят */
+  .bar__pct { font-size: 10px; margin-top: 2px; }
 
   .soulmate__hours { font-size: clamp(40px, 13vw, 64px); }
   .soulmate__name { overflow-wrap: anywhere; }

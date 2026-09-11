@@ -499,10 +499,14 @@
 
     top.forEach(function (g, i) {
       var isColossus = colossi && i < 2;
-      var row = el("div", "bar" + (isColossus ? " bar--colossus" : ""));
+      var row = el(g.appid ? "a" : "div", "bar" + (isColossus ? " bar--colossus" : ""));
+      if (g.appid) {
+        row.href = "https://store.steampowered.com/app/" + encodeURIComponent(g.appid) + "/";
+        row.target = "_blank";
+        row.rel = "noopener";
+        row.title = g.name + " в магазине Steam";
+      }
       row.style.setProperty("--bc", colors[i]);
-      // у колоссов полоса заливается своим цветом целиком: иначе градиент
-      // уводил Доту в лёд CS2, и два акцента переставали различаться
       row.style.setProperty("--bc2", isColossus ? colors[i] : colors[(i + 1) % colors.length]);
       row.appendChild(el("div", "bar__rank", String(i + 1).padStart(2, "0")));
 
@@ -516,8 +520,7 @@
         thumb.onerror = function () { thumb.style.display = "none"; };
         titleRow.appendChild(thumb);
       }
-      var barName = el("div", "bar__name");
-      barName.appendChild(gameLabel(g));
+      var barName = el("div", "bar__name", g.name || "");
       titleRow.appendChild(barName);
       body.appendChild(titleRow);
       var track = el("div", "bar__track");
@@ -527,8 +530,14 @@
       body.appendChild(track);
       row.appendChild(body);
 
-      var value = el("div", "bar__value", num(g.hours));
-      value.appendChild(el("span", "", "ч"));
+      var shareOfTotal = totalHours > 0 ? (g.hours / totalHours * 100) : 0;
+      var value = el("div", "bar__value");
+      var numSpan = el("span", "bar__hours", num(g.hours) + " ч");
+      value.appendChild(numSpan);
+      if (shareOfTotal > 0) {
+        var pctSpan = el("span", "bar__pct", dec(shareOfTotal, shareOfTotal < 1 ? 1 : 0) + "%");
+        value.appendChild(pctSpan);
+      }
       row.appendChild(value);
       wrap.appendChild(row);
     });
