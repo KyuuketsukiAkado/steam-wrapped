@@ -26,7 +26,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400..900&family=JetBrains+Mono:wght@400..800&display=swap">
 <!-- ?v= — бамп версии при ручных правках css/js, иначе браузер отдаст кэш -->
-<link rel="stylesheet" href="assets/css/style.css?v=20260911-08">
+<link rel="stylesheet" href="assets/css/style.css?v=20260911-09">
 </head>
 <body>
 <a class="skip-link" href="#hero">К содержимому</a>
@@ -259,6 +259,10 @@
                aria-describedby="versusStatus" aria-label="Профиль друга для сравнения">
         <button class="btn btn--solid" type="submit">Сравнить →</button>
       </form>
+      <div class="versus-chips">
+        <span class="versus-chips__label">Попробовать:</span>
+        <button type="button" class="chip" id="versusDemoBtn">демо-дуэль ⚔️</button>
+      </div>
       <p class="versus-status" id="versusStatus" aria-live="polite">Твоя сторона — данные, показанные на странице.</p>
       <table class="versus-grid" id="versusTable" hidden></table>
       <p class="versus-verdict" id="versusVerdict" hidden></p>
@@ -336,7 +340,7 @@
 
 <script src="assets/js/data.js"></script>
 <script src="assets/js/profile-data.js"></script>
-<script src="assets/js/app.js?v=20260911-09"></script>
+<script src="assets/js/app.js?v=20260911-10"></script>
   <button class="to-top" id="toTop" type="button" aria-label="Наверх">↑</button>
 </body>
 </html>

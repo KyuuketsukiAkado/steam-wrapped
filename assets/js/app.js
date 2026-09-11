@@ -1992,6 +1992,34 @@
       if (btn) { btn.disabled = !!busy; btn.textContent = busy ? "Загружаю…" : btnLabel; }
       input.disabled = !!busy;
     }
+    var DEMO_FRIEND_PVD = {
+      meta: { persona: "cyber_friend", avatar: "" },
+      totals: { gamesOwned: 198, hoursTotal: 4850, hoursTwoWeeks: 42, gamesPlayed: 165, gamesNeverPlayed: 33 },
+      soulmateAppid: 730,
+      genreHours: [
+        { name: "Экшен", hours: 3200 },
+        { name: "Шутер", hours: 950 },
+        { name: "RPG", hours: 420 },
+        { name: "Инди", hours: 280 }
+      ],
+      games: [
+        { appid: 730, name: "Counter-Strike 2", hours: 3100, hours2w: 36, genres: ["Экшен"] },
+        { appid: 570, name: "Dota 2", hours: 820, hours2w: 6, genres: ["Стратегия"] },
+        { appid: 1091500, name: "Cyberpunk 2077", hours: 210, hours2w: 0, genres: ["RPG"] }
+      ]
+    };
+
+    var demoBtn = document.getElementById("versusDemoBtn");
+    if (demoBtn) {
+      demoBtn.addEventListener("click", function () {
+        if (!currentPVD) return;
+        var friend = (dataLayer && dataLayer.normalizeStaticData)
+          ? dataLayer.normalizeStaticData(DEMO_FRIEND_PVD, rules)
+          : DEMO_FRIEND_PVD;
+        renderVersus(versusMetrics(currentPVD), versusMetrics(friend));
+      });
+    }
+
     form.addEventListener("submit", function (ev) {
       ev.preventDefault();
       var value = input.value.trim();
