@@ -13,16 +13,30 @@
   var currentPVD = null;
 
   /* Тема шаринг-карточки живёт вне boot: переживает смену профиля.
-     redrawCardLive всегда указывает на redrawCard актуального boot. */
+     redrawCardLive всегда указывает на redrawCard актуального boot.
+     Выбор запоминается в localStorage и переживает перезагрузку. */
   var cardTheme = "dark";
   var redrawCardLive = null;
+  function storeGet(key) {
+    try { return window.localStorage.getItem(key); } catch (_) { return null; }
+  }
+  function storeSet(key, value) {
+    try { window.localStorage.setItem(key, value); } catch (_) {}
+  }
+  function syncThemeButtons() {
+    Array.prototype.forEach.call(document.querySelectorAll(".theme-switch__btn"), function (o) {
+      var on = o.getAttribute("data-card-theme") === cardTheme;
+      o.classList.toggle("is-on", on);
+      o.setAttribute("aria-pressed", on ? "true" : "false");
+    });
+  }
+  if (storeGet("sw:cardTheme") === "red") cardTheme = "red";
+  syncThemeButtons();
   Array.prototype.forEach.call(document.querySelectorAll(".theme-switch__btn"), function (b) {
     b.addEventListener("click", function () {
       cardTheme = b.getAttribute("data-card-theme") === "red" ? "red" : "dark";
-      Array.prototype.forEach.call(document.querySelectorAll(".theme-switch__btn"), function (o) {
-        o.classList.toggle("is-on", o === b);
-        o.setAttribute("aria-pressed", o === b ? "true" : "false");
-      });
+      storeSet("sw:cardTheme", cardTheme);
+      syncThemeButtons();
       if (redrawCardLive) redrawCardLive();
     });
   });
@@ -2113,6 +2127,9 @@
     var form = document.getElementById("versusForm");
     var input = document.getElementById("versusInput");
     if (!form || !input) return;
+    // Последний успешный соперник — восстанавливаем в поле, чтобы не набирать заново.
+    var lastFriend = storeGet("sw:versusFriend");
+    if (lastFriend) input.value = lastFriend;
     function setStatus(msg, state) {
       var node = document.getElementById("versusStatus");
       if (!node) return;
@@ -2173,8 +2190,10 @@
       setStatus("Получаю публичные данные Steam…", "loading");
       setBusy(true);
       loadLiveProfile(value, rules, dataLayer).then(function (result) {
-        try { renderVersus(versusMetrics(currentPVD), versusMetrics(result.data)); }
-        finally { setBusy(false); }
+        try {
+          renderVersus(versusMetrics(currentPVD), versusMetrics(result.data));
+          storeSet("sw:versusFriend", value);
+        } finally { setBusy(false); }
       }, function (error) {
         setStatus(workerErrorMessage(error && error.code), "error");
         setBusy(false);
