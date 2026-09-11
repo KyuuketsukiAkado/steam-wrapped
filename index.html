@@ -26,7 +26,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400..900&family=JetBrains+Mono:wght@400..800&display=swap">
 <!-- ?v= — бамп версии при ручных правках css/js, иначе браузер отдаст кэш -->
-<link rel="stylesheet" href="assets/css/style.css?v=20260911-17">
+<link rel="stylesheet" href="assets/css/style.css?v=20260911-18">
 </head>
 <body>
 <a class="skip-link" href="#hero">К содержимому</a>
@@ -129,16 +129,25 @@
 
     <div class="stats" id="stats">
       <div class="stat">
+        <div class="stat__icon-badge" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="3"/><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="15" y1="11" x2="15.01" y2="11"/><line x1="17" y1="13" x2="17.01" y2="13"/></svg>
+        </div>
         <div class="stat__value"><span data-count="games">0</span></div>
         <div class="eyebrow stat__label">Игр в библиотеке</div>
         <div class="stat__hint" id="hintGames">—</div>
       </div>
       <div class="stat">
+        <div class="stat__icon-badge" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
         <div class="stat__value"><span data-count="hours">0</span><span class="stat__unit">часов</span></div>
         <div class="eyebrow stat__label">Наиграно всего</div>
         <div class="stat__hint" id="hintHours">—</div>
       </div>
       <div class="stat">
+        <div class="stat__icon-badge" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+        </div>
         <div class="stat__value"><span data-count="hours2w">0</span><span class="stat__unit">часов</span></div>
         <div class="eyebrow stat__label">За последние 2 недели</div>
         <div class="stat__hint" id="hint2w">—</div>
@@ -371,7 +380,9 @@
 
 <script src="assets/js/data.js"></script>
 <script src="assets/js/profile-data.js"></script>
-<script src="assets/js/app.js?v=20260911-18"></script>
-  <button class="to-top" id="toTop" type="button" aria-label="Наверх">↑</button>
+<script src="assets/js/app.js?v=20260911-19"></script>
+  <button class="to-top" id="toTop" type="button" aria-label="Наверх">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+  </button>
 </body>
 </html>
