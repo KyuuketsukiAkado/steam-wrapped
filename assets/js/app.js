@@ -175,12 +175,77 @@
   var gamesOwned = totals.gamesOwned != null ? totals.gamesOwned : games.length;
   var neverPlayed = totals.gamesNeverPlayed != null ? totals.gamesNeverPlayed : backlog.length;
 
+  function getArchetype(totals, played, backlog, genreData, soulmate, totalHours, hours2w) {
+    var gamesOwned = totals.gamesOwned || (played.length + backlog.length);
+    var neverPlayed = totals.gamesNeverPlayed != null ? totals.gamesNeverPlayed : backlog.length;
+    var topGenre = (genreData && genreData[0]) ? genreData[0].name : "";
+    var leadShare = (soulmate && totalHours) ? (soulmate.hours / totalHours) : 0;
+
+    if (hours2w >= 40) {
+      return { title: "В активном рейде", desc: "Ударный темп игры за последние недели (" + Math.round(hours2w) + " ч)" };
+    }
+    if (leadShare >= 0.35 && soulmate) {
+      return { title: "Марафонец одного мира", desc: "Более " + Math.round(leadShare * 100) + "% всего времени в " + soulmate.name };
+    }
+    if (neverPlayed >= 15 && gamesOwned > 0 && (neverPlayed / gamesOwned) >= 0.4) {
+      return { title: "Хранитель бэклога", desc: Math.round(neverPlayed / gamesOwned * 100) + "% библиотеки ждёт своего часа" };
+    }
+    if (topGenre === "Стратегия" || topGenre === "Strategy") {
+      return { title: "Ночной стратег", desc: "Главный фокус — тактика, расчёт и победа" };
+    }
+    if (topGenre === "RPG" || topGenre === "Ролевые игры") {
+      return { title: "Ролевой исследователь", desc: "Сотни часов в глубоких мирах и сюжетах" };
+    }
+    if (topGenre === "Экшен" || topGenre === "Action" || topGenre === "Шутер") {
+      return { title: "Адепт адреналина", desc: "Высокий темп, реакция и драйв" };
+    }
+    if (topGenre === "Инди" || topGenre === "Indie") {
+      return { title: "Инди-эстет", desc: "Любовь к авторским и самобытным тайтлам" };
+    }
+    if (topGenre === "Гонки" || topGenre === "Racing" || topGenre === "Симулятор") {
+      return { title: "Мастер симуляторов", desc: "Внимание к деталям, скорость и контроль" };
+    }
+    if (totalHours >= 3000) {
+      return { title: "Ветеран Steam", desc: "Более " + num(totalHours) + " часов игрового опыта" };
+    }
+    if (played.length >= 40) {
+      return { title: "Исследователь миров", desc: "Широкий кругозор и десятки пройденных историй" };
+    }
+    return { title: "Игровой энтузиаст", desc: "Сбалансированная библиотека и интерес к играм" };
+  }
+  var genreData = (function () {
+    if (D.genreHours && D.genreHours.length) return D.genreHours.slice();
+    var map = {};
+    played.forEach(function (g) {
+      var gs = (g.genres && g.genres.length) ? g.genres : ["Без жанра"];
+      gs.forEach(function (name) {
+        map[name] = (map[name] || 0) + g.hours / gs.length;
+      });
+    });
+    var arr = Object.keys(map).map(function (k) { return { name: k, hours: map[k] }; })
+                              .sort(function (a, b) { return b.hours - a.hours; });
+    if (arr.length > 6) {
+      var rest = arr.slice(6).reduce(function (s, x) { return s + x.hours; }, 0);
+      arr = arr.slice(0, 6);
+      if (rest > 0) arr.push({ name: "Прочее", hours: rest });
+    }
+    return arr;
+  })();
+
+  var arch = getArchetype(totals, played, backlog, genreData, soulmate, totalHours, hours2w);
+
   /* ---------- шапка ---------- */
 
   var profileName = D.meta.persona || "steam profile";
   document.title = "Steam Wrapped · " + (isDemoProfile ? "пример: " : "") + profileName;
   $("#year").textContent = new Date().getFullYear();
   $("#heroNick").textContent = profileName;
+  var archEl = $("#heroArchetype");
+  if (archEl) {
+    archEl.textContent = arch.title;
+    archEl.title = arch.desc;
+    archEl.hidden = false;
+  }
   $("#heroEyebrow").textContent =
     (D.meta.memberSince ? "в Steam с " + fmtDate(D.meta.memberSince) + " · " : "") +
     "данные от " + fmtDate(D.meta.generatedAt);
@@ -274,6 +339,7 @@
   // повторный boot: чистим динамические контейнеры, иначе строки задвоятся
   $("#facts").textContent = "";
   $("#smName").textContent = "—";
+  if ($("#smGenres")) $("#smGenres").textContent = "";
   $("#smShare").textContent = "—";
   var smArt = $("#smArt");
   if (smArt) {
@@ -293,6 +359,15 @@
     var smNameEl = $("#smName");
     smNameEl.textContent = "";
     smNameEl.appendChild(gameLabel(soulmate));
+    var smGenresEl = $("#smGenres");
+    if (smGenresEl) {
+      smGenresEl.textContent = "";
+      if (soulmate.genres && soulmate.genres.length) {
+        soulmate.genres.forEach(function (genre) {
+          smGenresEl.appendChild(el("span", "soulmate__genre-tag", genre));
+        });
+      }
+    }
     if (smArt && soulmate.appid) {
       smArt.alt = soulmate.name;
       smArt.hidden = false;
@@ -302,26 +377,87 @@
       "Это " + dec(h / totalHours * 100, 0) + "% всего времени в Steam. " +
       (soulmate.lastPlayed ? "Последний заход — " + fmtDate(soulmate.lastPlayed) + "." : "");
 
-    var facts = [
-      [dec(h / 24, 1),        [{ bold: "дней" }, " подряд, без сна, еды и уведомлений"]],
-      [dec(h / 168, 1),       [{ bold: "рабочих месяцев" }, " по 40 часов в неделю"]],
-      [dec(h / 8760 * 100, 1) + "%", ["календарного ", { bold: "года жизни" }]],
-      [num(h / 11.4),         [{ bold: "трилогий «Властелин колец»" }, " в режиссёрской версии"]],
-      [dec(h / 600, 1),       [{ bold: "иностранных языков" }, " до уверенного B2 (600 ч каждый)"]],
-      [num(h * 5),            [{ bold: "километров" }, " пешком, если бы шёл вместо игры — это дальше, чем от Минска до Токио"]],
-      [num(h * 60 / unit.min), [{ bold: unit.word }, " " + unit.note]],
-      [dec(h / 3.5, 0),       [{ bold: "марафонов" }, " можно было бы пробежать (по 3,5 ч)"]]
-    ];
+    function buildAllFacts(h, unit) {
+      return [
+        ["⏳", dec(h / 24, 1), [{ bold: "дней" }, " подряд, без сна, еды и пауз"]],
+        ["💼", dec(h / 168, 1), [{ bold: "рабочих месяцев" }, " по 40 часов в неделю — полноценный трудовой стаж"]],
+        ["📅", dec(h / 8760 * 100, 1) + "%", ["календарного ", { bold: "года жизни" }]],
+        ["🌙", num(h / 8), [{ bold: "полноценных ночей сна" }, " по 8 часов"]],
+        ["🎓", dec(h / 900, 1), [{ bold: "университетских семестров" }, " с парами и экзаменами"]],
+        ["☕", num(h * 1.5), [{ bold: "выпитых чашек кофе" }, " во время напряжённых сессий"]],
 
-    var fw = $("#facts");
-    facts.forEach(function (f) {
-      var row = el("div", "fact");
-      row.appendChild(el("div", "fact__num", f[0]));
-      var text = el("div", "fact__text");
-      setRichText(text, f[1]);
-      row.appendChild(text);
-      fw.appendChild(row);
-    });
+        ["🎬", num(h / 11.4), [{ bold: "трилогий «Властелин колец»" }, " в режиссёрской версии"]],
+        ["🧙", num(h / 19.8), [{ bold: "марафонов всех фильмов о Гарри Поттере" }, " с 1 по 8 часть"]],
+        ["🐉", num(h / 70.2), [{ bold: "полных просмотров всех сезонов «Игры престолов»" }]],
+        ["🍿", num(h / 2), [{ bold: "полнометражных фильмов" }, " на вечер с попкорном"]],
+        ["📺", num(h / 0.75), [{ bold: "серий любимого сериала" }, " по 45 минут"]],
+        ["🌌", num(h / 25), [{ bold: "марафонов всей киносаги «Звёздных войн»" }]],
+
+        ["📖", num(h / 60), [{ bold: "прочтений всех 4 томов «Войны и мира»" }, " от корки до корки"]],
+        ["🌍", dec(h / 600, 1), [{ bold: "иностранных языков" }, " до уверенного уровня B2 (600 ч каждый)"]],
+        ["🎻", dec(h / 10000 * 100, 1) + "%", ["пути по правилу 10 000 часов до ", { bold: "статуса гения" }]],
+        ["🎸", num(h / 20), [{ bold: "разученных гитарных соло" }, " с нуля до идеала"]],
+        ["📚", num(h / 8), [{ bold: "прочитанных книг" }, " в среднем темпе (по 250 стр.)"]],
+
+        ["🚶", num(h * 5), [{ bold: "километров" }, " пешком — это дальше, чем от Минска до Токио"]],
+        ["🚀", dec(h / 72, 1), [{ bold: "полётов на Луну" }, " в одну сторону на «Аполлоне-11» (72 ч)"]],
+        ["✈️", num(h / 14), [{ bold: "беспосадочных перелётов через Атлантику" }]],
+        ["🚂", dec(h / 146, 1), [{ bold: "поездок на поезде по Транссибу" }, " от Москвы до Владивостока"]],
+        ["🚲", num(h * 18), [{ bold: "километров на велосипеде" }, " в комфортном темпе"]],
+
+        ["🏃", dec(h / 3.5, 0), [{ bold: "марафонов" }, " можно было бы пробежать (по 3,5 ч каждый)"]],
+        ["💪", num(h / 1.5), [{ bold: "полноценных тренировок в зале" }, " с разминкой и заминкой"]],
+        ["🧘", num(h * 2), [{ bold: "сессий медитации и осознанности" }, " по 30 минут"]],
+        ["🏊", num(h * 2.5), [{ bold: "километров в бассейне" }, " кролем"]],
+
+        ["⚡", num(h / 0.75), [{ bold: "быстрых спидранов" }, " Portal или оригинального Doom"]],
+        ["🕹️", num(h / 15), [{ bold: "пройденных сюжетных кампаний" }, " современных игр"]],
+        ["👾", num(h / 100), [{ bold: "прохождений огромных RPG" }, " вроде Ведьмака 3 на 100%"]],
+        ["⚔️", num(h * 60 / 40), [{ bold: "потных рейтинговых каток" }, " по 40 минут"]],
+        ["🎴", num(h * 8), [{ bold: "раундов в карточных рогаликах" }, " вроде Balatro"]],
+        ["🛡️", num(h / 55), [{ bold: "зачисток соулслайков" }, " с победой над всеми боссами"]]
+      ];
+    }
+
+    function renderFacts(animate) {
+      var all = buildAllFacts(h, unit);
+      var chosen = [
+        ["🎯", num(h * 60 / unit.min), [{ bold: unit.word }, " " + unit.note]]
+      ];
+      var pool = all.slice();
+      while (chosen.length < 8 && pool.length) {
+        var randIdx = Math.floor(Math.random() * pool.length);
+        chosen.push(pool.splice(randIdx, 1)[0]);
+      }
+      var fw = $("#facts");
+      if (!fw) return;
+      fw.textContent = "";
+      chosen.forEach(function (f, idx) {
+        var row = el("div", "fact" + (animate ? " is-entering" : ""));
+        if (animate) {
+          row.style.animationDelay = (idx * 35) + "ms";
+        }
+        var lead = el("div", "fact__lead");
+        lead.appendChild(el("span", "fact__icon", f[0]));
+        lead.appendChild(el("span", "fact__num", f[1]));
+        row.appendChild(lead);
+        var text = el("div", "fact__text");
+        setRichText(text, f[2]);
+        row.appendChild(text);
+        fw.appendChild(row);
+      });
+    }
+
+    renderFacts(false);
+
+    var rerollBtn = $("#rerollFactsBtn");
+    if (rerollBtn) {
+      rerollBtn.onclick = function () {
+        rerollBtn.classList.add("is-spinning");
+        renderFacts(true);
+        setTimeout(function () { rerollBtn.classList.remove("is-spinning"); }, 400);
+      };
+    }
   }
 
   /* ---------- 02 · топ игр ---------- */
@@ -373,17 +509,30 @@
 
     top.forEach(function (g, i) {
       var isColossus = colossi && i < 2;
-      var row = el("div", "bar" + (isColossus ? " bar--colossus" : ""));
+      var row = el(g.appid ? "a" : "div", "bar" + (isColossus ? " bar--colossus" : ""));
+      if (g.appid) {
+        row.href = "https://store.steampowered.com/app/" + encodeURIComponent(g.appid) + "/";
+        row.target = "_blank";
+        row.rel = "noopener";
+        row.title = g.name + " в магазине Steam";
+      }
       row.style.setProperty("--bc", colors[i]);
-      // у колоссов полоса заливается своим цветом целиком: иначе градиент
-      // уводил Доту в лёд CS2, и два акцента переставали различаться
       row.style.setProperty("--bc2", isColossus ? colors[i] : colors[(i + 1) % colors.length]);
       row.appendChild(el("div", "bar__rank", String(i + 1).padStart(2, "0")));
 
       var body = el("div", "bar__body");
-      var barName = el("div", "bar__name");
-      barName.appendChild(gameLabel(g));
-      body.appendChild(barName);
+      var titleRow = el("div", "bar__head");
+      if (g.appid) {
+        var thumb = el("img", "bar__thumb");
+        thumb.src = "https://cdn.cloudflare.steamstatic.com/steam/apps/" + encodeURIComponent(g.appid) + "/header.jpg";
+        thumb.alt = g.name || "";
+        thumb.loading = "lazy";
+        thumb.onerror = function () { thumb.style.display = "none"; };
+        titleRow.appendChild(thumb);
+      }
+      var barName = el("div", "bar__name", g.name || "");
+      titleRow.appendChild(barName);
+      body.appendChild(titleRow);
       var track = el("div", "bar__track");
       var fill = el("div", "bar__fill");
       fill.dataset.w = (g.hours / max * 100).toFixed(2) + "%";
@@ -391,8 +540,14 @@
       body.appendChild(track);
       row.appendChild(body);
 
-      var value = el("div", "bar__value", num(g.hours));
-      value.appendChild(el("span", "", "ч"));
+      var shareOfTotal = totalHours > 0 ? (g.hours / totalHours * 100) : 0;
+      var value = el("div", "bar__value");
+      var numSpan = el("span", "bar__hours", num(g.hours) + " ч");
+      value.appendChild(numSpan);
+      if (shareOfTotal > 0) {
+        var pctSpan = el("span", "bar__pct", dec(shareOfTotal, shareOfTotal < 1 ? 1 : 0) + "%");
+        value.appendChild(pctSpan);
+      }
       row.appendChild(value);
       wrap.appendChild(row);
     });
@@ -440,6 +595,21 @@
     list.forEach(function (g, i) {
       var card = el("div", "rcard");
       card.style.setProperty("--rc", rc[i % rc.length]);
+
+      if (g.appid) {
+        var art = el("a", "rcard__art game-link");
+        art.target = "_blank";
+        art.rel = "noopener";
+        art.href = "https://store.steampowered.com/app/" + encodeURIComponent(g.appid) + "/";
+        var img = el("img", "rcard__img");
+        img.src = "https://cdn.cloudflare.steamstatic.com/steam/apps/" + encodeURIComponent(g.appid) + "/header.jpg";
+        img.alt = g.name || "";
+        img.loading = "lazy";
+        img.onerror = function () { art.style.display = "none"; };
+        art.appendChild(img);
+        card.appendChild(art);
+      }
+
       var d = daysAgo(g.lastPlayed);
       var eyebrow = el("div", "eyebrow");
       if (i === 0) eyebrow.appendChild(el("span", "pulse"));
@@ -459,31 +629,6 @@
 
   /* ---------- 04 · донат по жанрам ---------- */
 
-  var genreData = (function () {
-    // если данные пришли с готовой разбивкой по жанрам (fetch_data.py) —
-    // верим ей: она посчитана по всей библиотеке, а не по выгрузке топа
-    if (D.genreHours && D.genreHours.length) {
-      return D.genreHours.slice();
-    }
-    var map = {};
-    played.forEach(function (g) {
-      var gs = (g.genres && g.genres.length) ? g.genres : ["Без жанра"];
-      // часы делим поровну между жанрами игры, чтобы не раздувать сумму
-      gs.forEach(function (name) {
-        map[name] = (map[name] || 0) + g.hours / gs.length;
-      });
-    });
-    var arr = Object.keys(map).map(function (k) { return { name: k, hours: map[k] }; })
-                              .sort(function (a, b) { return b.hours - a.hours; });
-    // всё, что мельче, схлопываем в «Прочее»
-    if (arr.length > 6) {
-      var rest = arr.slice(6).reduce(function (s, x) { return s + x.hours; }, 0);
-      arr = arr.slice(0, 6);
-      if (rest > 0) arr.push({ name: "Прочее", hours: rest });
-    }
-    return arr;
-  })();
-
   (function donut() {
     var svg = $("#donut"), legend = $("#legend");
     svg.textContent = ""; legend.textContent = "";
@@ -495,8 +640,8 @@
     }
 
     var R = 78, C = 2 * Math.PI * R, off = 0;
-    var palette = ["#E10600", "#8E8E93", "#6E6E73", "#636366", "#48484E",
-                   "#3A3A3F", "#2F2F34", "#26262B", "#1F1F23"];
+    var palette = ["#E10600", "#FF5A4D", "#C0130A", "#EDEDEF", "#8E8E93",
+                   "#6E6E73", "#48484E", "#3A3A3F"];
 
     /* Минимальная дуга. Симулятор и MMO — это 0,4% и 0,1%: их доля
        короче зазора между сегментами, дуга получалась отрицательной
@@ -533,6 +678,7 @@
 
       var row = el("div", "legend__row");
       row.dataset.i = i;
+      row.style.setProperty("--lc", palette[i % palette.length]);
       var dot = el("span", "legend__dot"); dot.style.background = palette[i % palette.length];
       row.appendChild(dot);
       row.appendChild(el("span", "legend__name", g.name));
@@ -540,14 +686,27 @@
       row.appendChild(el("span", "legend__hours", num(g.hours) + " ч"));
       legend.appendChild(row);
 
-      row.addEventListener("mouseenter", function () { highlight(i, g); });
-      row.addEventListener("mouseleave", function () { highlight(null); });
-      c.addEventListener("mouseenter", function () { highlight(i, g); });
-      c.addEventListener("mouseleave", function () { highlight(null); });
-      row.addEventListener("click", function () { highlight(i, g); });
-      c.addEventListener("click", function () { highlight(i, g); });
+      row.addEventListener("mouseenter", function () { applyHighlight(i, g); });
+      row.addEventListener("mouseleave", function () {
+        if (selectedIdx !== null) applyHighlight(selectedIdx, genreData[selectedIdx]);
+        else applyHighlight(null);
+      });
+      c.addEventListener("mouseenter", function () { applyHighlight(i, g); });
+      c.addEventListener("mouseleave", function () {
+        if (selectedIdx !== null) applyHighlight(selectedIdx, genreData[selectedIdx]);
+        else applyHighlight(null);
+      });
+      row.addEventListener("click", function (e) {
+        e.stopPropagation();
+        toggleSelect(i, g);
+      });
+      c.addEventListener("click", function (e) {
+        e.stopPropagation();
+        toggleSelect(i, g);
+      });
     });
 
+    var selectedIdx = null;
     var dv = $("#donutValue"), dl = $("#donutLabel");
     var defaultValue = String(genreData.length), defaultLabel = plural(genreData.length, ["жанр", "жанра", "жанров"]);
     dv.textContent = defaultValue; dl.textContent = defaultLabel;
@@ -556,19 +715,35 @@
       return dec(p, p < 1 ? 1 : 0);
     }
 
-    function highlight(i, g) {
+    function toggleSelect(i, g) {
+      if (selectedIdx === i) {
+        selectedIdx = null;
+        applyHighlight(null);
+      } else {
+        selectedIdx = i;
+        applyHighlight(i, g);
+      }
+    }
+
+    function applyHighlight(i, g) {
       $$(".donut__seg", svg).forEach(function (s) { s.classList.remove("is-hover"); });
       $$(".legend__row", legend).forEach(function (r) { r.classList.remove("is-hover"); });
       if (i === null) {
         svg.classList.remove("has-hover");
-        dv.textContent = defaultValue; dl.textContent = defaultLabel;
+        legend.classList.remove("has-hover");
+        dv.textContent = defaultValue;
+        dv.style.color = "";
+        dl.textContent = defaultLabel;
         return;
       }
       svg.classList.add("has-hover");
-      svg.querySelector('.donut__seg[data-i="' + i + '"]').classList.add("is-hover");
+      legend.classList.add("has-hover");
+      var seg = svg.querySelector('.donut__seg[data-i="' + i + '"]');
+      if (seg) seg.classList.add("is-hover");
       var lrow = legend.querySelector('.legend__row[data-i="' + i + '"]');
       if (lrow) lrow.classList.add("is-hover");
       dv.textContent = pctStr(g.hours / sum * 100) + "%";
+      dv.style.color = palette[i % palette.length];
       dl.textContent = g.name;
     }
   })();
@@ -623,6 +798,21 @@
       stage.textContent = "";
       list.forEach(function (g, i) {
         var slot = el("div", "fate__slot" + (rolling ? " is-rolling" : ""));
+        if (g.appid) {
+          var art = el("a", "fate__art game-link");
+          art.target = "_blank";
+          art.rel = "noopener";
+          art.href = "https://store.steampowered.com/app/" + encodeURIComponent(g.appid) + "/";
+          if (!rolling) {
+            var img = el("img", "fate__img");
+            img.src = "https://cdn.cloudflare.steamstatic.com/steam/apps/" + encodeURIComponent(g.appid) + "/header.jpg";
+            img.alt = g.name || "";
+            img.loading = "lazy";
+            img.onerror = function () { art.style.display = "none"; };
+            art.appendChild(img);
+          }
+          slot.appendChild(art);
+        }
         slot.appendChild(el("div", "fate__idx", "ВАРИАНТ " + String(i + 1).padStart(2, "0")));
         var fateName = el("div", "fate__name");
         fateName.appendChild(gameLabel(g));
@@ -632,6 +822,10 @@
       });
     }
 
+    // Сразу генерируем 3 игры с обложками при загрузке
+    render(pick3(), false);
+    btn.textContent = "Другие варианты 🎲";
+
     // onclick, а не addEventListener: повторный boot перезаписывает обработчик
     // вместо дублирования (иначе одна кнопка крутила бы рулетку дважды)
     btn.onclick = function () {
@@ -639,11 +833,15 @@
       var ticks = 0;
       var spin = setInterval(function () {
         render(pick3(), true);
-        if (++ticks > 9) {
+        if (++ticks > 8) {
           clearInterval(spin);
           render(pick3(), false);
           btn.disabled = false;
-          btn.textContent = "Ещё раз 🎲";
+          btn.textContent = "Другие варианты 🎲";
+          $$(".fate__slot", stage).forEach(function (slot) {
+            slot.classList.add("is-landed");
+            setTimeout(function () { slot.classList.remove("is-landed"); }, 380);
+          });
         }
       }, 70);
     };
@@ -1091,10 +1289,29 @@
       for (var wni = 1; wni < wNick.lines.length; wni++) {
         x.fillText(wNick.lines[wni], wNameX, wNickY + wNickLh * wni);
       }
-      var wTag = x.createLinearGradient(wNameX, 0, wNameX + 520, 0);
-      wTag.addColorStop(0, RED ? "#FFFFFF" : C1); wTag.addColorStop(1, RED ? "#FFFFFF" : C4);
-      x.fillStyle = wTag; x.font = fontOf(WD, 34);
-      x.fillText("steam-профиль в цифрах", wNameX, wSloganY);
+      var wBadgeText = arch.title.toUpperCase();
+      var wBadgeFont = "700 18px " + SANS;
+      x.font = wBadgeFont;
+      var wBadgeTextW = textW(wBadgeText, wBadgeFont);
+      var wBadgePadX = 14, wBadgeH = 32, wBadgeY = wSloganY - 23;
+      var wBadgeW = wBadgeTextW + wBadgePadX * 2 + 16;
+      x.save();
+      x.fillStyle = RED ? "rgba(0, 0, 0, 0.28)" : "rgba(225, 6, 0, 0.12)";
+      x.strokeStyle = RED ? "rgba(255, 255, 255, 0.35)" : "rgba(225, 6, 0, 0.35)";
+      x.lineWidth = 1.5;
+      roundRect(wNameX, wBadgeY, wBadgeW, wBadgeH, wBadgeH / 2);
+      x.fill();
+      x.stroke();
+      x.beginPath();
+      x.arc(wNameX + wBadgePadX + 3, wBadgeY + wBadgeH / 2, 4, 0, Math.PI * 2);
+      x.fillStyle = RED ? "#FFFFFF" : C1;
+      x.fill();
+      x.fillStyle = RED ? "#FFFFFF" : C4;
+      x.font = wBadgeFont;
+      if ("letterSpacing" in x) x.letterSpacing = "1.5px";
+      x.fillText(wBadgeText, wNameX + wBadgePadX + 14, wSloganY);
+      if ("letterSpacing" in x) x.letterSpacing = "0px";
+      x.restore();
       line(wLineY);
 
       // строка статов
@@ -1301,10 +1518,29 @@
     for (var ni = 1; ni < nick.lines.length; ni++) {
       x.fillText(nick.lines[ni], nameX, nickFirstY + nickLineH * ni);
     }
-    var tag = x.createLinearGradient(nameX, 0, nameX + 520, 0);
-    tag.addColorStop(0, RED ? "#FFFFFF" : C1); tag.addColorStop(1, RED ? "#FFFFFF" : C4);
-    x.fillStyle = tag; x.font = fontOf(WD, 36);
-    x.fillText("steam-профиль в цифрах", nameX, sloganY);
+    var badgeText = arch.title.toUpperCase();
+    var badgeFont = "700 19px " + SANS;
+    x.font = badgeFont;
+    var badgeTextW = textW(badgeText, badgeFont);
+    var badgePadX = 16, badgeH = 34, badgeY = sloganY - 24;
+    var badgeW = badgeTextW + badgePadX * 2 + 16;
+    x.save();
+    x.fillStyle = RED ? "rgba(0, 0, 0, 0.28)" : "rgba(225, 6, 0, 0.12)";
+    x.strokeStyle = RED ? "rgba(255, 255, 255, 0.35)" : "rgba(225, 6, 0, 0.35)";
+    x.lineWidth = 1.5;
+    roundRect(nameX, badgeY, badgeW, badgeH, badgeH / 2);
+    x.fill();
+    x.stroke();
+    x.beginPath();
+    x.arc(nameX + badgePadX + 3, badgeY + badgeH / 2, 4, 0, Math.PI * 2);
+    x.fillStyle = RED ? "#FFFFFF" : C1;
+    x.fill();
+    x.fillStyle = RED ? "#FFFFFF" : C4;
+    x.font = badgeFont;
+    if ("letterSpacing" in x) x.letterSpacing = "1.5px";
+    x.fillText(badgeText, nameX + badgePadX + 14, sloganY);
+    if ("letterSpacing" in x) x.letterSpacing = "0px";
+    x.restore();
     line(lineY);
 
     // три числа-колосса: значение, подпись и строка контекста под ней
@@ -1561,18 +1797,7 @@
     say("Подпись возвращена");
   };
 
-  /* ---------- появление секций ---------- */
 
-  var revealObserver = new IntersectionObserver(function (entries) {
-    entries.forEach(function (e) {
-      if (e.isIntersecting) { e.target.classList.add("is-in"); revealObserver.unobserve(e.target); }
-    });
-  }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
-
-  /* Вау: красный вайп. Класс на body — до observe, чтобы секции ниже
-     сгиба прятались до первого пересечения, а не мигали. */
-  document.body.classList.add("wipe-on");
-  $$(".sec--red").forEach(function (n) { revealObserver.observe(n); });
   }
 
   // Статичная карточка не вызывает Worker сама. Живой запрос возможен только
@@ -1900,6 +2125,34 @@
       if (btn) { btn.disabled = !!busy; btn.textContent = busy ? "Загружаю…" : btnLabel; }
       input.disabled = !!busy;
     }
+    var DEMO_FRIEND_PVD = {
+      meta: { persona: "cyber_friend", avatar: "" },
+      totals: { gamesOwned: 198, hoursTotal: 4850, hoursTwoWeeks: 42, gamesPlayed: 165, gamesNeverPlayed: 33 },
+      soulmateAppid: 730,
+      genreHours: [
+        { name: "Экшен", hours: 3200 },
+        { name: "Шутер", hours: 950 },
+        { name: "RPG", hours: 420 },
+        { name: "Инди", hours: 280 }
+      ],
+      games: [
+        { appid: 730, name: "Counter-Strike 2", hours: 3100, hours2w: 36, genres: ["Экшен"] },
+        { appid: 570, name: "Dota 2", hours: 820, hours2w: 6, genres: ["Стратегия"] },
+        { appid: 1091500, name: "Cyberpunk 2077", hours: 210, hours2w: 0, genres: ["RPG"] }
+      ]
+    };
+
+    var demoBtn = document.getElementById("versusDemoBtn");
+    if (demoBtn) {
+      demoBtn.addEventListener("click", function () {
+        if (!currentPVD) return;
+        var friend = (dataLayer && dataLayer.normalizeStaticData)
+          ? dataLayer.normalizeStaticData(DEMO_FRIEND_PVD, rules)
+          : DEMO_FRIEND_PVD;
+        renderVersus(versusMetrics(currentPVD), versusMetrics(friend));
+      });
+    }
+
     form.addEventListener("submit", function (ev) {
       ev.preventDefault();
       var value = input.value.trim();
