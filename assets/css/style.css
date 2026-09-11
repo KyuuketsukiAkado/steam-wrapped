@@ -683,11 +683,13 @@ section { padding: var(--section-pad) 0; }
 
 .fact {
   display: grid; grid-template-columns: auto 1fr; align-items: baseline; gap: 18px;
-  padding: 19px 12px 19px 4px; border-bottom: 1px solid var(--line);
+  padding: 18px 12px 18px 4px; border-bottom: 1px solid var(--line);
   transition: background .12s ease, padding-left .12s ease;
 }
 .fact:hover { background: rgba(255,255,255,0.03); padding-left: 12px; box-shadow: inset 2px 0 0 var(--fc, var(--c1)); }
-.fact__num { font-size: clamp(19px, 2.2vw, 27px); font-family: var(--display); font-weight: var(--w-display); line-height: 1; min-width: 4.6ch; letter-spacing: var(--tight); color: var(--fc, var(--c1)); }
+.fact__lead { display: flex; align-items: baseline; gap: 10px; min-width: 5.6ch; }
+.fact__icon { font-size: 16px; line-height: 1; flex: none; opacity: 0.9; }
+.fact__num { font-size: clamp(19px, 2.2vw, 27px); font-family: var(--display); font-weight: var(--w-display); line-height: 1; letter-spacing: var(--tight); color: var(--fc, var(--c1)); }
 .fact:nth-child(6n+1) { --fc: var(--c1); }
 .fact:nth-child(6n+2) { --fc: var(--c4); }
 .fact:nth-child(6n+3) { --fc: var(--c3); }
@@ -1050,7 +1052,9 @@ a.game-link:hover { text-decoration: underline; text-decoration-color: currentCo
   /* «часов» рядом с числом — с отдельной строки, иначе 2 848,8 + подпись
      не помещаются в одну строку и Unbounded вылезает за край */
   .soulmate__hours span:last-child { display: block; margin-top: 4px; }
-  .fact { grid-template-columns: minmax(4.2ch, auto) 1fr; gap: 12px; }
+  .fact { grid-template-columns: minmax(5ch, auto) 1fr; gap: 10px; }
+  .fact__lead { gap: 6px; }
+  .fact__icon { font-size: 14px; }
   .fact__text { font-size: 14.5px; }
   /* 63 144 раунда — самое длинное число на странице, ему нужен потолок */
   .fact__num { font-size: 17px; }
