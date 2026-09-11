@@ -893,14 +893,31 @@ a.game-link:hover { text-decoration: underline; text-decoration-color: currentCo
 }
 .share__hint b { color: var(--ink-dim); font-weight: 700; }
 
-.theme-switch { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin: 0 0 4px; }
-.theme-switch__label { font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.75); margin-right: 2px; }
-.theme-switch__btn { display: inline-flex; align-items: center; gap: 8px; }
-.theme-switch__btn::before { content: ""; width: 10px; height: 10px; border-radius: 50%; border: 1px solid rgba(255,255,255,.6); flex: none; }
-.theme-switch__btn[data-card-theme="dark"]::before { background: #0A0807; }
-.theme-switch__btn[data-card-theme="red"]::before { background: var(--c1); }
-.sec--red .theme-switch__btn.is-on::before { border-color: rgba(0,0,0,.25); }
-.sec--red .theme-switch__btn.is-on { background: #FFFFFF; border-color: #FFFFFF; color: var(--c1); }
+.share__preview-col { display: flex; flex-direction: column; gap: 14px; }
+.theme-switch {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(255, 255, 255, 0.25);
+  padding: 6px 8px 6px 14px; border-radius: 999px;
+}
+.theme-switch__label { font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: rgba(255, 255, 255, .8); }
+.theme-switch__group { display: flex; gap: 6px; }
+.theme-switch__btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: transparent; border: 1px solid transparent; color: rgba(255, 255, 255, 0.75);
+  font-family: inherit; font-size: 13px; font-weight: 700; padding: 7px 16px; border-radius: 999px;
+  cursor: pointer; transition: all .15s ease;
+}
+.theme-switch__btn:hover { color: #FFFFFF; background: rgba(255, 255, 255, 0.1); }
+.theme-switch__btn.is-on {
+  background: #FFFFFF; color: var(--c1); font-weight: 800;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+.theme-switch__swatch {
+  width: 10px; height: 10px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.5); flex: none;
+}
+.theme-switch__swatch--dark { background: #0A0807; }
+.theme-switch__swatch--red { background: var(--c1); }
+.theme-switch__btn.is-on .theme-switch__swatch { border-color: rgba(0, 0, 0, 0.2); }
 .share__nets { margin-top: 0; }
 
 /* у каждой сети свой акцент из нашей же палитры — фирменных цветов
