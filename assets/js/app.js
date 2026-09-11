@@ -667,14 +667,27 @@
       row.appendChild(el("span", "legend__hours", num(g.hours) + " ч"));
       legend.appendChild(row);
 
-      row.addEventListener("mouseenter", function () { highlight(i, g); });
-      row.addEventListener("mouseleave", function () { highlight(null); });
-      c.addEventListener("mouseenter", function () { highlight(i, g); });
-      c.addEventListener("mouseleave", function () { highlight(null); });
-      row.addEventListener("click", function () { highlight(i, g); });
-      c.addEventListener("click", function () { highlight(i, g); });
+      row.addEventListener("mouseenter", function () { applyHighlight(i, g); });
+      row.addEventListener("mouseleave", function () {
+        if (selectedIdx !== null) applyHighlight(selectedIdx, genreData[selectedIdx]);
+        else applyHighlight(null);
+      });
+      c.addEventListener("mouseenter", function () { applyHighlight(i, g); });
+      c.addEventListener("mouseleave", function () {
+        if (selectedIdx !== null) applyHighlight(selectedIdx, genreData[selectedIdx]);
+        else applyHighlight(null);
+      });
+      row.addEventListener("click", function (e) {
+        e.stopPropagation();
+        toggleSelect(i, g);
+      });
+      c.addEventListener("click", function (e) {
+        e.stopPropagation();
+        toggleSelect(i, g);
+      });
     });
 
+    var selectedIdx = null;
     var dv = $("#donutValue"), dl = $("#donutLabel");
     var defaultValue = String(genreData.length), defaultLabel = plural(genreData.length, ["жанр", "жанра", "жанров"]);
     dv.textContent = defaultValue; dl.textContent = defaultLabel;
@@ -683,7 +696,17 @@
       return dec(p, p < 1 ? 1 : 0);
     }
 
-    function highlight(i, g) {
+    function toggleSelect(i, g) {
+      if (selectedIdx === i) {
+        selectedIdx = null;
+        applyHighlight(null);
+      } else {
+        selectedIdx = i;
+        applyHighlight(i, g);
+      }
+    }
+
+    function applyHighlight(i, g) {
       $$(".donut__seg", svg).forEach(function (s) { s.classList.remove("is-hover"); });
       $$(".legend__row", legend).forEach(function (r) { r.classList.remove("is-hover"); });
       if (i === null) {
