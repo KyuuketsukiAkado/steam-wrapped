@@ -760,6 +760,28 @@
 
     wireReveal(legend.children);
 
+    /* «Разворот» донута: при входе в вьюпорт дуги дорисовываются каскадом.
+       revealIO используется как флаг «анимации разрешены» (есть IO и нет
+       reduced-motion); иначе кольцо остаётся нарисованным целиком. */
+    if (revealIO) {
+      var segs = $$(".donut__seg", svg);
+      segs.forEach(function (s, i) {
+        s.dataset.arc = s.getAttribute("stroke-dasharray").split(" ")[0];
+        s.style.strokeDasharray = "0 " + C.toFixed(2);
+        s.style.transition = "stroke-dasharray .55s cubic-bezier(0.2, 0.7, 0.3, 1) " + (i * 70) + "ms";
+      });
+      var donutIO = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (!e.isIntersecting) return;
+          donutIO.disconnect();
+          segs.forEach(function (s) {
+            s.style.strokeDasharray = s.dataset.arc + " " + C.toFixed(2);
+          });
+        });
+      }, { threshold: 0.3 });
+      donutIO.observe(svg);
+    }
+
     var selectedIdx = null;
     var dv = $("#donutValue"), dl = $("#donutLabel");
     var defaultValue = String(genreData.length), defaultLabel = plural(genreData.length, ["жанр", "жанра", "жанров"]);
