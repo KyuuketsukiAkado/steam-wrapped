@@ -1561,18 +1561,7 @@
     say("Подпись возвращена");
   };
 
-  /* ---------- появление секций ---------- */
 
-  var revealObserver = new IntersectionObserver(function (entries) {
-    entries.forEach(function (e) {
-      if (e.isIntersecting) { e.target.classList.add("is-in"); revealObserver.unobserve(e.target); }
-    });
-  }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
-
-  /* Вау: красный вайп. Класс на body — до observe, чтобы секции ниже
-     сгиба прятались до первого пересечения, а не мигали. */
-  document.body.classList.add("wipe-on");
-  $$(".sec--red").forEach(function (n) { revealObserver.observe(n); });
   }
 
   // Статичная карточка не вызывает Worker сама. Живой запрос возможен только

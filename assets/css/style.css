@@ -1072,14 +1072,6 @@ section[id] { scroll-margin-top: 70px; }
   .stat:hover, .rcard:hover { transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-2px); }
 }
 
-/* красный вайп: развороты открываются шторкой сверху вниз.
-   Прячем только когда JS на месте (wipe-on) — без JS всё видно сразу. */
-body.wipe-on .sec--red { clip-path: inset(0 0 100% 0); }
-body.wipe-on .sec--red.is-in { clip-path: inset(0 0 0 0); transition: clip-path .9s cubic-bezier(.7,0,.3,1); }
-@media (prefers-reduced-motion: reduce) {
-  body.wipe-on .sec--red { clip-path: none; }
-}
-
 /* ---------- против друга ---------- */
 .versus-form { display: flex; gap: 10px; max-width: 720px; margin: 0 auto; }
 .versus-form__input { flex: 1 1 auto; min-width: 0; border: 1px solid var(--line); border-radius: 999px; background: rgba(255,255,255,.03); color: var(--ink); font: inherit; font-size: 16px; padding: 14px 22px; }
