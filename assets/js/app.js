@@ -623,6 +623,21 @@
       stage.textContent = "";
       list.forEach(function (g, i) {
         var slot = el("div", "fate__slot" + (rolling ? " is-rolling" : ""));
+        if (g.appid) {
+          var art = el("a", "fate__art game-link");
+          art.target = "_blank";
+          art.rel = "noopener";
+          art.href = "https://store.steampowered.com/app/" + encodeURIComponent(g.appid) + "/";
+          if (!rolling) {
+            var img = el("img", "fate__img");
+            img.src = "https://cdn.cloudflare.steamstatic.com/steam/apps/" + encodeURIComponent(g.appid) + "/header.jpg";
+            img.alt = g.name || "";
+            img.loading = "lazy";
+            img.onerror = function () { art.style.display = "none"; };
+            art.appendChild(img);
+          }
+          slot.appendChild(art);
+        }
         slot.appendChild(el("div", "fate__idx", "ВАРИАНТ " + String(i + 1).padStart(2, "0")));
         var fateName = el("div", "fate__name");
         fateName.appendChild(gameLabel(g));
