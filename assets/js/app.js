@@ -1289,14 +1289,29 @@
       for (var wni = 1; wni < wNick.lines.length; wni++) {
         x.fillText(wNick.lines[wni], wNameX, wNickY + wNickLh * wni);
       }
-      var wTag = x.createLinearGradient(wNameX, 0, wNameX + 520, 0);
-      wTag.addColorStop(0, RED ? "#FFFFFF" : C1); wTag.addColorStop(1, RED ? "#FFFFFF" : C4);
-      x.fillStyle = wTag; x.font = fontOf(WD, 34);
-      x.fillStyle = RED ? "rgba(255,255,255,0.85)" : C4;
-      x.font = "700 20px " + SANS;
-      if ("letterSpacing" in x) x.letterSpacing = "2px";
-      x.fillText(arch.title.toUpperCase(), wNameX, wSloganY);
+      var wBadgeText = arch.title.toUpperCase();
+      var wBadgeFont = "700 18px " + SANS;
+      x.font = wBadgeFont;
+      var wBadgeTextW = textW(wBadgeText, wBadgeFont);
+      var wBadgePadX = 14, wBadgeH = 32, wBadgeY = wSloganY - 23;
+      var wBadgeW = wBadgeTextW + wBadgePadX * 2 + 16;
+      x.save();
+      x.fillStyle = RED ? "rgba(0, 0, 0, 0.28)" : "rgba(225, 6, 0, 0.12)";
+      x.strokeStyle = RED ? "rgba(255, 255, 255, 0.35)" : "rgba(225, 6, 0, 0.35)";
+      x.lineWidth = 1.5;
+      roundRect(wNameX, wBadgeY, wBadgeW, wBadgeH, wBadgeH / 2);
+      x.fill();
+      x.stroke();
+      x.beginPath();
+      x.arc(wNameX + wBadgePadX + 3, wBadgeY + wBadgeH / 2, 4, 0, Math.PI * 2);
+      x.fillStyle = RED ? "#FFFFFF" : C1;
+      x.fill();
+      x.fillStyle = RED ? "#FFFFFF" : C4;
+      x.font = wBadgeFont;
+      if ("letterSpacing" in x) x.letterSpacing = "1.5px";
+      x.fillText(wBadgeText, wNameX + wBadgePadX + 14, wSloganY);
       if ("letterSpacing" in x) x.letterSpacing = "0px";
+      x.restore();
       line(wLineY);
 
       // строка статов
@@ -1503,14 +1518,29 @@
     for (var ni = 1; ni < nick.lines.length; ni++) {
       x.fillText(nick.lines[ni], nameX, nickFirstY + nickLineH * ni);
     }
-    var tag = x.createLinearGradient(nameX, 0, nameX + 520, 0);
-    tag.addColorStop(0, RED ? "#FFFFFF" : C1); tag.addColorStop(1, RED ? "#FFFFFF" : C4);
-    x.fillStyle = tag; x.font = fontOf(WD, 36);
-    x.fillStyle = RED ? "rgba(255,255,255,0.85)" : C4;
-    x.font = "700 20px " + SANS;
-    if ("letterSpacing" in x) x.letterSpacing = "2px";
-    x.fillText(arch.title.toUpperCase(), nameX, sloganY);
+    var badgeText = arch.title.toUpperCase();
+    var badgeFont = "700 19px " + SANS;
+    x.font = badgeFont;
+    var badgeTextW = textW(badgeText, badgeFont);
+    var badgePadX = 16, badgeH = 34, badgeY = sloganY - 24;
+    var badgeW = badgeTextW + badgePadX * 2 + 16;
+    x.save();
+    x.fillStyle = RED ? "rgba(0, 0, 0, 0.28)" : "rgba(225, 6, 0, 0.12)";
+    x.strokeStyle = RED ? "rgba(255, 255, 255, 0.35)" : "rgba(225, 6, 0, 0.35)";
+    x.lineWidth = 1.5;
+    roundRect(nameX, badgeY, badgeW, badgeH, badgeH / 2);
+    x.fill();
+    x.stroke();
+    x.beginPath();
+    x.arc(nameX + badgePadX + 3, badgeY + badgeH / 2, 4, 0, Math.PI * 2);
+    x.fillStyle = RED ? "#FFFFFF" : C1;
+    x.fill();
+    x.fillStyle = RED ? "#FFFFFF" : C4;
+    x.font = badgeFont;
+    if ("letterSpacing" in x) x.letterSpacing = "1.5px";
+    x.fillText(badgeText, nameX + badgePadX + 14, sloganY);
     if ("letterSpacing" in x) x.letterSpacing = "0px";
+    x.restore();
     line(lineY);
 
     // три числа-колосса: значение, подпись и строка контекста под ней
