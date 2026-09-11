@@ -696,7 +696,14 @@ section { padding: var(--section-pad) 0; }
 
 .bar__rank { font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--bc); opacity: .8; }
 .bar__body { min-width: 0; }
-.bar__name { font-size: 16px; font-weight: 600; margin-bottom: 9px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: color .12s ease; }
+.bar__head { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; min-width: 0; }
+.bar__thumb {
+  width: 44px; height: 21px; flex: none; object-fit: cover; border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(255, 255, 255, 0.04);
+  transition: border-color .12s ease;
+}
+.bar:hover .bar__thumb { border-color: var(--bc); }
+.bar__name { font-size: 16px; font-weight: 600; margin-bottom: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: color .12s ease; flex: 1 1 auto; min-width: 0; }
 .bar__track { height: 12px; background: rgba(255,255,255,0.06); border-radius: 999px; overflow: hidden; }
 .bar__fill {
   height: 100%; width: 0; border-radius: 999px;
@@ -957,7 +964,9 @@ a.game-link:hover { text-decoration: underline; text-decoration-color: currentCo
   .bar { grid-template-columns: 24px minmax(0, 1fr) auto; gap: 10px; padding: 13px 4px 13px 0; }
   .bar__rank { font-size: 10px; }
   .bar--colossus .bar__rank { padding: 1px 3px; }
-  .bar__name { font-size: 14.5px; margin-bottom: 7px; }
+  .bar__thumb { width: 36px; height: 17px; }
+  .bar__head { gap: 8px; margin-bottom: 7px; }
+  .bar__name { font-size: 14.5px; margin-bottom: 0; }
   .bar__value { font-size: 14.5px; }
   .bar__value span { display: none; }   /* «ч» прячем, цифры и так говорят */
 

@@ -381,9 +381,19 @@
       row.appendChild(el("div", "bar__rank", String(i + 1).padStart(2, "0")));
 
       var body = el("div", "bar__body");
+      var titleRow = el("div", "bar__head");
+      if (g.appid) {
+        var thumb = el("img", "bar__thumb");
+        thumb.src = "https://cdn.cloudflare.steamstatic.com/steam/apps/" + encodeURIComponent(g.appid) + "/header.jpg";
+        thumb.alt = g.name || "";
+        thumb.loading = "lazy";
+        thumb.onerror = function () { thumb.style.display = "none"; };
+        titleRow.appendChild(thumb);
+      }
       var barName = el("div", "bar__name");
       barName.appendChild(gameLabel(g));
-      body.appendChild(barName);
+      titleRow.appendChild(barName);
+      body.appendChild(titleRow);
       var track = el("div", "bar__track");
       var fill = el("div", "bar__fill");
       fill.dataset.w = (g.hours / max * 100).toFixed(2) + "%";
