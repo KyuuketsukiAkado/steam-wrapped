@@ -300,6 +300,41 @@
     smHours: soulmate ? soulmate.hours : 0
   };
 
+  /* ---------- scroll-reveal: один наблюдатель на все карточки ---------- */
+  var revealIO = ("IntersectionObserver" in window && window.matchMedia &&
+    !window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+    ? new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (!e.isIntersecting) return;
+          var n = e.target;
+          revealIO.unobserve(n);
+          n.style.animationDelay = (n.dataset.revealDelay || "0") + "ms";
+          n.classList.remove("reveal-wait");
+          n.classList.add("reveal-in");
+          n.addEventListener("animationend", function clean(ev) {
+            if (ev.animationName !== "reveal-rise") return;
+            n.removeEventListener("animationend", clean);
+            n.classList.remove("reveal-in");
+            n.style.animationDelay = "";
+          });
+        });
+      }, { threshold: 0.15 })
+    : null;
+
+  /* Вешаем на свежесозданные узлы: до входа в вьюпорт скрыты, дальше едут
+     снизу каскадом 40ms (кап 200ms). Узлы со своей анимацией пропускаем.
+     Без IO или при reduced-motion контент просто виден — скрытие ставит
+     только этот код, не CSS. */
+  function wireReveal(nodes) {
+    if (!revealIO) return;
+    Array.prototype.forEach.call(nodes || [], function (n, i) {
+      if (n.nodeType !== 1 || n.classList.contains("is-entering")) return;
+      n.dataset.revealDelay = String(Math.min(i * 40, 200));
+      n.classList.add("reveal-wait");
+      revealIO.observe(n);
+    });
+  }
+
   function animate(node, to) {
     var dur = 1200, t0 = null;
     function step(ts) {
@@ -460,6 +495,7 @@
         row.appendChild(text);
         fw.appendChild(row);
       });
+      if (!animate) wireReveal(fw.children);
     }
 
     renderFacts(false);
@@ -599,6 +635,7 @@
       var silent = el("div", "rcard");
       silent.appendChild(el("div", "rcard__name", "Тишина в эфире"));
       wrap.appendChild(silent);
+      wireReveal(wrap.children);
       wrap.classList.add("is-single");
       return;
     }
@@ -639,6 +676,7 @@
       card.appendChild(el("div", "rcard__meta", ago + " · всего " + smartDec(g.hours) + " ч"));
       wrap.appendChild(card);
     });
+    wireReveal(wrap.children);
   })();
 
   /* ---------- 04 · донат по жанрам ---------- */
@@ -720,6 +758,8 @@
       });
     });
 
+    wireReveal(legend.children);
+
     var selectedIdx = null;
     var dv = $("#donutValue"), dl = $("#donutLabel");
     var defaultValue = String(genreData.length), defaultLabel = plural(genreData.length, ["жанр", "жанра", "жанров"]);
@@ -794,6 +834,7 @@
       } else {
         $("#fateCount").textContent = "Бэклог пуст — редкое достижение";
       }
+      wireReveal($$(".fate__slot", stage));
       return;
     }
 
@@ -838,6 +879,7 @@
 
     // Сразу генерируем 3 игры с обложками при загрузке
     render(pick3(), false);
+    wireReveal($$(".fate__slot", stage));
     btn.textContent = "Другие варианты 🎲";
 
     // onclick, а не addEventListener: повторный boot перезаписывает обработчик
