@@ -1030,12 +1030,13 @@ a.game-link:hover { text-decoration: underline; text-decoration-color: currentCo
 .badge {
   display: inline-flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700;
   letter-spacing: .1em; text-transform: uppercase; color: var(--ink-faint);
-  border: 1px solid var(--line); padding: 6px 12px; border-radius: 999px;
+  border: 1px solid var(--line); background: rgba(255, 255, 255, 0.03);
+  padding: 6px 14px; border-radius: 999px;
 }
-.badge b { color: var(--c3); font-weight: 800; }
+.badge b { color: #FFFFFF; font-weight: 800; }
 .badge::before {
   content: ""; width: 7px; height: 7px; border-radius: 50%; flex: none;
-  background: var(--c3); box-shadow: 0 0 8px var(--c3);
+  background: var(--c4); box-shadow: 0 0 10px var(--c4);
 }
 
 /* ---------- бегущая строка ---------- */
