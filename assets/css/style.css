@@ -737,28 +737,19 @@ section { padding: var(--section-pad) 0; }
 
 .rcard {
   background: var(--bg-soft); color: var(--ink); border: 1px solid var(--line); border-radius: 6px;
-  padding: 26px; display: flex; flex-direction: column; gap: 10px; position: relative;
-  overflow: hidden; isolation: isolate;
+  padding: 22px; display: flex; flex-direction: column; gap: 12px; position: relative;
   transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
 }
-.rcard::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 4px; border-radius: 6px 6px 0 0; background: var(--rc, var(--c2)); z-index: 2; }
+.rcard::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 4px; border-radius: 6px 6px 0 0; background: var(--rc, var(--c2)); }
 .rcard:hover { transform: translateY(-2px); box-shadow: 0 18px 44px rgba(0, 0, 0, 0.35); border-color: rgba(255, 255, 255, 0.16); }
-.rcard__bg {
-  position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
-  opacity: 0.15; transition: opacity .25s ease, transform .35s ease;
+
+.rcard__art {
+  display: block; width: 100%; aspect-ratio: 460 / 215; border-radius: 4px; overflow: hidden;
+  background: rgba(255, 255, 255, 0.03); border: 1px solid var(--line); position: relative;
+  transition: border-color .15s ease;
 }
-.rcard__bg-img {
-  width: 100%; height: 100%; object-fit: cover; object-position: right center;
-  filter: blur(1px);
-}
-.rcard__bg::after {
-  content: ""; position: absolute; inset: 0;
-  background: linear-gradient(135deg, var(--bg-soft) 40%, rgba(17, 17, 19, 0.85) 100%);
-}
-.rcard:hover .rcard__bg {
-  opacity: 0.28; transform: scale(1.04);
-}
-.rcard > *:not(.rcard__bg) { position: relative; z-index: 1; }
+.rcard__art:hover { border-color: rgba(255, 255, 255, 0.25); }
+.rcard__img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .rcard__name { font-size: 17px; font-weight: 700; }
 .rcard__big { font-size: clamp(24px, 3vw, 34px); font-family: var(--display); font-weight: var(--w-display); line-height: 1; letter-spacing: var(--tight); color: var(--rc, var(--c2)); }
 .rcard__big span { font-size: 12px; font-weight: 600; color: var(--ink-dim); margin-left: 7px; letter-spacing: 0; }

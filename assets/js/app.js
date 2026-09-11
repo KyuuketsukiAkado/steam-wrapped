@@ -452,14 +452,17 @@
       card.style.setProperty("--rc", rc[i % rc.length]);
 
       if (g.appid) {
-        var bg = el("div", "rcard__bg");
-        var bgImg = el("img", "rcard__bg-img");
-        bgImg.src = "https://cdn.cloudflare.steamstatic.com/steam/apps/" + encodeURIComponent(g.appid) + "/header.jpg";
-        bgImg.alt = "";
-        bgImg.loading = "lazy";
-        bgImg.onerror = function () { bg.style.display = "none"; };
-        bg.appendChild(bgImg);
-        card.appendChild(bg);
+        var art = el("a", "rcard__art game-link");
+        art.target = "_blank";
+        art.rel = "noopener";
+        art.href = "https://store.steampowered.com/app/" + encodeURIComponent(g.appid) + "/";
+        var img = el("img", "rcard__img");
+        img.src = "https://cdn.cloudflare.steamstatic.com/steam/apps/" + encodeURIComponent(g.appid) + "/header.jpg";
+        img.alt = g.name || "";
+        img.loading = "lazy";
+        img.onerror = function () { art.style.display = "none"; };
+        art.appendChild(img);
+        card.appendChild(art);
       }
 
       var d = daysAgo(g.lastPlayed);
