@@ -220,8 +220,6 @@ a:hover { color: var(--accent); }
 .sec--red .btn { border-color: rgba(255, 255, 255, 0.5); color: #FFFFFF; }
 .sec--red .btn:hover { border-color: #FFFFFF; color: #FFFFFF; }
 .sec--red .btn--cream:hover { color: var(--c1); }
-.sec--red .btn--net::before { background: #FFFFFF; }
-.sec--red .btn--net:hover::before { box-shadow: 0 0 14px 0 #FFFFFF; }
 .sec--red .share__caption summary { color: rgba(255, 255, 255, 0.75); }
 .sec--red .share__caption summary:hover { color: #FFFFFF; }
 .sec--red .share__caption-label { color: rgba(255, 255, 255, 0.7); }
@@ -590,12 +588,15 @@ section { padding: var(--section-pad) 0; }
 
 /* ---------- кнопки ---------- */
 
+.btn__icon { width: 16px; height: 16px; flex: none; display: inline-block; vertical-align: middle; transition: transform .15s ease, filter .15s ease; }
 .btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   appearance: none; border: 1px solid var(--line); background: transparent;
   color: var(--ink); font: inherit; font-size: 14px; font-weight: 600;
   letter-spacing: 0.02em; padding: 14px 24px; border-radius: 999px; cursor: pointer;
   transition: border-color .12s ease, color .12s ease, background .12s ease, transform .12s ease, box-shadow .12s ease;
 }
+.btn:hover .btn__icon { transform: scale(1.12); }
 .btn:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
 
 .btn--solid { position: relative; overflow: hidden; isolation: isolate; }
@@ -941,15 +942,9 @@ a.game-link:hover { text-decoration: underline; text-decoration-color: currentCo
 
 /* у каждой сети свой акцент из нашей же палитры — фирменных цветов
    не берём, чтобы не ломать систему страницы */
-.btn--net { position: relative; padding-left: 38px; }
-.btn--net::before {
-  content: ""; position: absolute; left: 19px; top: 50%; margin-top: -4px;
-  width: 8px; height: 8px; border-radius: 2px; background: var(--nc);
-  transform: rotate(45deg);
-  transition: box-shadow .12s ease;
-}
+.btn--net { padding: 14px 22px; }
 .btn--net:hover { border-color: var(--nc); color: var(--nc); }
-.btn--net:hover::before { box-shadow: 0 0 14px 0 var(--nc); }
+.btn--net:hover .btn__icon { filter: drop-shadow(0 0 8px var(--nc)); }
 .btn--tg { --nc: var(--c4); }
 .btn--li { --nc: var(--c2); }
 .btn--dc { --nc: var(--c3); }
