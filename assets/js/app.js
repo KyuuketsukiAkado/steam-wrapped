@@ -312,9 +312,11 @@
           n.classList.remove("reveal-wait");
           n.classList.add("reveal-in");
           n.addEventListener("animationend", function clean(ev) {
-            if (ev.animationName !== "reveal-rise") return;
+            if (ev.animationName !== "reveal-rise" &&
+                ev.animationName !== "reveal-luxe") return;
             n.removeEventListener("animationend", clean);
             n.classList.remove("reveal-in");
+            n.classList.remove("reveal-luxe");
             n.style.animationDelay = "";
           });
         });
@@ -325,12 +327,15 @@
      снизу каскадом 40ms (кап 200ms). Узлы со своей анимацией пропускаем.
      Без IO или при reduced-motion контент просто виден — скрытие ставит
      только этот код, не CSS. */
-  function wireReveal(nodes) {
+  function wireReveal(nodes, opts) {
     if (!revealIO) return;
+    opts = opts || {};
+    var step = opts.step || 40, cap = opts.cap || 200, base = opts.delay || 0;
     Array.prototype.forEach.call(nodes || [], function (n, i) {
       if (n.nodeType !== 1 || n.classList.contains("is-entering")) return;
-      n.dataset.revealDelay = String(Math.min(i * 40, 200));
+      n.dataset.revealDelay = String(base + Math.min(i * step, cap));
       n.classList.add("reveal-wait");
+      if (opts.luxe) n.classList.add("reveal-luxe");
       revealIO.observe(n);
     });
   }
@@ -601,6 +606,8 @@
       row.appendChild(value);
       wrap.appendChild(row);
     });
+
+    wireReveal($$(".bar", wrap));
 
     var barObserver = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) {
@@ -2333,6 +2340,14 @@
   /* ---------- хром страницы: прогресс, подсветка меню, кнопка наверх ----------
      Данных не касается: чистый UI-слушатель поверх готовой страницы. */
   (function chrome() {
+    /* Крупные статичные блоки — «дорогой» вход: подъём из расфокуса.
+       Вешаем один раз: boot эти узлы не пересоздаёт. */
+    wireReveal($$(".sec-head"), { luxe: true });
+    wireReveal([$(".soulmate > div")], { luxe: true });
+    wireReveal($$(".share > div"), { luxe: true, step: 120, cap: 240 });
+    wireReveal([$(".footer__big")], { luxe: true });
+    wireReveal([$(".footer__inner")], { luxe: true, delay: 140 });
+
     var bar = document.getElementById("scrollProgress");
     var top = document.getElementById("toTop");
     var ticking = false;

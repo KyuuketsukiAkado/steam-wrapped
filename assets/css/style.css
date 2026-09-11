@@ -748,6 +748,16 @@ section { padding: var(--section-pad) 0; }
   from { opacity: 0; translate: 0 16px; }
   to   { opacity: 1; translate: 0 0; }
 }
+
+/* «Дорогой» вариант для крупных блоков (luxe): подъём из расфокуса
+   на длинном expo-замедлении — заголовки секций, колонки шаринга, футер. */
+.reveal-in.reveal-luxe {
+  animation: reveal-luxe 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes reveal-luxe {
+  from { opacity: 0; translate: 0 26px; filter: blur(10px); }
+  to   { opacity: 1; translate: 0 0; filter: blur(0); }
+}
 #rerollFactsBtn.is-spinning { transform: scale(0.96); }
 .fact__lead { display: flex; align-items: baseline; gap: 10px; min-width: 5.6ch; }
 .fact__icon { font-size: 16px; line-height: 1; flex: none; opacity: 0.9; }
