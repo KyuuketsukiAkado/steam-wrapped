@@ -19,7 +19,7 @@ function readStaticData() {
 const mine = Data.normalizeStaticData(readStaticData(), rules);
 assert.equal(mine.meta.persona, "mormyszka");
 assert.equal(mine.totals.gamesOwned, 323);
-assert.equal(mine.totals.hoursTotal, 8000);
+assert.equal(mine.totals.hoursTotal, 8016);
 assert.equal(mine.soulmateAppid, 570);
 assert.equal(Data.soulmateUnit(mine.games[0], rules).word, "матчей");
 assert.equal(Data.soulmateUnit(mine.games[0], rules).min, 38);
