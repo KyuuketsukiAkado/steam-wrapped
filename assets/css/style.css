@@ -532,16 +532,25 @@ section { padding: var(--section-pad) 0; }
   letter-spacing: .14em; text-transform: uppercase; color: var(--ink-faint);
 }
 .chip {
+  display: inline-flex; align-items: center; gap: 6px;
   appearance: none; cursor: pointer;
   border: 1px solid var(--line); border-radius: 999px;
   background: rgba(225, 6, 0, 0.05);
   color: var(--ink-dim); font-family: var(--mono); font-size: 12px; font-weight: 700;
   padding: 8px 16px;
-  transition: border-color 0.12s ease, color 0.12s ease, box-shadow 0.12s ease;
+  transition: border-color 0.12s ease, color 0.12s ease, box-shadow 0.12s ease, transform 0.12s ease, background 0.12s ease;
 }
 .chip:hover {
   border-color: var(--c1); color: var(--ink);
-  box-shadow: 0 0 18px rgba(225, 6, 0, 0.15);
+  background: rgba(225, 6, 0, 0.10);
+  box-shadow: 0 0 18px rgba(225, 6, 0, 0.18);
+  transform: translateY(-1px);
+}
+.chip:active {
+  transform: scale(0.96);
+}
+.chip__icon {
+  font-size: 13px; line-height: 1; opacity: 0.85;
 }
 .profile-form__input {
   min-width: 0;
