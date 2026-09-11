@@ -339,6 +339,7 @@
   // повторный boot: чистим динамические контейнеры, иначе строки задвоятся
   $("#facts").textContent = "";
   $("#smName").textContent = "—";
+  if ($("#smGenres")) $("#smGenres").textContent = "";
   $("#smShare").textContent = "—";
   var smArt = $("#smArt");
   if (smArt) {
@@ -358,6 +359,15 @@
     var smNameEl = $("#smName");
     smNameEl.textContent = "";
     smNameEl.appendChild(gameLabel(soulmate));
+    var smGenresEl = $("#smGenres");
+    if (smGenresEl) {
+      smGenresEl.textContent = "";
+      if (soulmate.genres && soulmate.genres.length) {
+        soulmate.genres.forEach(function (genre) {
+          smGenresEl.appendChild(el("span", "soulmate__genre-tag", genre));
+        });
+      }
+    }
     if (smArt && soulmate.appid) {
       smArt.alt = soulmate.name;
       smArt.hidden = false;
