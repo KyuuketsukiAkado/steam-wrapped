@@ -15,6 +15,7 @@ __pycache__/
 
 # системное
 .DS_Store
+node_modules/
 Thumbs.db
 *.bak
 data.js.bak

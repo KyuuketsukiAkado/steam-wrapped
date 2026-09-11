@@ -13,16 +13,30 @@
   var currentPVD = null;
 
   /* Тема шаринг-карточки живёт вне boot: переживает смену профиля.
-     redrawCardLive всегда указывает на redrawCard актуального boot. */
+     redrawCardLive всегда указывает на redrawCard актуального boot.
+     Выбор запоминается в localStorage и переживает перезагрузку. */
   var cardTheme = "dark";
   var redrawCardLive = null;
+  function storeGet(key) {
+    try { return window.localStorage.getItem(key); } catch (_) { return null; }
+  }
+  function storeSet(key, value) {
+    try { window.localStorage.setItem(key, value); } catch (_) {}
+  }
+  function syncThemeButtons() {
+    Array.prototype.forEach.call(document.querySelectorAll(".theme-switch__btn"), function (o) {
+      var on = o.getAttribute("data-card-theme") === cardTheme;
+      o.classList.toggle("is-on", on);
+      o.setAttribute("aria-pressed", on ? "true" : "false");
+    });
+  }
+  if (storeGet("sw:cardTheme") === "red") cardTheme = "red";
+  syncThemeButtons();
   Array.prototype.forEach.call(document.querySelectorAll(".theme-switch__btn"), function (b) {
     b.addEventListener("click", function () {
       cardTheme = b.getAttribute("data-card-theme") === "red" ? "red" : "dark";
-      Array.prototype.forEach.call(document.querySelectorAll(".theme-switch__btn"), function (o) {
-        o.classList.toggle("is-on", o === b);
-        o.setAttribute("aria-pressed", o === b ? "true" : "false");
-      });
+      storeSet("sw:cardTheme", cardTheme);
+      syncThemeButtons();
       if (redrawCardLive) redrawCardLive();
     });
   });
@@ -55,6 +69,46 @@
         tiltCard.style.setProperty("--ry", "0deg");
         tiltCard = null;
       }
+    });
+  }
+
+  /* ---------- scroll-reveal: один наблюдатель на все карточки ---------- */
+  var revealIO = ("IntersectionObserver" in window && window.matchMedia &&
+    !window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+    ? new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (!e.isIntersecting) return;
+          var n = e.target;
+          revealIO.unobserve(n);
+          n.style.animationDelay = (n.dataset.revealDelay || "0") + "ms";
+          n.classList.remove("reveal-wait");
+          n.classList.add("reveal-in");
+          n.addEventListener("animationend", function clean(ev) {
+            if (ev.animationName !== "reveal-rise" &&
+                ev.animationName !== "reveal-luxe") return;
+            n.removeEventListener("animationend", clean);
+            n.classList.remove("reveal-in");
+            n.classList.remove("reveal-luxe");
+            n.style.animationDelay = "";
+          });
+        });
+      }, { threshold: 0.15 })
+    : null;
+
+  /* Вешаем на свежесозданные узлы: до входа в вьюпорт скрыты, дальше едут
+     снизу каскадом 40ms (кап 200ms). Узлы со своей анимацией пропускаем.
+     Без IO или при reduced-motion контент просто виден — скрытие ставит
+     только этот код, не CSS. */
+  function wireReveal(nodes, opts) {
+    if (!revealIO) return;
+    opts = opts || {};
+    var step = opts.step || 40, cap = opts.cap || 200, base = opts.delay || 0;
+    Array.prototype.forEach.call(nodes || [], function (n, i) {
+      if (n.nodeType !== 1 || n.classList.contains("is-entering")) return;
+      n.dataset.revealDelay = String(base + Math.min(i * step, cap));
+      n.classList.add("reveal-wait");
+      if (opts.luxe) n.classList.add("reveal-luxe");
+      revealIO.observe(n);
     });
   }
 
@@ -446,6 +500,7 @@
         row.appendChild(text);
         fw.appendChild(row);
       });
+      if (!animate) wireReveal(fw.children);
     }
 
     renderFacts(false);
@@ -552,6 +607,8 @@
       wrap.appendChild(row);
     });
 
+    wireReveal($$(".bar", wrap));
+
     var barObserver = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) {
         if (!e.isIntersecting) return;
@@ -585,6 +642,7 @@
       var silent = el("div", "rcard");
       silent.appendChild(el("div", "rcard__name", "Тишина в эфире"));
       wrap.appendChild(silent);
+      wireReveal(wrap.children);
       wrap.classList.add("is-single");
       return;
     }
@@ -625,6 +683,7 @@
       card.appendChild(el("div", "rcard__meta", ago + " · всего " + smartDec(g.hours) + " ч"));
       wrap.appendChild(card);
     });
+    wireReveal(wrap.children);
   })();
 
   /* ---------- 04 · донат по жанрам ---------- */
@@ -706,6 +765,30 @@
       });
     });
 
+    wireReveal(legend.children);
+
+    /* «Разворот» донута: при входе в вьюпорт дуги дорисовываются каскадом.
+       revealIO используется как флаг «анимации разрешены» (есть IO и нет
+       reduced-motion); иначе кольцо остаётся нарисованным целиком. */
+    if (revealIO) {
+      var segs = $$(".donut__seg", svg);
+      segs.forEach(function (s, i) {
+        s.dataset.arc = s.getAttribute("stroke-dasharray").split(" ")[0];
+        s.style.strokeDasharray = "0 " + C.toFixed(2);
+        s.style.transition = "stroke-dasharray .55s cubic-bezier(0.2, 0.7, 0.3, 1) " + (i * 70) + "ms";
+      });
+      var donutIO = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (!e.isIntersecting) return;
+          donutIO.disconnect();
+          segs.forEach(function (s) {
+            s.style.strokeDasharray = s.dataset.arc + " " + C.toFixed(2);
+          });
+        });
+      }, { threshold: 0.3 });
+      donutIO.observe(svg);
+    }
+
     var selectedIdx = null;
     var dv = $("#donutValue"), dl = $("#donutLabel");
     var defaultValue = String(genreData.length), defaultLabel = plural(genreData.length, ["жанр", "жанра", "жанров"]);
@@ -780,6 +863,7 @@
       } else {
         $("#fateCount").textContent = "Бэклог пуст — редкое достижение";
       }
+      wireReveal($$(".fate__slot", stage));
       return;
     }
 
@@ -824,6 +908,7 @@
 
     // Сразу генерируем 3 игры с обложками при загрузке
     render(pick3(), false);
+    wireReveal($$(".fate__slot", stage));
     btn.textContent = "Другие варианты 🎲";
 
     // onclick, а не addEventListener: повторный boot перезаписывает обработчик
@@ -2113,6 +2198,9 @@
     var form = document.getElementById("versusForm");
     var input = document.getElementById("versusInput");
     if (!form || !input) return;
+    // Последний успешный соперник — восстанавливаем в поле, чтобы не набирать заново.
+    var lastFriend = storeGet("sw:versusFriend");
+    if (lastFriend) input.value = lastFriend;
     function setStatus(msg, state) {
       var node = document.getElementById("versusStatus");
       if (!node) return;
@@ -2173,8 +2261,10 @@
       setStatus("Получаю публичные данные Steam…", "loading");
       setBusy(true);
       loadLiveProfile(value, rules, dataLayer).then(function (result) {
-        try { renderVersus(versusMetrics(currentPVD), versusMetrics(result.data)); }
-        finally { setBusy(false); }
+        try {
+          renderVersus(versusMetrics(currentPVD), versusMetrics(result.data));
+          storeSet("sw:versusFriend", value);
+        } finally { setBusy(false); }
       }, function (error) {
         setStatus(workerErrorMessage(error && error.code), "error");
         setBusy(false);
@@ -2250,6 +2340,14 @@
   /* ---------- хром страницы: прогресс, подсветка меню, кнопка наверх ----------
      Данных не касается: чистый UI-слушатель поверх готовой страницы. */
   (function chrome() {
+    /* Крупные статичные блоки — «дорогой» вход: подъём из расфокуса.
+       Вешаем один раз: boot эти узлы не пересоздаёт. */
+    wireReveal(document.querySelectorAll(".sec-head"), { luxe: true });
+    wireReveal([document.querySelector(".soulmate > div")], { luxe: true });
+    wireReveal(document.querySelectorAll(".share > div"), { luxe: true, step: 120, cap: 240 });
+    wireReveal([document.querySelector(".footer__big")], { luxe: true });
+    wireReveal([document.querySelector(".footer__inner")], { luxe: true, delay: 140 });
+
     var bar = document.getElementById("scrollProgress");
     var top = document.getElementById("toTop");
     var ticking = false;
@@ -2314,18 +2412,22 @@
       }, { passive: true });
     }
 
-    var links = Array.prototype.slice.call(document.querySelectorAll('.topbar__nav a[href^="#"]'));
+    // Подсветка работает в обоих меню: десктопном и бургерном (одинаковые href).
+    var links = Array.prototype.slice.call(
+      document.querySelectorAll('.topbar__nav a[href^="#"], .mobilenav a[href^="#"]'));
     if ("IntersectionObserver" in window && links.length) {
       var map = {};
-      links.forEach(function (a) { map[a.getAttribute("href").slice(1)] = a; });
+      links.forEach(function (a) {
+        var id = a.getAttribute("href").slice(1);
+        (map[id] = map[id] || []).push(a);
+      });
       var spy = new IntersectionObserver(function (entries) {
         entries.forEach(function (e) {
-          var a = map[e.target.id];
-          if (!a) return;
-          if (e.isIntersecting) {
-            links.forEach(function (l) { l.classList.remove("is-on"); });
-            a.classList.add("is-on");
-          }
+          if (!e.isIntersecting) return;
+          var active = map[e.target.id];
+          if (!active) return;
+          links.forEach(function (l) { l.classList.remove("is-on"); });
+          active.forEach(function (l) { l.classList.add("is-on"); });
         });
       }, { rootMargin: "-40% 0px -55% 0px" });
       Object.keys(map).forEach(function (id) {
