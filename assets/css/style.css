@@ -807,7 +807,8 @@ section { padding: var(--section-pad) 0; }
   transition: border-color .15s ease;
 }
 .rcard__art:hover { border-color: rgba(255, 255, 255, 0.25); }
-.rcard__img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.rcard__img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.rcard:hover .rcard__img { transform: scale(1.05); }
 .rcard__name { font-size: 17px; font-weight: 700; }
 .rcard__big { font-size: clamp(24px, 3vw, 34px); font-family: var(--display); font-weight: var(--w-display); line-height: 1; letter-spacing: var(--tight); color: var(--rc, var(--c2)); }
 .rcard__big span { font-size: 12px; font-weight: 600; color: var(--ink-dim); margin-left: 7px; letter-spacing: 0; }
@@ -888,7 +889,8 @@ section { padding: var(--section-pad) 0; }
   transition: border-color .15s ease;
 }
 .fate__art:hover { border-color: rgba(255, 255, 255, 0.25); }
-.fate__img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.fate__img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.fate__slot:hover .fate__img { transform: scale(1.05); }
 .fate__idx { font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--fs); letter-spacing: .1em; }
 .fate__name { font-size: clamp(17px, 2vw, 23px); font-family: var(--display); font-weight: var(--w-display); line-height: 1.1; letter-spacing: var(--tight); transition: opacity .18s ease, filter .18s ease; }
 .fate__tags { font-size: 13px; color: var(--ink-dim); }
@@ -1013,8 +1015,8 @@ a.game-link:hover { text-decoration: underline; text-decoration-color: currentCo
 }
 .footer__big b { color: var(--c1); font-weight: var(--w-display); }
 .footer__inner { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; font-size: 13px; color: var(--ink-faint); border-top: 1px solid var(--line); padding-top: 26px; }
-.footer a { border-bottom: none; }
-.footer a:hover { color: var(--c1); }
+.footer a { border-bottom: none; color: var(--ink-dim); transition: color 0.15s ease; }
+.footer a:hover { color: var(--c4); }
 
 .badge {
   display: inline-flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700;
