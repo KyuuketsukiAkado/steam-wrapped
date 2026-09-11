@@ -175,12 +175,77 @@
   var gamesOwned = totals.gamesOwned != null ? totals.gamesOwned : games.length;
   var neverPlayed = totals.gamesNeverPlayed != null ? totals.gamesNeverPlayed : backlog.length;
 
+  function getArchetype(totals, played, backlog, genreData, soulmate, totalHours, hours2w) {
+    var gamesOwned = totals.gamesOwned || (played.length + backlog.length);
+    var neverPlayed = totals.gamesNeverPlayed != null ? totals.gamesNeverPlayed : backlog.length;
+    var topGenre = (genreData && genreData[0]) ? genreData[0].name : "";
+    var leadShare = (soulmate && totalHours) ? (soulmate.hours / totalHours) : 0;
+
+    if (hours2w >= 40) {
+      return { title: "В активном рейде", desc: "Ударный темп игры за последние недели (" + Math.round(hours2w) + " ч)" };
+    }
+    if (leadShare >= 0.35 && soulmate) {
+      return { title: "Марафонец одного мира", desc: "Более " + Math.round(leadShare * 100) + "% всего времени в " + soulmate.name };
+    }
+    if (neverPlayed >= 15 && gamesOwned > 0 && (neverPlayed / gamesOwned) >= 0.4) {
+      return { title: "Хранитель бэклога", desc: Math.round(neverPlayed / gamesOwned * 100) + "% библиотеки ждёт своего часа" };
+    }
+    if (topGenre === "Стратегия" || topGenre === "Strategy") {
+      return { title: "Ночной стратег", desc: "Главный фокус — тактика, расчёт и победа" };
+    }
+    if (topGenre === "RPG" || topGenre === "Ролевые игры") {
+      return { title: "Ролевой исследователь", desc: "Сотни часов в глубоких мирах и сюжетах" };
+    }
+    if (topGenre === "Экшен" || topGenre === "Action" || topGenre === "Шутер") {
+      return { title: "Адепт адреналина", desc: "Высокий темп, реакция и драйв" };
+    }
+    if (topGenre === "Инди" || topGenre === "Indie") {
+      return { title: "Инди-эстет", desc: "Любовь к авторским и самобытным тайтлам" };
+    }
+    if (topGenre === "Гонки" || topGenre === "Racing" || topGenre === "Симулятор") {
+      return { title: "Мастер симуляторов", desc: "Внимание к деталям, скорость и контроль" };
+    }
+    if (totalHours >= 3000) {
+      return { title: "Ветеран Steam", desc: "Более " + num(totalHours) + " часов игрового опыта" };
+    }
+    if (played.length >= 40) {
+      return { title: "Исследователь миров", desc: "Широкий кругозор и десятки пройденных историй" };
+    }
+    return { title: "Игровой энтузиаст", desc: "Сбалансированная библиотека и интерес к играм" };
+  }
+  var genreData = (function () {
+    if (D.genreHours && D.genreHours.length) return D.genreHours.slice();
+    var map = {};
+    played.forEach(function (g) {
+      var gs = (g.genres && g.genres.length) ? g.genres : ["Без жанра"];
+      gs.forEach(function (name) {
+        map[name] = (map[name] || 0) + g.hours / gs.length;
+      });
+    });
+    var arr = Object.keys(map).map(function (k) { return { name: k, hours: map[k] }; })
+                              .sort(function (a, b) { return b.hours - a.hours; });
+    if (arr.length > 6) {
+      var rest = arr.slice(6).reduce(function (s, x) { return s + x.hours; }, 0);
+      arr = arr.slice(0, 6);
+      if (rest > 0) arr.push({ name: "Прочее", hours: rest });
+    }
+    return arr;
+  })();
+
+  var arch = getArchetype(totals, played, backlog, genreData, soulmate, totalHours, hours2w);
+
   /* ---------- шапка ---------- */
 
   var profileName = D.meta.persona || "steam profile";
   document.title = "Steam Wrapped · " + (isDemoProfile ? "пример: " : "") + profileName;
   $("#year").textContent = new Date().getFullYear();
   $("#heroNick").textContent = profileName;
+  var archEl = $("#heroArchetype");
+  if (archEl) {
+    archEl.textContent = arch.title;
+    archEl.title = arch.desc;
+    archEl.hidden = false;
+  }
   $("#heroEyebrow").textContent =
     (D.meta.memberSince ? "в Steam с " + fmtDate(D.meta.memberSince) + " · " : "") +
     "данные от " + fmtDate(D.meta.generatedAt);
@@ -483,31 +548,6 @@
   })();
 
   /* ---------- 04 · донат по жанрам ---------- */
-
-  var genreData = (function () {
-    // если данные пришли с готовой разбивкой по жанрам (fetch_data.py) —
-    // верим ей: она посчитана по всей библиотеке, а не по выгрузке топа
-    if (D.genreHours && D.genreHours.length) {
-      return D.genreHours.slice();
-    }
-    var map = {};
-    played.forEach(function (g) {
-      var gs = (g.genres && g.genres.length) ? g.genres : ["Без жанра"];
-      // часы делим поровну между жанрами игры, чтобы не раздувать сумму
-      gs.forEach(function (name) {
-        map[name] = (map[name] || 0) + g.hours / gs.length;
-      });
-    });
-    var arr = Object.keys(map).map(function (k) { return { name: k, hours: map[k] }; })
-                              .sort(function (a, b) { return b.hours - a.hours; });
-    // всё, что мельче, схлопываем в «Прочее»
-    if (arr.length > 6) {
-      var rest = arr.slice(6).reduce(function (s, x) { return s + x.hours; }, 0);
-      arr = arr.slice(0, 6);
-      if (rest > 0) arr.push({ name: "Прочее", hours: rest });
-    }
-    return arr;
-  })();
 
   (function donut() {
     var svg = $("#donut"), legend = $("#legend");
@@ -1138,7 +1178,11 @@
       var wTag = x.createLinearGradient(wNameX, 0, wNameX + 520, 0);
       wTag.addColorStop(0, RED ? "#FFFFFF" : C1); wTag.addColorStop(1, RED ? "#FFFFFF" : C4);
       x.fillStyle = wTag; x.font = fontOf(WD, 34);
-      x.fillText("steam-профиль в цифрах", wNameX, wSloganY);
+      x.fillStyle = RED ? "rgba(255,255,255,0.85)" : C4;
+      x.font = "700 20px " + SANS;
+      if ("letterSpacing" in x) x.letterSpacing = "2px";
+      x.fillText(arch.title.toUpperCase(), wNameX, wSloganY);
+      if ("letterSpacing" in x) x.letterSpacing = "0px";
       line(wLineY);
 
       // строка статов
@@ -1348,7 +1392,11 @@
     var tag = x.createLinearGradient(nameX, 0, nameX + 520, 0);
     tag.addColorStop(0, RED ? "#FFFFFF" : C1); tag.addColorStop(1, RED ? "#FFFFFF" : C4);
     x.fillStyle = tag; x.font = fontOf(WD, 36);
-    x.fillText("steam-профиль в цифрах", nameX, sloganY);
+    x.fillStyle = RED ? "rgba(255,255,255,0.85)" : C4;
+    x.font = "700 20px " + SANS;
+    if ("letterSpacing" in x) x.letterSpacing = "2px";
+    x.fillText(arch.title.toUpperCase(), nameX, sloganY);
+    if ("letterSpacing" in x) x.letterSpacing = "0px";
     line(lineY);
 
     // три числа-колосса: значение, подпись и строка контекста под ней
