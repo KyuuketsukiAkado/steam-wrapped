@@ -455,6 +455,7 @@ section { padding: var(--section-pad) 0; }
   font-family: var(--display); font-weight: var(--w-display);
   font-size: clamp(36px, 4.6vw, 60px); line-height: 1.25; letter-spacing: var(--tight);
   color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  min-width: 0;   // без этого flex-элемент не сжимается и ellipsis не срабатывает
 }
 .hero__badge {
   display: inline-flex; align-items: center; gap: 7px;
@@ -465,6 +466,7 @@ section { padding: var(--section-pad) 0; }
   border: 1px solid rgba(186, 54, 54, 0.35);
   box-shadow: 0 0 16px rgba(186, 54, 54, 0.15);
   white-space: nowrap;
+  flex: none; max-width: 100%;   // фикс: flex-shrink сжимал капсулу — текст заходил за рамку
 }
 .hero__badge::before {
   content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%;
