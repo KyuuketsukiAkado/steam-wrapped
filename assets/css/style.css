@@ -966,6 +966,11 @@ a.game-link:hover { text-decoration: underline; text-decoration-color: currentCo
 .share__preview canvas { max-width: 100%; height: auto; display: block; }
 .share__preview { border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--bg-soft); box-shadow: 0 24px 60px rgba(0,0,0,.5); }
 .share__preview canvas { display: block; width: 100%; height: auto; }
+/* Сторис 9:16 очень высокий — ограничиваем, чтобы не растягивал секцию. */
+.share__preview canvas[data-fmt="916"] {
+  width: auto; height: auto; max-width: 100%;
+  max-height: min(72vh, 640px); margin: 0 auto;
+}
 .share__text { color: var(--ink-dim); font-size: 16px; max-width: 46ch; }
 
 /* ---------- поделиться в соцсети ---------- */
@@ -1009,8 +1014,8 @@ a.game-link:hover { text-decoration: underline; text-decoration-color: currentCo
 .btn--net:hover { border-color: var(--nc); color: var(--nc); }
 .btn--net:hover .btn__icon { filter: drop-shadow(0 0 8px var(--nc)); }
 .btn--tg { --nc: var(--c4); }
-.btn--li { --nc: var(--c2); }
-.btn--dc { --nc: var(--c3); }
+/* Instagram — главный акцент системы */
+.btn--ig { --nc: var(--c1); }
 
 .share__caption { margin-top: 22px; max-width: 52ch; }
 .share__caption summary {
@@ -1148,7 +1153,7 @@ a.game-link:hover { text-decoration: underline; text-decoration-color: currentCo
 
   /* три кнопки сетей в ряд не помещаются: делим на равные колонки,
      чтобы не болталась одинокая кнопка на второй строке */
-  .share__nets { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .share__nets { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
   .share__nets .btn--net { padding: 12px 6px 12px 26px; font-size: 13px; text-align: left; }
   .share__nets .btn--net::before { left: 10px; width: 8px; height: 8px; margin-top: -4px; }
 

@@ -24,7 +24,7 @@
     try { window.localStorage.setItem(key, value); } catch (_) {}
   }
   function syncThemeButtons() {
-    Array.prototype.forEach.call(document.querySelectorAll(".theme-switch__btn"), function (o) {
+    Array.prototype.forEach.call(document.querySelectorAll("[data-card-theme]"), function (o) {
       var on = o.getAttribute("data-card-theme") === cardTheme;
       o.classList.toggle("is-on", on);
       o.setAttribute("aria-pressed", on ? "true" : "false");
@@ -32,11 +32,35 @@
   }
   if (storeGet("sw:cardTheme") === "red") cardTheme = "red";
   syncThemeButtons();
-  Array.prototype.forEach.call(document.querySelectorAll(".theme-switch__btn"), function (b) {
+  Array.prototype.forEach.call(document.querySelectorAll("[data-card-theme]"), function (b) {
     b.addEventListener("click", function () {
       cardTheme = b.getAttribute("data-card-theme") === "red" ? "red" : "dark";
       storeSet("sw:cardTheme", cardTheme);
       syncThemeButtons();
+      if (redrawCardLive) redrawCardLive();
+    });
+  });
+
+  /* Формат карточки: 4:5 пост, 9:16 сторис, 16:9 лента. Живёт вне boot
+     рядом с темой — выбор запоминается в localStorage и переживает
+     перезагрузку и смену профиля. */
+  var cardFormat = "45";
+  var storedFormat = storeGet("sw:cardFormat");
+  if (storedFormat === "916" || storedFormat === "169") cardFormat = storedFormat;
+  function syncFormatButtons() {
+    Array.prototype.forEach.call(document.querySelectorAll("[data-card-format]"), function (o) {
+      var on = o.getAttribute("data-card-format") === cardFormat;
+      o.classList.toggle("is-on", on);
+      o.setAttribute("aria-pressed", on ? "true" : "false");
+    });
+  }
+  syncFormatButtons();
+  Array.prototype.forEach.call(document.querySelectorAll("[data-card-format]"), function (b) {
+    b.addEventListener("click", function () {
+      var v = b.getAttribute("data-card-format");
+      cardFormat = (v === "916" || v === "169") ? v : "45";
+      storeSet("sw:cardFormat", cardFormat);
+      syncFormatButtons();
       if (redrawCardLive) redrawCardLive();
     });
   });
@@ -964,6 +988,37 @@
     var SANS = (css.getPropertyValue("--display") || "").trim() || 'Arial, sans-serif';
     var WD = (css.getPropertyValue("--w-display") || "700").trim();
     var M = 88;
+    var fmt = cardFormat;   // "45" | "916" | "169"
+    shareCanvas.setAttribute("data-fmt", fmt);
+
+    /* Единый фон карточки: подложка + мягкие пятна. На композите красится
+       на весь целевой холст до трансформации контента — швов не остаётся. */
+    function paintBackdrop(x2, W2, H2) {
+      if (!RED) {
+        x2.fillStyle = "#0A0807"; x2.fillRect(0, 0, W2, H2);
+      } else {
+        var bg = x2.createLinearGradient(0, 0, W2, H2);
+        bg.addColorStop(0, "#C6423C"); bg.addColorStop(0.35, "#BA3636");
+        bg.addColorStop(0.7, "#9C2E28"); bg.addColorStop(1, "#772420");
+        x2.fillStyle = bg; x2.fillRect(0, 0, W2, H2);
+      }
+      (function () {
+        function blob(cx, cy, r, color) {
+          var g = x2.createRadialGradient(cx, cy, 0, cx, cy, r);
+          g.addColorStop(0, color); g.addColorStop(1, "rgba(0,0,0,0)");
+          x2.fillStyle = g; x2.fillRect(0, 0, W2, H2);
+        }
+        if (!RED) {
+          blob(W2 * 0.5, H2 * 0.28, W2 * 0.80, "rgba(186,54,54,0.10)");
+          blob(W2 * 0.10, H2 * 0.92, W2 * 0.70, "rgba(156,46,40,0.10)");
+          blob(W2 * 0.92, H2 * 0.82, W2 * 0.65, "rgba(119,36,32,0.12)");
+          blob(W2 * 0.15, H2 * 0.52, W2 * 0.50, "rgba(255,90,77,0.07)");
+        } else {
+          blob(W2 * 0.5, H2 * 1.05, W2 * 0.85, "rgba(119,36,32,0.45)");
+          blob(W2 * 0.5, H2 * -0.08, W2 * 0.7, "rgba(255,255,255,0.10)");
+        }
+      })();
+    }
 
     /* Текстовый движок без обрезок: только автоподгон кегля и переносы.
        Старого fit() с «…» больше нет — ни одна строка не режется. */
@@ -1186,7 +1241,7 @@
     /* Широкая карточка 1600×N: те же данные и темы, просторные боксы.
        W мутирует наружу осознанно: line()/label() строят по новой ширине,
        после return вертикальный код не выполняется. */
-    function drawWide() {
+    function drawWide(tW, tH, own) {
       W = 1600;
       // ник: бокс почти на всю ширину
       var wNameX = M + 64 + 64 + 32, wNameW = (W - M) - wNameX;
@@ -1300,35 +1355,22 @@
       var wFootLineY = wContentBottom + 50;
       var wNeedH = wFootLineY + 104;
       if (wNeedH < 900) wNeedH = 900;
-      c.width = 1600; c.height = wNeedH; x = c.getContext("2d");
-      H = wNeedH;
-      var wFootY = H - 48;
-
-      // фон — те же темы, пятна масштабируются от W/H
-      if (!RED) {
-        x.fillStyle = "#0A0807"; x.fillRect(0, 0, W, H);
+      if (own) {
+        c.width = 1600; c.height = wNeedH; x = c.getContext("2d");
+        H = wNeedH;
+        paintBackdrop(x, W, H);
       } else {
-        var wBg = x.createLinearGradient(0, 0, W, H);
-        wBg.addColorStop(0, "#C6423C"); wBg.addColorStop(0.35, "#BA3636");
-        wBg.addColorStop(0.7, "#9C2E28"); wBg.addColorStop(1, "#772420");
-        x.fillStyle = wBg; x.fillRect(0, 0, W, H);
+        /* Композит: фон красится на весь целевой холст до трансформации,
+           контент вписывается единым масштабом — швов не остаётся. */
+        c.width = tW; c.height = tH; x = c.getContext("2d");
+        paintBackdrop(x, tW, tH);
+        var fitK = Math.min(tW / 1600, tH / wNeedH);
+        x.save();
+        x.translate((tW - 1600 * fitK) / 2, (tH - wNeedH * fitK) / 2);
+        x.scale(fitK, fitK);
+        W = 1600; H = wNeedH;
       }
-      (function paintWideBlobs() {
-        function blob(cx, cy, r, color) {
-          var g = x.createRadialGradient(cx, cy, 0, cx, cy, r);
-          g.addColorStop(0, color); g.addColorStop(1, "rgba(0,0,0,0)");
-          x.fillStyle = g; x.fillRect(0, 0, W, H);
-        }
-        if (!RED) {
-          blob(W * 0.5, H * 0.28, W * 0.80, "rgba(186,54,54,0.10)");
-          blob(W * 0.10, H * 0.92, W * 0.70, "rgba(156,46,40,0.10)");
-          blob(W * 0.92, H * 0.82, W * 0.65, "rgba(119,36,32,0.12)");
-          blob(W * 0.15, H * 0.52, W * 0.50, "rgba(255,90,77,0.07)");
-        } else {
-          blob(W * 0.5, H * 1.05, W * 0.85, "rgba(119,36,32,0.45)");
-          blob(W * 0.5, H * -0.08, W * 0.7, "rgba(255,255,255,0.10)");
-        }
-      })();
+      var wFootY = H - 48;
 
       // шапка
       label("STEAM WRAPPED", 92, C5);
@@ -1514,49 +1556,40 @@
         x.fillText("в Steam с " + String(D.meta.memberSince).slice(0, 4), W - M, wFootY);
         x.textAlign = "left";
       }
+      if (!own) x.restore();
     }
 
-    if (pinched) { drawWide(); return; }
+    if (fmt === "169") { drawWide(1920, 1080, false); return; }
+    if (pinched) {
+      if (fmt === "916") { drawWide(1080, 1920, false); return; }
+      drawWide(0, 0, true); return;   // 4:5: историческое поведение — холст уходит под широкую
+    }
 
     /* Холст вытягивается под длинные данные, обычные остаются 1080×1350.
        Низ (линейка + подпись) всегда на фиксированных отступах от контента. */
     var footLineY = contentBottom + 52;
     var needH = footLineY + 106;
     if (needH < 1350) needH = 1350;
-    if (c.height !== needH) {
-      c.height = needH;
-      x = c.getContext("2d");
+    if (fmt === "916") {
+      /* Сторис 9:16 — фон на весь холст, контент центрируется блоком.
+         При экстремально длинном контенте холст растягивается. */
+      var storyH = 1920 > needH ? 1920 : needH;
+      c.width = 1080; c.height = storyH; x = c.getContext("2d");
+      W = 1080; H = needH;
+      paintBackdrop(x, 1080, storyH);
+      x.save(); x.translate(0, (storyH - needH) / 2);
+    } else {
+      if (c.height !== needH) {
+        c.height = needH;
+        x = c.getContext("2d");
+      }
+      H = c.height;
+      W = c.width;
+      paintBackdrop(x, W, H);
     }
-    H = c.height;
-    W = c.width;
     var footY = H - 50;
 
     /* ---------- рисуем ---------- */
-    if (!RED) {
-      x.fillStyle = "#0A0807"; x.fillRect(0, 0, W, H);
-    } else {
-      var cardBg = x.createLinearGradient(0, 0, W, H);
-      cardBg.addColorStop(0, "#C6423C"); cardBg.addColorStop(0.35, "#BA3636");
-      cardBg.addColorStop(0.7, "#9C2E28"); cardBg.addColorStop(1, "#772420");
-      x.fillStyle = cardBg; x.fillRect(0, 0, W, H);
-    }
-    (function paintBlobs() {
-      function blob(cx, cy, r, color) {
-        var g = x.createRadialGradient(cx, cy, 0, cx, cy, r);
-        g.addColorStop(0, color); g.addColorStop(1, "rgba(0,0,0,0)");
-        x.fillStyle = g; x.fillRect(0, 0, W, H);
-      }
-      if (!RED) {
-        blob(W * 0.5, H * 0.28, W * 0.80, "rgba(186,54,54,0.10)");
-        blob(W * 0.10, H * 0.92, W * 0.70, "rgba(156,46,40,0.10)");
-        blob(W * 0.92, H * 0.82, W * 0.65, "rgba(119,36,32,0.12)");
-        blob(W * 0.15, H * 0.52, W * 0.50, "rgba(255,90,77,0.07)");
-      } else {
-        blob(W * 0.5, H * 1.05, W * 0.85, "rgba(119,36,32,0.45)");
-        blob(W * 0.5, H * -0.08, W * 0.7, "rgba(255,255,255,0.10)");
-      }
-    })();
-
     // шапка
     label("STEAM WRAPPED", 92, C5);
     x.fillStyle = RED ? "#FFFFFF" : C4; x.font = "700 22px " + SANS;
@@ -1748,6 +1781,7 @@
       x.fillText("в Steam с " + String(D.meta.memberSince).slice(0, 4), W - M, footY);
       x.textAlign = "left";
     }
+    if (fmt === "916") x.restore();
   }
   redrawCardLive = redrawCard;
   redrawCard();
@@ -1765,7 +1799,8 @@
 
   function downloadCard() {
     var a = document.createElement("a");
-    a.download = "steam-wrapped-" + (D.meta.persona || "profile") + ".png";
+    var fmtTag = cardFormat === "916" ? "-story" : (cardFormat === "169" ? "-wide" : "");
+    a.download = "steam-wrapped-" + (D.meta.persona || "profile") + fmtTag + ".png";
     a.href = shareCanvas.toDataURL("image/png");
     a.click();
     say("Карточка скачана ✓");
@@ -1850,7 +1885,7 @@
     );
   }
 
-  var tg = $("#tgBtn"), li = $("#liBtn"), dc = $("#dcBtn");
+  var tg = $("#tgBtn"), ig = $("#igBtn");
 
   if (tg) tg.onclick = function () {
     shareVia(function (text) {
@@ -1859,18 +1894,19 @@
     }, "Telegram");
   };
 
-  if (li) li.onclick = function () {
-    // LinkedIn берёт из ссылки только URL, текст подставляем через буфер
-    shareVia(function () {
-      return "https://www.linkedin.com/sharing/share-offsite/?url=" + encodeURIComponent(PAGE_URL);
-    }, "LinkedIn");
-  };
-
-  if (dc) dc.onclick = function () {
-    // у Discord нет окна публикации: кладём в буфер подпись и ссылку,
-    // а карточку отдаём скачиванием — PNG прикрепляешь к сообщению вручную.
-    copyText(caption() + "\n" + PAGE_URL);
-    downloadCard();
+  /* У Instagram нет окна публикации по ссылке: открываем сайт, карточку
+     кладём в буфер — остаётся создать пост или сторис и вставить Ctrl+V.
+     Для сторис удобно заранее включить формат 9:16 переключателем выше. */
+  if (ig) ig.onclick = function () {
+    openShare("https://www.instagram.com/");
+    copyCard().then(
+      function () {
+        say(cardFormat === "916"
+          ? "Карточка 9:16 в буфере — создай сторис и вставь Ctrl+V"
+          : "Карточка в буфере — создай пост или сторис и вставь Ctrl+V");
+      },
+      function () { say("Карточку скопировать не вышло, скачай PNG"); }
+    );
   };
 
   var capCopy = $("#capCopyBtn"), capReset = $("#capResetBtn");
