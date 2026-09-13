@@ -523,7 +523,7 @@
     if (!top.length) return;
     var max = top[0].hours;
     var wrap = $("#bars");
-    var ramp = ["#E10600", "#8E8E93", "#6E6E73", "#636366", "#48484E",
+    var ramp = ["#BA3636", "#8E8E93", "#6E6E73", "#636366", "#48484E",
                 "#3A3A3F", "#2F2F34", "#26262B", "#1F1F23", "#1A1A1E"];
 
     // два колосса почти вровень (Dota и CS2) — каждому свой оттенок красного,
@@ -534,8 +534,8 @@
     var tail = ["#8E8E93", "#6E6E73", "#636366", "#48484E",
                 "#3A3A3F", "#2F2F34", "#26262B", "#1F1F23"];
     var colors = top.map(function (g, i) {
-      if (colossi && i === 0) return "#E10600";   // красный — лидер
-      if (colossi && i === 1) return "#FF5A4D";   // горячий коралл — второй колосс
+      if (colossi && i === 0) return "#BA3636";   // красный — лидер
+      if (colossi && i === 1) return "#E07A6B";   // горячий коралл — второй колосс
       return colossi ? tail[i - 2] : ramp[i];
     });
 
@@ -649,7 +649,7 @@
 
     if (list.length === 1) wrap.classList.add("is-single");
 
-    var rc = ["#E10600", "#FF5A4D", "#C0130A", "#8E8E93"];
+    var rc = ["#BA3636", "#E07A6B", "#9C2E28", "#8E8E93"];
     list.forEach(function (g, i) {
       var card = el("div", "rcard");
       card.style.setProperty("--rc", rc[i % rc.length]);
@@ -699,7 +699,7 @@
     }
 
     var R = 78, C = 2 * Math.PI * R, off = 0;
-    var palette = ["#E10600", "#FF5A4D", "#C0130A", "#EDEDEF", "#8E8E93",
+    var palette = ["#BA3636", "#E07A6B", "#9C2E28", "#EDEDEF", "#8E8E93",
                    "#6E6E73", "#48484E", "#3A3A3F"];
 
     /* Минимальная дуга. Симулятор и MMO — это 0,4% и 0,1%: их доля
@@ -958,7 +958,7 @@
     if (c.width !== 1080) { c.width = 1080; x = c.getContext("2d"); }
     var W = c.width, H = c.height;
     var INK = "#EDEDEF", NEAR = "#F7F7F8", DIM = "#A7A7AD", FAINT = "#6E6E75";
-    var C1 = "#E10600", C2 = "#C0130A", C3 = "#8E0D08", C4 = "#FF5A4D", C5 = "#EDEDEF";
+    var C1 = "#BA3636", C2 = "#9C2E28", C3 = "#772420", C4 = "#E07A6B", C5 = "#EDEDEF";
     var RED = cardTheme === "red";
     var css = getComputedStyle(document.documentElement);
     var SANS = (css.getPropertyValue("--display") || "").trim() || 'Arial, sans-serif';
@@ -1106,7 +1106,7 @@
       panelBottom = lineY + 276;
     }
 
-    var tcol = RED ? ["#FFFFFF", "#FFFFFF", "#FFFFFF"] : [C1, "#FF5A4D", C5];
+    var tcol = RED ? ["#FFFFFF", "#FFFFFF", "#FFFFFF"] : [C1, "#E07A6B", C5];
     var topList = played.slice(0, 3);
     var topRows = [];
     var curY = panelBottom + 64, lastTopY = curY;
@@ -1309,8 +1309,8 @@
         x.fillStyle = "#0A0807"; x.fillRect(0, 0, W, H);
       } else {
         var wBg = x.createLinearGradient(0, 0, W, H);
-        wBg.addColorStop(0, "#F31200"); wBg.addColorStop(0.35, "#E10600");
-        wBg.addColorStop(0.7, "#C0130A"); wBg.addColorStop(1, "#8E0D08");
+        wBg.addColorStop(0, "#C6423C"); wBg.addColorStop(0.35, "#BA3636");
+        wBg.addColorStop(0.7, "#9C2E28"); wBg.addColorStop(1, "#772420");
         x.fillStyle = wBg; x.fillRect(0, 0, W, H);
       }
       (function paintWideBlobs() {
@@ -1320,12 +1320,12 @@
           x.fillStyle = g; x.fillRect(0, 0, W, H);
         }
         if (!RED) {
-          blob(W * 0.5, H * 0.28, W * 0.80, "rgba(225,6,0,0.10)");
-          blob(W * 0.10, H * 0.92, W * 0.70, "rgba(192,19,10,0.10)");
-          blob(W * 0.92, H * 0.82, W * 0.65, "rgba(142,13,8,0.12)");
+          blob(W * 0.5, H * 0.28, W * 0.80, "rgba(186,54,54,0.10)");
+          blob(W * 0.10, H * 0.92, W * 0.70, "rgba(156,46,40,0.10)");
+          blob(W * 0.92, H * 0.82, W * 0.65, "rgba(119,36,32,0.12)");
           blob(W * 0.15, H * 0.52, W * 0.50, "rgba(255,90,77,0.07)");
         } else {
-          blob(W * 0.5, H * 1.05, W * 0.85, "rgba(142,13,8,0.45)");
+          blob(W * 0.5, H * 1.05, W * 0.85, "rgba(119,36,32,0.45)");
           blob(W * 0.5, H * -0.08, W * 0.7, "rgba(255,255,255,0.10)");
         }
       })();
@@ -1344,8 +1344,8 @@
           g.addColorStop(0, color); g.addColorStop(1, "rgba(0,0,0,0)");
           x.fillStyle = g; x.fillRect(0, 0, W, H);
         }
-        blob(wAvCx, wAvCy, 230, RED ? "rgba(142,13,8,0.35)" : "rgba(225,6,0,0.20)");
-        blob(wAvCx, wAvCy, 140, RED ? "rgba(142,13,8,0.28)" : "rgba(192,19,10,0.16)");
+        blob(wAvCx, wAvCy, 230, RED ? "rgba(119,36,32,0.35)" : "rgba(186,54,54,0.20)");
+        blob(wAvCx, wAvCy, 140, RED ? "rgba(119,36,32,0.28)" : "rgba(156,46,40,0.16)");
       })();
       x.save();
       x.beginPath(); x.arc(wAvCx, wAvCy, wAvR, 0, Math.PI * 2); x.clip();
@@ -1381,8 +1381,8 @@
       var wBadgePadX = 14, wBadgeH = 32, wBadgeY = wSloganY - 23;
       var wBadgeW = wBadgeTextW + wBadgePadX * 2 + 16;
       x.save();
-      x.fillStyle = RED ? "rgba(0, 0, 0, 0.28)" : "rgba(225, 6, 0, 0.12)";
-      x.strokeStyle = RED ? "rgba(255, 255, 255, 0.35)" : "rgba(225, 6, 0, 0.35)";
+      x.fillStyle = RED ? "rgba(0, 0, 0, 0.28)" : "rgba(186, 54, 54, 0.12)";
+      x.strokeStyle = RED ? "rgba(255, 255, 255, 0.35)" : "rgba(186, 54, 54, 0.35)";
       x.lineWidth = 1.5;
       roundRect(wNameX, wBadgeY, wBadgeW, wBadgeH, wBadgeH / 2);
       x.fill();
@@ -1419,7 +1419,7 @@
         wHl.addColorStop(0, C1); wHl.addColorStop(1, C4);
         x.fillStyle = wHl; x.fillRect(wPL, wPy, wPR - wPL, 5);
         x.restore();
-        x.strokeStyle = RED ? "rgba(142,13,8,0.18)" : "rgba(255,255,255,0.08)"; x.lineWidth = 1.5;
+        x.strokeStyle = RED ? "rgba(119,36,32,0.18)" : "rgba(255,255,255,0.08)"; x.lineWidth = 1.5;
         roundRect(wPL + 0.75, wPy + 0.75, wPR - wPL - 1.5, wPh - 1.5, wRR); x.stroke();
 
         label("ГЛАВНАЯ ИГРА ЖИЗНИ", wPy + 52, RED ? C1 : C4, wPL + 40);
@@ -1536,8 +1536,8 @@
       x.fillStyle = "#0A0807"; x.fillRect(0, 0, W, H);
     } else {
       var cardBg = x.createLinearGradient(0, 0, W, H);
-      cardBg.addColorStop(0, "#F31200"); cardBg.addColorStop(0.35, "#E10600");
-      cardBg.addColorStop(0.7, "#C0130A"); cardBg.addColorStop(1, "#8E0D08");
+      cardBg.addColorStop(0, "#C6423C"); cardBg.addColorStop(0.35, "#BA3636");
+      cardBg.addColorStop(0.7, "#9C2E28"); cardBg.addColorStop(1, "#772420");
       x.fillStyle = cardBg; x.fillRect(0, 0, W, H);
     }
     (function paintBlobs() {
@@ -1547,12 +1547,12 @@
         x.fillStyle = g; x.fillRect(0, 0, W, H);
       }
       if (!RED) {
-        blob(W * 0.5, H * 0.28, W * 0.80, "rgba(225,6,0,0.10)");
-        blob(W * 0.10, H * 0.92, W * 0.70, "rgba(192,19,10,0.10)");
-        blob(W * 0.92, H * 0.82, W * 0.65, "rgba(142,13,8,0.12)");
+        blob(W * 0.5, H * 0.28, W * 0.80, "rgba(186,54,54,0.10)");
+        blob(W * 0.10, H * 0.92, W * 0.70, "rgba(156,46,40,0.10)");
+        blob(W * 0.92, H * 0.82, W * 0.65, "rgba(119,36,32,0.12)");
         blob(W * 0.15, H * 0.52, W * 0.50, "rgba(255,90,77,0.07)");
       } else {
-        blob(W * 0.5, H * 1.05, W * 0.85, "rgba(142,13,8,0.45)");
+        blob(W * 0.5, H * 1.05, W * 0.85, "rgba(119,36,32,0.45)");
         blob(W * 0.5, H * -0.08, W * 0.7, "rgba(255,255,255,0.10)");
       }
     })();
@@ -1572,8 +1572,8 @@
         g.addColorStop(0, color); g.addColorStop(1, "rgba(0,0,0,0)");
         x.fillStyle = g; x.fillRect(0, 0, W, H);
       }
-      blob(avCx, avCy, 250, RED ? "rgba(142,13,8,0.35)" : "rgba(225,6,0,0.20)");
-      blob(avCx, avCy, 150, RED ? "rgba(142,13,8,0.28)" : "rgba(192,19,10,0.16)");
+      blob(avCx, avCy, 250, RED ? "rgba(119,36,32,0.35)" : "rgba(186,54,54,0.20)");
+      blob(avCx, avCy, 150, RED ? "rgba(119,36,32,0.28)" : "rgba(156,46,40,0.16)");
     })();
     x.save();
     x.beginPath(); x.arc(avCx, avCy, avR, 0, Math.PI * 2); x.clip();
@@ -1610,8 +1610,8 @@
     var badgePadX = 16, badgeH = 34, badgeY = sloganY - 24;
     var badgeW = badgeTextW + badgePadX * 2 + 16;
     x.save();
-    x.fillStyle = RED ? "rgba(0, 0, 0, 0.28)" : "rgba(225, 6, 0, 0.12)";
-    x.strokeStyle = RED ? "rgba(255, 255, 255, 0.35)" : "rgba(225, 6, 0, 0.35)";
+    x.fillStyle = RED ? "rgba(0, 0, 0, 0.28)" : "rgba(186, 54, 54, 0.12)";
+    x.strokeStyle = RED ? "rgba(255, 255, 255, 0.35)" : "rgba(186, 54, 54, 0.35)";
     x.lineWidth = 1.5;
     roundRect(nameX, badgeY, badgeW, badgeH, badgeH / 2);
     x.fill();
@@ -1654,7 +1654,7 @@
       hl.addColorStop(0, C1); hl.addColorStop(1, C4);
       x.fillStyle = hl; x.fillRect(pL, py, pR - pL, 5);
       x.restore();
-      x.strokeStyle = RED ? "rgba(142,13,8,0.18)" : "rgba(255,255,255,0.08)"; x.lineWidth = 1.5;
+      x.strokeStyle = RED ? "rgba(119,36,32,0.18)" : "rgba(255,255,255,0.08)"; x.lineWidth = 1.5;
       roundRect(pL + 0.75, py + 0.75, pR - pL - 1.5, ph - 1.5, rr); x.stroke();
 
       label("ГЛАВНАЯ ИГРА ЖИЗНИ", py + 56, RED ? C1 : C4, pL + 40);
