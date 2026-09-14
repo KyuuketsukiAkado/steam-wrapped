@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Прототип hero v2 — «Суть сайта»</title>
+<!--
+  ПРОТОТИП v2. Боевые index.html / style.css / app.js не задействованы.
+
+  Отличия от v1 (Redline-приборка):
+  - вордмарк набран Russo One 400 (выбор пользователя)
+  - в приборе НЕТ акцента на часах: в центре дуги — суть сервиса и оглавление разделов
+  - слева под вордмарком живёт текст-обещание и кнопка действия
+  - цифры профиля ушли в тонкую моно-ленту (контекст, не акцент)
+-->
+<style>
+@font-face {
+  font-family: "Russo"; font-style: normal; font-display: block; font-weight: 400;
+  src: url("fonts/russo-one-latin-400-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+@font-face {
+  font-family: "Russo"; font-style: normal; font-display: block; font-weight: 400;
+  src: url("fonts/russo-one-cyrillic-400-normal.woff2") format("woff2");
+  unicode-range: U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;
+}
+@font-face {
+  font-family: "Mono Proto"; font-style: normal; font-display: block; font-weight: 100 800;
+  src: url("fonts/jetbrains-mono-latin-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+@font-face {
+  font-family: "Mono Proto"; font-style: normal; font-display: block; font-weight: 100 800;
+  src: url("fonts/jetbrains-mono-cyrillic-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;
+}
+@font-face {
+  font-family: "Golos Proto"; font-style: normal; font-display: block; font-weight: 100 900;
+  src: url("fonts/golos-text-latin-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+@font-face {
+  font-family: "Golos Proto"; font-style: normal; font-display: block; font-weight: 100 900;
+  src: url("fonts/golos-text-cyrillic-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;
+}
+
+:root {
+  --bg: #0A0807; --bg-soft: #141110;
+  --ink: #EDEDEF; --ink-dim: #A7A7AD; --ink-faint: #6E6E75;
+  --c1: #BA3636; --c2: #9C2E28; --c3: #772420; --c4: #E07A6B;
+  --line: rgba(255, 241, 231, 0.10);
+  --display: "Russo", "Arial Narrow", Arial, sans-serif;
+  --sans: "Golos Proto", "Segoe UI", Arial, sans-serif;
+  --mono: "Mono Proto", Consolas, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: var(--sans); }
+
+/* ===== сцена hero ===== */
+.hero__red {
+  position: relative; isolation: isolate; overflow-x: clip;
+  padding: clamp(22px, 2.6vw, 40px) clamp(18px, 3.4vw, 56px) clamp(60px, 7.4vw, 108px);
+  background:
+    radial-gradient(72% 78% at 46% 4%, rgba(186, 54, 54, 0.40), rgba(119, 36, 32, 0.13) 52%, transparent 78%),
+    #0A0807;
+}
+/* кирпичная диагональ через низ сцены */
+.hero__red::after {
+  content: ""; position: absolute; left: -2%; right: -2%; bottom: -12%; height: 38%; z-index: 0;
+  background: linear-gradient(180deg, rgba(156, 46, 40, 0.92), rgba(72, 22, 19, 0.98));
+  border-top: 1px solid rgba(224, 122, 107, 0.55);
+  clip-path: polygon(0 46%, 100% 0, 100% 100%, 0 100%);
+  pointer-events: none;
+}
+.hero__red > * { position: relative; z-index: 1; }
+
+/* сервисная строка */
+.hero__nav {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding-bottom: clamp(12px, 1.6vw, 20px);
+  font-family: var(--mono); font-size: 12px; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase; color: #FFFFFF;
+  border-bottom: 1px solid rgba(186, 54, 54, 0.55);
+}
+.hero__nav .pill { color: rgba(255, 255, 255, 0.78); }
+/* моно-лента контекста: цифры профиля мелким кеглем, без акцента */
+.hero__meta {
+  display: flex; justify-content: space-between; gap: 18px; flex-wrap: wrap;
+  padding: clamp(9px, 1.1vw, 14px) 0 0;
+  font-family: var(--mono); font-size: 10.5px; font-weight: 700;
+  letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-faint);
+}
+.hero__meta b { color: var(--ink); font-weight: 700; }
+.hero__meta .sep { color: rgba(224, 122, 107, 0.6); padding: 0 8px; }
+
+/* ===== сцена: вордмарк и обещание слева, прибор справа ===== */
+.hero__grid {
+  display: grid; grid-template-columns: minmax(0, 1.06fr) minmax(300px, 0.94fr);
+  gap: clamp(16px, 2.6vw, 48px); align-items: center;
+  margin-top: clamp(16px, 2.6vw, 42px);
+}
+.hero__lead { min-width: 0; }
+.wordmark { position: relative; }
+.wm {
+  display: block; width: 100%; text-align: center; white-space: nowrap;
+  font-family: var(--display); font-weight: 400; text-transform: uppercase;
+  line-height: 0.9; letter-spacing: -0.01em;
+}
+.wm--steam { color: #F2EFE9; text-shadow: 0.024em 0.024em 0 rgba(20, 14, 13, 0.9); }
+.wm--wrapped { color: var(--c1); text-shadow: 0.02em 0.02em 0 rgba(24, 10, 9, 0.85); }
+/* призрак-штамп: показан целиком, без обрезки по краю сцены */
+.wm-ghost {
+  position: absolute; left: 30%; top: 26%; transform: translate(-50%, -50%);
+  z-index: -1; margin: 0; pointer-events: none;
+  font-family: var(--display); letter-spacing: 0.02em;
+  font-size: clamp(96px, 13vw, 208px); line-height: 1;
+  color: rgba(186, 54, 54, 0.16);
+  text-shadow: 0 0 70px rgba(186, 54, 54, 0.30);
+}
+
+/* текст-обещание: единственное, что объясняет суть */
+.lead-eyebrow {
+  margin: clamp(16px, 2vw, 26px) 0 0;
+  font-family: var(--mono); font-size: clamp(10px, 0.9vw, 12px); font-weight: 700;
+  letter-spacing: 0.2em; text-transform: uppercase; color: var(--c4);
+}
+.lead-value {
+  max-width: 46ch; margin: clamp(10px, 1.2vw, 16px) 0 0;
+  font-size: clamp(14px, 1.15vw, 17px); line-height: 1.55; color: var(--ink-dim);
+}
+.lead-value b { color: var(--ink); font-weight: 700; }
+.lead-actions { display: flex; align-items: center; gap: clamp(12px, 1.6vw, 22px); flex-wrap: wrap; margin: clamp(16px, 2vw, 26px) 0 0; }
+.lead-cta {
+  display: inline-flex; align-items: center; gap: 10px; padding: 15px 26px;
+  background: #EDEDEF; color: #12100F; border: 0; border-radius: 4px; cursor: pointer;
+  font-family: var(--mono); font-size: 12.5px; font-weight: 800;
+  letter-spacing: 0.14em; text-transform: uppercase;
+}
+.lead-cta:hover { background: #FFFFFF; }
+.lead-more {
+  font-family: var(--mono); font-size: 11.5px; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--ink-dim); text-decoration: none;
+  border-bottom: 1px solid rgba(255, 241, 231, 0.22); padding-bottom: 3px;
+}
+.lead-more:hover { color: var(--ink); border-color: var(--c1); }
+
+/* ===== прибор: риски + дуга + суть внутри, билет — отдельной колонкой ===== */
+.dash {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto;
+  gap: clamp(8px, 1.2vw, 20px); align-items: end; min-width: 0;
+}
+.dash__left { min-width: 0; }
+.gauge { position: relative; width: 100%; max-width: 560px; margin: 0 auto; }
+.gauge__svg { display: block; width: 100%; height: auto; overflow: visible; }
+.gauge__tick { stroke: rgba(237, 237, 239, 0.40); stroke-width: 1.4; }
+.gauge__tick--major { stroke: rgba(237, 237, 239, 0.72); stroke-width: 2.4; }
+.gauge__tick--red { stroke: var(--c1); }
+.gauge__arc { fill: none; stroke: rgba(237, 237, 239, 0.12); stroke-width: 1.2; }
+.gauge__progress {
+  fill: none; stroke: var(--c1); stroke-width: 6; stroke-linecap: round;
+  transition: stroke-dashoffset 2s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.gauge__label {
+  font-family: var(--mono); font-weight: 700; font-size: 13px;
+  letter-spacing: 0.06em; fill: rgba(237, 237, 239, 0.40);
+}
+.gauge__label--red { fill: var(--c4); }
+.gauge__readout {
+  position: absolute; left: 0; right: 0; top: 58%; transform: translateY(-50%);
+  text-align: center;
+}
+.gauge__cap {
+  font-family: var(--mono); font-size: clamp(9.5px, 0.85vw, 11.5px); font-weight: 700;
+  letter-spacing: 0.2em; text-transform: uppercase; color: var(--c4);
+}
+/* ширина обещания ограничена внутренним просветом дуги: 62% от ширины прибора */
+.gauge__promise {
+  max-width: 62%; margin: clamp(9px, 1.2vw, 15px) auto 0;
+  font-family: var(--mono); font-weight: 800;
+  font-size: clamp(20px, 2.3vw, 33px); line-height: 1.1;
+  letter-spacing: 0.01em; text-transform: uppercase; color: #F2EFE9;
+}
+.gauge__promise em { font-style: normal; color: var(--c1); }
+.gauge__promise b { display: block; font-weight: 400; }
+.gauge__num-big {
+  display: block; margin-top: clamp(4px, 0.5vw, 8px);
+  font-family: var(--display); font-weight: 400; font-size: clamp(30px, 3.6vw, 52px);
+  line-height: 1; letter-spacing: 0.01em; color: #F2EFE9;
+}
+.gauge__num-big em { font-style: normal; color: var(--c1); }
+.gauge__chapters {
+  display: flex; justify-content: center; flex-wrap: wrap; gap: 5px clamp(8px, 1.1vw, 16px);
+  margin: clamp(10px, 1.4vw, 18px) 0 0;
+  font-family: var(--mono); font-size: clamp(9px, 0.78vw, 10.5px); font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-faint);
+}
+.gauge__chapters span { white-space: nowrap; }
+.gauge__chapters span::before { content: "▸ "; color: var(--c1); }
+
+/* ===== тикет-pit-pass ===== */
+.ticket {
+  position: relative; z-index: 3; align-self: end;
+  width: clamp(204px, 15vw, 244px); margin-bottom: clamp(6px, 1.4vw, 22px);
+  padding: 0 22px 20px 32px; background: #141110;
+  border: 1px solid rgba(255, 255, 255, 0.10); border-radius: 16px;
+  transform: rotate(5deg); transform-origin: 100% 100%;
+  box-shadow: -16px 22px 56px rgba(0, 0, 0, 0.55), 0 0 70px rgba(186, 54, 54, 0.16);
+  transition: transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.ticket:hover { transform: rotate(1.5deg) translateY(-4px); }
+.ticket::before {
+  content: ""; position: absolute; top: 0; bottom: 0; left: 16px;
+  border-left: 2px dashed rgba(255, 255, 255, 0.16);
+}
+.ticket__notch {
+  position: absolute; left: 7px; width: 18px; height: 18px; border-radius: 50%;
+  background: var(--bg); border: 1px solid rgba(255, 255, 255, 0.10);
+}
+.ticket__notch--top { top: -10px; }
+.ticket__notch--bottom { bottom: -10px; }
+.ticket__head {
+  margin: 14px -22px 14px -32px; padding: 9px 22px 9px 32px;
+  background: var(--c1); color: #FFFFFF;
+  font-family: var(--mono); font-size: 11.5px; font-weight: 800;
+  letter-spacing: 0.18em; text-transform: uppercase;
+}
+.ticket__rows { display: grid; gap: 10px; }
+.ticket__row-name {
+  display: flex; justify-content: space-between; gap: 10px; margin-bottom: 5px;
+  font-family: var(--mono); font-size: 10.5px; font-weight: 700;
+  letter-spacing: 0.05em; text-transform: uppercase; color: var(--ink-faint);
+}
+.ticket__row-name b { min-width: 0; color: var(--ink); font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ticket__row-name span { white-space: nowrap; }
+.ticket__bar { height: 11px; border-radius: 2px; overflow: hidden; background: rgba(255, 255, 255, 0.06); }
+.ticket__bar i {
+  display: block; height: 100%; width: 0; border-radius: 2px;
+  background-color: var(--c1);
+  background-image: repeating-linear-gradient(90deg, rgba(12, 9, 8, 0.62) 0 3px, transparent 3px 9px);
+  transition: width 1s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+.ticket__bar--2 i { background-color: var(--c4); }
+.ticket__bar--3 i { background-color: var(--c2); }
+.ticket__foot {
+  display: grid; gap: 3px; margin-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.10); padding-top: 11px;
+  font-family: var(--mono); font-size: 10.5px; color: var(--ink-faint); letter-spacing: 0.04em;
+}
+.ticket__foot span:first-child { color: var(--ink-dim); }
+
+.after {
+  border-top: 1px solid var(--line); margin-top: clamp(40px, 5vw, 76px);
+  padding: 16px clamp(18px, 3.4vw, 56px) 0;
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em;
+  text-transform: uppercase; color: rgba(237, 237, 239, 0.35);
+}
+
+@media (max-width: 1080px) {
+  .hero__grid { grid-template-columns: minmax(0, 1fr); gap: clamp(24px, 5vw, 42px); }
+  .ticket { display: none; }
+  .dash { grid-template-columns: minmax(0, 1fr); }
+  .gauge { max-width: none; }
+  .lead-value { max-width: none; }
+}
+@media (max-width: 620px) {
+  .hero__red { padding-bottom: clamp(44px, 11vw, 72px); }
+  .hero__red::after { height: 30%; clip-path: polygon(0 62%, 100% 0, 100% 100%, 0 100%); }
+  .dash { margin-bottom: clamp(-44px, -9vw, -16px); }
+  .gauge { max-width: min(90vw, 380px); }
+  .gauge__readout { top: 56%; }
+  .gauge__promise { max-width: 78%; }
+  .gauge__num-big { font-size: clamp(26px, 9vw, 40px); }
+  .gauge__chapters { font-size: 9px; letter-spacing: 0.07em; gap: 4px 10px; }
+  .hero__meta { font-size: 9.5px; letter-spacing: 0.1em; gap: 6px 14px; }
+  .lead-cta { width: 100%; justify-content: center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+</style>
+</head>
+<body>
+
+<main class="hero__red">
+  <div class="hero__nav">
+    <span>Steam—Wrapped</span>
+    <span class="pill">RU · 2026</span>
+  </div>
+
+  <div class="hero__meta">
+    <span>профиль <b>mormyszka</b><span class="sep">/</span>в Steam с <b>2017</b><span class="sep">/</span><b>323</b> игры</span>
+    <span>данные steam · обновлено сегодня</span>
+  </div>
+
+  <div class="hero__grid">
+    <div class="hero__lead">
+      <header class="wordmark">
+        <span class="wm-ghost" aria-hidden="true">2026</span>
+        <span class="wm wm--steam" data-wm>Steam</span>
+        <span class="wm wm--wrapped" data-wm>Wrapped</span>
+      </header>
+      <p class="lead-eyebrow">Разбор публичного Steam-профиля</p>
+      <p class="lead-value">
+        Вставь ссылку — и библиотека превратится в страницы с цифрами:
+        <b>главная игра жизни</b>, топ по часам, жанры, «судьба вечера» и сравнение с другом.
+      </p>
+      <div class="lead-actions">
+        <button class="lead-cta" type="button">Построить wrapped →</button>
+        <a class="lead-more" href="#soulmate">Что внутри ↓</a>
+      </div>
+    </div>
+
+    <div class="dash">
+      <div class="dash__left">
+      <div class="gauge" id="gauge">
+        <svg class="gauge__svg" viewBox="0 0 900 470" role="img" aria-label="Отчёт о библиотеке: семь глав — от главной игры до карточки для сторис">
+          <g id="gaugeTicks"></g>
+          <path id="gaugeProgress" class="gauge__progress" d=""></path>
+        </svg>
+        <div class="gauge__readout">
+          <div class="gauge__cap">Отчёт о библиотеке</div>
+          <p class="gauge__promise">
+            <b>Твоя библиотека</b>
+            <span class="gauge__num-big">7 <em>глав</em></span>
+          </p>
+        </div>
+      </div>
+      <div class="gauge__chapters">
+        <span>01 главная игра</span>
+        <span>02 топ по часам</span>
+        <span>03 сейчас</span>
+        <span>04 жанры</span>
+        <span>05 судьба вечера</span>
+        <span>06 против друга</span>
+        <span>07 карточка</span>
+      </div>
+      </div>
+
+      <aside class="ticket" aria-hidden="true">
+        <span class="ticket__notch ticket__notch--top"></span>
+        <span class="ticket__notch ticket__notch--bottom"></span>
+        <div class="ticket__head">Steam—Wrapped</div>
+        <div class="ticket__rows">
+          <div>
+            <div class="ticket__row-name"><b>Dota 2</b><span>2 849 ч</span></div>
+            <div class="ticket__bar"><i data-w="100"></i></div>
+          </div>
+          <div>
+            <div class="ticket__row-name"><b>Counter-Strike 2</b><span>2 669 ч</span></div>
+            <div class="ticket__bar ticket__bar--2"><i data-w="94"></i></div>
+          </div>
+          <div>
+            <div class="ticket__row-name"><b>Stardew Valley</b><span>313 ч</span></div>
+            <div class="ticket__bar ticket__bar--3"><i data-w="11"></i></div>
+          </div>
+        </div>
+        <div class="ticket__foot"><span>mormyszka</span><span>в Steam с 2017</span></div>
+      </aside>
+    </div>
+  </div>
+</main>
+
+<p class="after">дальше: бегущая строка → секция 01 (не затронуты)</p>
+
+<script>
+/* ---------- фит вордмарка: Range-замер, размер прямо в font-size ---------- */
+(function wordmarkFit() {
+  var lines = document.querySelectorAll("[data-wm]");
+  function sizeToWidth(sp, target) {
+    sp.style.fontSize = "100px";
+    var size = 100;
+    for (var i = 0; i < 8; i++) {
+      var rng = document.createRange();
+      rng.selectNodeContents(sp);
+      var real = rng.getBoundingClientRect().width;
+      if (!real) break;
+      size = size * (target / real);
+      sp.style.fontSize = size.toFixed(2) + "px";
+      if (Math.abs(real - target) <= 1) break;
+    }
+    return size;
+  }
+  /* Кап по высоте — в JS, а не в CSS min(var(), vh): CSS-кап ломает докрутку по Range. */
+  function fit() {
+    var host = document.querySelector(".wordmark");
+    if (!host) return;
+    var target = host.clientWidth;
+    var sizes = [];
+    lines.forEach(function (sp) { sizes.push(sizeToWidth(sp, target)); });
+    var cap = window.innerHeight * 0.46;
+    var total = 0;
+    lines.forEach(function (sp) { total += sp.getBoundingClientRect().height; });
+    if (total > cap) {
+      var k = cap / total;
+      lines.forEach(function (sp, i) { sp.style.fontSize = (sizes[i] * k).toFixed(2) + "px"; });
+    }
+  }
+  fit();
+  window.__wmFit = fit;
+  window.addEventListener("resize", fit, { passive: true });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+  window.addEventListener("load", fit);
+})();
+
+/* ---------- прибор: риски, красная зона, дуга-прогресс ---------- */
+(function gauge() {
+  var NS = "http://www.w3.org/2000/svg";
+  var g = document.getElementById("gaugeTicks");
+  if (!g) return;
+  var CX = 450, CY = 400, R_IN = 322, R_OUT = 352, R_MAJ = 366;
+  var TICKS = 61, RED_FROM = 0.72, START_ANGLE = -90, SWEEP = 180;
+  function angleAt(t) { return START_ANGLE + SWEEP * t; }
+
+  var arc = document.createElementNS(NS, "path");
+  var a0 = angleAt(0) * Math.PI / 180, a1 = angleAt(1) * Math.PI / 180;
+  arc.setAttribute("d", "M " + (CX + R_OUT * Math.sin(a0)) + " " + (CY - R_OUT * Math.cos(a0)) +
+    " A " + R_OUT + " " + R_OUT + " 0 0 1 " + (CX + R_OUT * Math.sin(a1)) + " " + (CY - R_OUT * Math.cos(a1)));
+  arc.setAttribute("class", "gauge__arc");
+  g.appendChild(arc);
+
+  for (var i = 0; i < TICKS; i++) {
+    var t = i / (TICKS - 1);
+    var ang = angleAt(t) * Math.PI / 180;
+    var major = i % 6 === 0;
+    var ln = document.createElementNS(NS, "line");
+    ln.setAttribute("x1", CX + R_IN * Math.sin(ang));
+    ln.setAttribute("y1", CY - R_IN * Math.cos(ang));
+    ln.setAttribute("x2", CX + (major ? R_MAJ : R_OUT) * Math.sin(ang));
+    ln.setAttribute("y2", CY - (major ? R_MAJ : R_OUT) * Math.cos(ang));
+    var cls = "gauge__tick" + (major ? " gauge__tick--major" : "");
+    if (t >= RED_FROM) cls += " gauge__tick--red";
+    ln.setAttribute("class", cls);
+    g.appendChild(ln);
+  }
+
+  /* дуга-прогресс: от начала шкалы до 92% — чисто графический акцент, без числа */
+  var VALUE = 0.92;
+  var R_MID = (R_IN + R_OUT) / 2;
+  var progress = document.getElementById("gaugeProgress");
+  var half = Math.PI * R_MID;
+  progress.setAttribute("d",
+    "M " + (CX + R_MID * Math.sin(a0)) + " " + (CY - R_MID * Math.cos(a0)) +
+    " A " + R_MID + " " + R_MID + " 0 0 1 " + (CX + R_MID * Math.sin(a1)) + " " + (CY - R_MID * Math.cos(a1)));
+  progress.style.strokeDasharray = half;
+  progress.style.strokeDashoffset = half;
+  setTimeout(function () { progress.style.strokeDashoffset = (half * (1 - VALUE)).toFixed(1); }, 250);
+
+  document.querySelectorAll(".ticket__bar i").forEach(function (el) {
+    setTimeout(function () { el.style.width = (el.getAttribute("data-w") || "0") + "%"; }, 400);
+  });
+})();
+</script>
+</body>
+</html>
