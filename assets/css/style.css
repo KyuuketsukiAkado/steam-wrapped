@@ -406,7 +406,7 @@ section { padding: var(--section-pad) 0; }
   letter-spacing: 0.18em; text-transform: uppercase;
   color: rgba(255, 255, 255, 0.40); pointer-events: none;
 }
-.hero__stage::before { content: "// итоги года — 2026"; left: 3.5vw; }
+.hero__stage::before { content: "// библиотека в цифрах"; left: 3.5vw; }
 .hero__stage::after  { content: "открытые данные steam"; right: 3.5vw; }
 @media (max-width: 620px) {
   .hero__stage::before, .hero__stage::after { display: none; }
@@ -616,7 +616,7 @@ section { padding: var(--section-pad) 0; }
   .profile-form__chips { padding-left: 0; }
   .profile-form__status, .profile-form__reset { margin-left: 2px; }
   .marquee { padding: 11px 0; }
-  .marquee__track { gap: 24px; }
+  .marquee__track { gap: 8px 18px; }
 }
 
 /* ---------- кнопки ---------- */
@@ -1101,8 +1101,10 @@ a.game-link:hover { text-decoration: underline; text-decoration-color: currentCo
   transform: rotate(-0.6deg) translate3d(calc(var(--px, 0) * -8px), 0, 0);
   transition: transform 0.25s ease-out;
 }
-.marquee__track { display: flex; gap: 38px; width: max-content; animation: slide 38s linear infinite; }
-.marquee:hover .marquee__track { animation-play-state: paused; }
+.marquee__track {
+  display: flex; gap: 14px 34px; row-gap: 8px; flex-wrap: wrap;
+  justify-content: center; padding: 0 20px;
+}
 .bars .bar__fill { transition: width 1.1s cubic-bezier(0.2, 0.7, 0.3, 1); }
 .marquee span {
   font-family: var(--mono); font-weight: 800;
@@ -1110,8 +1112,7 @@ a.game-link:hover { text-decoration: underline; text-decoration-color: currentCo
   letter-spacing: 0.05em; text-transform: uppercase;
   color: #FFFFFF; white-space: nowrap;
 }
-.marquee i { font-style: normal; margin-right: 12px; color: rgba(255, 255, 255, 0.55); }
-@keyframes slide { to { transform: translateX(-50%); } }
+.marquee i { font-style: normal; color: rgba(255, 255, 255, 0.55); }
 
 
 @media (prefers-reduced-motion: reduce) {

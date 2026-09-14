@@ -389,24 +389,19 @@
   /* ---------- бегущая строка ---------- */
 
   (function marquee() {
-    var h = soulmate ? soulmate.hours : totalHours;
+    /* Статичная полоса-хор под вордмарком: четыре главные цифры профиля.
+       Бегущая строка больше не нужна — постер и так живой. */
     var items = [
-      num(gamesOwned) + " " + plural(gamesOwned, ["игра", "игры", "игр"]) + " в библиотеке",
-      num(totalHours) + " " + plural(totalHours, ["час", "часа", "часов"]) + " всего",
-      dec(totalHours / 24, 0) + " " + plural(totalHours / 24, ["день", "дня", "дней"]) + " нон-стоп",
-      num(neverPlayed) + " " + plural(neverPlayed, ["игра", "игры", "игр"]) + " не запущены ни разу",
-      soulmate ? soulmate.name + " — " + num(h) + " ч" : "",
-      num(hours2w) + " " + plural(hours2w, ["час", "часа", "часов"]) + " за две недели",
-      D.meta.memberSince ? "в Steam с " + new Date(D.meta.memberSince).getFullYear() + " года" : "",
-      "и это только Steam"
-    ].filter(Boolean);
+      num(totalHours) + " " + plural(totalHours, ["час", "часа", "часов"]),
+      num(gamesOwned) + " " + plural(gamesOwned, ["игра", "игры", "игр"]),
+      num(hours2w) + " ч за 2 недели",
+      num(neverPlayed) + " не запущено"
+    ];
     var marqueeNode = $("#marquee");
     marqueeNode.textContent = "";
-    // Дубль нужен для бесшовной прокрутки. Создаём DOM-узлы, а не HTML-строку:
-    // один из пунктов содержит имя игры, пришедшее от Steam.
-    items.concat(items).forEach(function (text) {
+    items.forEach(function (text, i) {
       var item = el("span");
-      item.appendChild(el("i", "", "✦"));
+      if (i) item.appendChild(el("i", "", "·"));
       item.appendChild(document.createTextNode(text));
       marqueeNode.appendChild(item);
     });
