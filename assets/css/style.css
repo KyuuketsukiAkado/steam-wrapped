@@ -326,8 +326,8 @@ section { padding: var(--section-pad) 0; }
 /* якорь пилюли не прячется под липкий топбар */
 #profileForm { scroll-margin-top: 76px; }
 /* красная шапка во всю ширину + тёмная инструментальная зона */
-.hero__red { padding: clamp(48px, 6.5vw, 84px) 0 clamp(60px, 8vw, 116px); text-align: left; }
-.hero__tools { padding-top: clamp(108px, 13vw, 180px); padding-bottom: clamp(68px, 9vw, 124px); }
+.hero__red { padding: clamp(40px, 5.5vw, 72px) 0 0; text-align: left; }
+.hero__tools { padding-top: clamp(48px, 6vw, 88px); padding-bottom: clamp(60px, 8vw, 110px); }
 .hero::before {
   content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
 }
@@ -352,39 +352,44 @@ section { padding: var(--section-pad) 0; }
 .hero__tools > *:nth-child(5) { animation-delay: 0.44s; }
 /* ---------- герой: рамка с красной плашкой (по референсу embodaze) ---------- */
 
-/* красная шапка hero: нав, тип и низ — прямо в .hero__red, без рамок */
-/* мини-нав красной шапки */
+/* красная шапка hero: сервисная строка моноширинным + красная линейка */
 .hero__nav {
   display: flex; align-items: center; justify-content: space-between; gap: 16px;
-  padding: clamp(14px, 2vw, 22px) clamp(18px, 3vw, 34px) 0;
-  font-family: var(--mono); font-size: 11px; font-weight: 700;
+  padding: 0 0 clamp(14px, 1.8vw, 22px);
+  font-family: var(--mono); font-size: 12px; font-weight: 700;
   letter-spacing: 0.14em; text-transform: uppercase; color: #FFFFFF;
+  border-bottom: 1px solid rgba(186, 54, 54, 0.55);
 }
 .hero__brand { letter-spacing: 0.1em; }
 .hero__pill {
-  border: 1px solid rgba(255, 255, 255, 0.55); border-radius: 999px;
-  padding: 7px 14px; white-space: nowrap;
+  border: 0; border-radius: 0; padding: 0; white-space: nowrap;
+  color: rgba(255, 255, 255, 0.8);
 }
 
-/* сцена с типом в обрезку */
+/* Сцена-плакат: вордмарк одной строкой. Выходим из .wrap на всю ширину
+   экрана (left: 50% + -50vw) и слегка режем края — как на печатном постере.
+   Кегль тянется от ширины и поджимается высотой экрана: на 2K/ультрашироких
+   композиция не расползается. */
 .hero__stage {
   position: relative; overflow: hidden;
-  padding: clamp(28px, 4.6vw, 64px) 0 clamp(36px, 6vw, 84px);
+  width: 100vw; left: 50%; margin-left: -50vw;
+  padding: clamp(34px, 4.6vw, 72px) 0 clamp(30px, 3.6vw, 52px);
 }
-/* Плакатный блок: STEAM крупнее в 1.394 раза (замер Unbounded Black c HVAR:
-   4.793 против 6.694) — обе строки одинаковой ширины, блок в обрезку 4%. */
 .hero__title {
   font-family: var(--display); font-weight: var(--w-display);
-  font-size: clamp(46px, 11.5vw, 163px);
-  line-height: 0.88; letter-spacing: var(--tight); text-transform: uppercase;
-  color: #FFFFFF; text-align: center;
-  width: 108%; margin: 0 -4%;
+  font-size: min(10.4vw, 23vh);
+  line-height: 0.92; letter-spacing: var(--tight); text-transform: uppercase;
+  color: #FFFFFF; text-align: center; white-space: nowrap;
+  width: 104%; margin-left: -2%;
   position: relative; z-index: 1;
 }
-.hero__title .t-steam, .hero__title .t-wrap { display: block; }
+.hero__title .t-steam, .hero__title .t-dash, .hero__title .t-wrap { display: inline-block; }
+.hero__title .t-dash { color: var(--c1); padding: 0 0.04em; }
 .hero__title .t-steam {
-  font-size: 1.394em;
   animation: title-in 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.25s both;
+}
+.hero__title .t-dash {
+  animation: title-in 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.33s both;
 }
 .hero__title .t-wrap {
   animation: title-in 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.4s both;
@@ -413,42 +418,21 @@ section { padding: var(--section-pad) 0; }
   100% { transform: rotate(-24deg) translateX(-640px); opacity: 0; }
 }
 
-/* нижний ряд: подзаголовок + пилюля, микротекст, живые стат-карточки */
-.hero__bottom {
-  display: grid; grid-template-columns: 1.05fr 0.95fr 1fr;
-  gap: clamp(32px, 5vw, 68px); align-items: end;
-  padding: 0 clamp(18px, 3vw, 34px) clamp(20px, 3vw, 34px);
-}
-.hero__sub {
-  margin: 0 0 30px; font-family: var(--display); font-weight: var(--w-display);
-  font-size: clamp(24px, 2.8vw, 36px); line-height: 1.04; letter-spacing: var(--tight);
-  color: #FFFFFF;
-}
+/* кремовая кнопка — общая: hero-форма и секция шаринга */
 .btn--cream {
   background: var(--c5); border-color: transparent; color: #101012; font-weight: 800;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.30);
 }
 .btn--cream:hover { background: #FFFFFF; color: var(--c1); box-shadow: 0 16px 38px rgba(0, 0, 0, 0.36); }
-.hero__bottom .btn--cream { padding: 18px 38px; font-size: 16px; }
-.hero__micro { margin: 0; max-width: 30ch; font-size: 13.5px; line-height: 1.6; color: rgba(255, 255, 255, 0.82); }
-.hero__points { list-style: none; margin: 0; padding: 0; border-top: 1px solid rgba(255, 255, 255, 0.3); }
-.hero__points li {
-  display: flex; gap: 14px; align-items: baseline;
-  padding: 12px 2px; border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-  color: #FFFFFF;
-  font-family: var(--display); font-weight: 700;
-  font-size: clamp(17px, 1.8vw, 23px); line-height: 1.15; letter-spacing: var(--tight);
-}
-.hero__points i { font-style: normal; font-family: var(--mono); font-size: 12px; font-weight: 700; color: rgba(255, 255, 255, 0.75); }
 
 
 @media (max-width: 760px) {
-  .hero__bottom { grid-template-columns: 1fr; gap: 28px; align-items: start; }
-  .hero__micro { max-width: none; }
+  .hero__stage { padding-top: clamp(24px, 7vw, 40px); }
+  .hero__title { font-size: min(10.6vw, 13vh); }
 }
 
 
-.hero__profile { display: flex; align-items: center; justify-content: center; gap: clamp(22px, 3vw, 34px); margin-top: clamp(52px, 6vw, 84px); }
+.hero__profile { display: flex; align-items: center; justify-content: center; gap: clamp(22px, 3vw, 34px); margin-top: clamp(40px, 5vw, 64px); }
 .hero__profile-side { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
 .hero__nick-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
 .hero__nick {
@@ -495,8 +479,8 @@ section { padding: var(--section-pad) 0; }
 
 .profile-form {
   position: relative;
-  max-width: 720px;
-  margin: 44px auto 0;
+  max-width: 780px;
+  margin: 8px auto 0;
 }
 .profile-form__label {
   display: block;
@@ -534,8 +518,8 @@ section { padding: var(--section-pad) 0; }
   box-shadow: 0 16px 44px rgba(186, 54, 54, 0.30), 0 0 34px rgba(156, 46, 40, 0.22);
 }
 .profile-form__chips {
-  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-  margin-top: 20px; padding-left: 24px;
+  display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap;
+  margin-top: 20px;
 }
 .profile-form__chips-label {
   font-family: var(--mono); font-size: 11px; font-weight: 700;
@@ -579,7 +563,7 @@ section { padding: var(--section-pad) 0; }
 .profile-form__input:focus { outline: none; box-shadow: none; }
 .profile-form__status {
   min-height: 1.5em;
-  margin: 12px 2px 0 24px;
+  margin: 12px 0 0;
   color: var(--ink-faint);
   font-size: 13px;
   line-height: 1.5;
@@ -589,7 +573,7 @@ section { padding: var(--section-pad) 0; }
 .profile-form__status.is-ok { color: var(--c3); }
 .profile-form__reset {
   display: inline-block;
-  margin: 6px 2px 0 24px;
+  margin: 6px 0 0;
   color: var(--ink-dim);
   font-size: 13px;
   text-decoration: underline;
@@ -603,6 +587,8 @@ section { padding: var(--section-pad) 0; }
   .profile-form__row .btn { width: 100%; }
   .profile-form__chips { padding-left: 0; }
   .profile-form__status, .profile-form__reset { margin-left: 2px; }
+  .marquee { padding: 11px 0; }
+  .marquee__track { gap: 24px; }
 }
 
 /* ---------- кнопки ---------- */
@@ -1077,25 +1063,22 @@ a.game-link:hover { text-decoration: underline; text-decoration-color: currentCo
 
 /* ---------- бегущая строка ---------- */
 
+/* Тикер-полоса постера: сплошной кирпич, моноширинные цифры в разбежку.
+   Живёт сразу под вордмарком, внутри hero; данные те же, что и на странице. */
 .marquee {
-  overflow: hidden; padding: 20px 0;
-  border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
-  background: linear-gradient(90deg, rgba(186,54,54,.06), rgba(156,46,40,.06), rgba(119,36,32,.06));
+  overflow: hidden; padding: clamp(14px, 1.6vw, 22px) 0;
+  background: var(--c1);
 }
-.marquee {
-  -webkit-mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
-  mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
-}
-.marquee__track { display: flex; gap: 38px; width: max-content; animation: slide 44s linear infinite; }
+.marquee__track { display: flex; gap: 38px; width: max-content; animation: slide 38s linear infinite; }
 .marquee:hover .marquee__track { animation-play-state: paused; }
 .bars .bar__fill { transition: width 1.1s cubic-bezier(0.2, 0.7, 0.3, 1); }
-.marquee span { font-family: var(--display); font-weight: var(--w-display); font-size: clamp(22px, 3.4vw, 40px); letter-spacing: var(--tight); text-transform: uppercase; color: var(--ink); white-space: nowrap; }
-.marquee i { font-style: normal; margin-right: 10px; }
-.marquee span:nth-child(5n+1) i { color: var(--c1); }
-.marquee span:nth-child(5n+2) i { color: var(--c4); }
-.marquee span:nth-child(5n+3) i { color: var(--c2); }
-.marquee span:nth-child(5n+4) i { color: var(--c4); }
-.marquee span:nth-child(5n+5) i { color: var(--c2); }
+.marquee span {
+  font-family: var(--mono); font-weight: 700;
+  font-size: clamp(15px, 1.9vw, 26px);
+  letter-spacing: 0.05em; text-transform: uppercase;
+  color: #FFFFFF; white-space: nowrap;
+}
+.marquee i { font-style: normal; margin-right: 12px; color: rgba(255, 255, 255, 0.55); }
 @keyframes slide { to { transform: translateX(-50%); } }
 
 
