@@ -384,28 +384,25 @@ section { padding: var(--section-pad) 0; }
 .hero__stage {
   position: relative; overflow: hidden;
   width: 100vw; left: 50%; margin-left: -50vw;
-  padding: clamp(38px, 4.8vw, 84px) 0 clamp(40px, 5vw, 92px);
+  padding: clamp(30px, 3.8vw, 64px) 0 clamp(36px, 4.4vw, 76px);
 }
 .hero__title {
   font-family: var(--display); font-weight: var(--w-display);
-  font-size: min(var(--title-fit, 7.9vw), 20vh);
   line-height: 0.92; letter-spacing: var(--tight); text-transform: uppercase;
-  color: #FFFFFF; text-align: center; white-space: nowrap;
+  color: #FFFFFF; text-align: center;
   width: 102%; margin-left: -1%;
   position: relative; z-index: 1;
-  /* плакатная пропорция: Unbounded широкая, вытягиваем по вертикали —
-     буквы становятся высокими и плотными, как на постере из концепта */
-  transform: scaleY(1.42); transform-origin: 50% 58%;
 }
-.hero__title .t-steam, .hero__title .t-dash, .hero__title .t-wrap { display: inline-block; }
-.hero__title .t-dash { color: var(--c1); padding: 0 0.04em; }
+/* Две строки-плаката: каждую натягивает на ширину h1 measureText (см. app.js).
+   Пока JS не отработал — честные vw-fallback'и; vh-кап страхует низкие окна. */
+.hero__title .t-steam, .hero__title .t-wrap { display: block; white-space: nowrap; }
 .hero__title .t-steam {
+  font-size: min(var(--fit-steam, 19vw), 24vh);
   animation: title-in 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.25s both;
 }
-.hero__title .t-dash {
-  animation: title-in 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.33s both;
-}
 .hero__title .t-wrap {
+  font-size: min(var(--fit-wrap, 13vw), 19vh);
+  color: var(--c1);
   animation: title-in 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.4s both;
 }
 @keyframes title-in {
@@ -442,7 +439,6 @@ section { padding: var(--section-pad) 0; }
 
 @media (max-width: 760px) {
   .hero__stage { padding-top: clamp(24px, 7vw, 40px); }
-  .hero__title { font-size: min(var(--title-fit, 7.9vw), 14vh); }
 }
 
 

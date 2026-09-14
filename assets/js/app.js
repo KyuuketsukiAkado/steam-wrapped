@@ -412,21 +412,28 @@
     });
   })();
 
-  /* ---------- вордмарк: точная посадка «в обрезку» ----------
-     CSS-множитель грубый: Unbounded шире расчётного, строка уезжала за экран.
-     Меряем реальную ширину строки canvas'ом и выставляем --title-fit в px:
-     вписываемся в 104%-зону h1, за экраном остаётся только лёгкий срез краёв.
-     До загрузки шрифта работает CSS-fallback, после fonts.ready пересчитываем. */
+  /* ---------- вордмарк: построчная точная посадка ----------
+     Каждая строка-плакат натягивается measureText'ом на ширину h1 —
+     кегль в px через --fit-steam/--fit-wrap, без искажения форм букв.
+     Низкие окна страхует vh-кап внутри min(). Пересчёт: первичный,
+     на resize (passive) и после fonts.ready. */
   (function titleFit() {
     var title = $(".hero__title");
     if (!title || !document.createElement("canvas").getContext) return;
     var cx2d = document.createElement("canvas").getContext("2d");
-    function fit() {
-      var cs = getComputedStyle(title);
+    function fitLine(span, prop, capShare) {
+      if (!span) return;
+      var cs = getComputedStyle(span);
       cx2d.font = cs.fontWeight + " 100px " + cs.fontFamily;
-      var w100 = cx2d.measureText(title.textContent).width;
+      var w100 = cx2d.measureText(span.textContent).width;
       if (!w100) return;
-      title.style.setProperty("--title-fit", (title.clientWidth / w100 * 100).toFixed(2) + "px");
+      var cap = window.innerHeight * capShare;
+      var size = Math.min(title.clientWidth / w100 * 100, cap);
+      span.style.setProperty(prop, size.toFixed(2) + "px");
+    }
+    function fit() {
+      fitLine($(".t-steam", title), "--fit-steam", 0.24);
+      fitLine($(".t-wrap", title), "--fit-wrap", 0.19);
     }
     fit();
     window.addEventListener("resize", fit, { passive: true });
