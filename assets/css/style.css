@@ -377,7 +377,7 @@ section { padding: var(--section-pad) 0; }
 }
 .hero__title {
   font-family: var(--display); font-weight: var(--w-display);
-  font-size: min(10.4vw, 23vh);
+  font-size: min(var(--title-fit, 7.9vw), 20vh);
   line-height: 0.92; letter-spacing: var(--tight); text-transform: uppercase;
   color: #FFFFFF; text-align: center; white-space: nowrap;
   width: 104%; margin-left: -2%;
@@ -428,7 +428,7 @@ section { padding: var(--section-pad) 0; }
 
 @media (max-width: 760px) {
   .hero__stage { padding-top: clamp(24px, 7vw, 40px); }
-  .hero__title { font-size: min(10.6vw, 13vh); }
+  .hero__title { font-size: min(var(--title-fit, 7.9vw), 14vh); }
 }
 
 

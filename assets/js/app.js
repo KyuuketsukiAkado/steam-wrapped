@@ -412,6 +412,27 @@
     });
   })();
 
+  /* ---------- вордмарк: точная посадка «в обрезку» ----------
+     CSS-множитель грубый: Unbounded шире расчётного, строка уезжала за экран.
+     Меряем реальную ширину строки canvas'ом и выставляем --title-fit в px:
+     вписываемся в 104%-зону h1, за экраном остаётся только лёгкий срез краёв.
+     До загрузки шрифта работает CSS-fallback, после fonts.ready пересчитываем. */
+  (function titleFit() {
+    var title = $(".hero__title");
+    if (!title || !document.createElement("canvas").getContext) return;
+    var cx2d = document.createElement("canvas").getContext("2d");
+    function fit() {
+      var cs = getComputedStyle(title);
+      cx2d.font = cs.fontWeight + " 100px " + cs.fontFamily;
+      var w100 = cx2d.measureText(title.textContent).width;
+      if (!w100) return;
+      title.style.setProperty("--title-fit", (title.clientWidth / w100 * 100).toFixed(2) + "px");
+    }
+    fit();
+    window.addEventListener("resize", fit, { passive: true });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+  })();
+
   /* ---------- 01 · главная игра жизни ---------- */
 
   // повторный boot: чистим динамические контейнеры, иначе строки задвоятся
