@@ -24,7 +24,7 @@
     try { window.localStorage.setItem(key, value); } catch (_) {}
   }
   function syncThemeButtons() {
-    Array.prototype.forEach.call(document.querySelectorAll(".theme-switch__btn"), function (o) {
+    Array.prototype.forEach.call(document.querySelectorAll("[data-card-theme]"), function (o) {
       var on = o.getAttribute("data-card-theme") === cardTheme;
       o.classList.toggle("is-on", on);
       o.setAttribute("aria-pressed", on ? "true" : "false");
@@ -32,11 +32,35 @@
   }
   if (storeGet("sw:cardTheme") === "red") cardTheme = "red";
   syncThemeButtons();
-  Array.prototype.forEach.call(document.querySelectorAll(".theme-switch__btn"), function (b) {
+  Array.prototype.forEach.call(document.querySelectorAll("[data-card-theme]"), function (b) {
     b.addEventListener("click", function () {
       cardTheme = b.getAttribute("data-card-theme") === "red" ? "red" : "dark";
       storeSet("sw:cardTheme", cardTheme);
       syncThemeButtons();
+      if (redrawCardLive) redrawCardLive();
+    });
+  });
+
+  /* Формат карточки: 4:5 пост, 9:16 сторис, 16:9 лента. Живёт вне boot
+     рядом с темой — выбор запоминается в localStorage и переживает
+     перезагрузку и смену профиля. */
+  var cardFormat = "45";
+  var storedFormat = storeGet("sw:cardFormat");
+  if (storedFormat === "916" || storedFormat === "169") cardFormat = storedFormat;
+  function syncFormatButtons() {
+    Array.prototype.forEach.call(document.querySelectorAll("[data-card-format]"), function (o) {
+      var on = o.getAttribute("data-card-format") === cardFormat;
+      o.classList.toggle("is-on", on);
+      o.setAttribute("aria-pressed", on ? "true" : "false");
+    });
+  }
+  syncFormatButtons();
+  Array.prototype.forEach.call(document.querySelectorAll("[data-card-format]"), function (b) {
+    b.addEventListener("click", function () {
+      var v = b.getAttribute("data-card-format");
+      cardFormat = (v === "916" || v === "169") ? v : "45";
+      storeSet("sw:cardFormat", cardFormat);
+      syncFormatButtons();
       if (redrawCardLive) redrawCardLive();
     });
   });
@@ -337,7 +361,8 @@
     games: gamesOwned,
     hours: totalHours,
     hours2w: hours2w,
-    smHours: soulmate ? soulmate.hours : 0
+    smHours: soulmate ? soulmate.hours : 0,
+    ticket: totalHours
   };
 
   function animate(node, to) {
@@ -386,6 +411,91 @@
       item.appendChild(document.createTextNode(text));
       marqueeNode.appendChild(item);
     });
+  })();
+
+  /* ---------- тикет-билет в hero: живой объект из данных ---------- */
+  (function heroTicket() {
+    var t = $("#heroTicket");
+    if (!t) return;
+    var nickEl = $("#ticketNick");
+    if (nickEl) nickEl.textContent = D.meta.persona || "—";
+    var sinceEl = $("#ticketSince");
+    if (sinceEl && D.meta.memberSince) {
+      sinceEl.textContent = "в Steam с " + new Date(D.meta.memberSince).getFullYear();
+    }
+    var wrap = $(".ticket__bars", t);
+    if (!wrap) return;
+    wrap.textContent = "";
+    var top = played.slice(0, 3);
+    if (!top.length) { wrap.style.display = "none"; return; }
+    var max = top[0].hours || 1;
+    top.forEach(function (g, i) {
+      var name = el("div", "ticket__row-name");
+      var b = el("b", "", g.name);
+      name.appendChild(b);
+      name.appendChild(document.createTextNode(" · " + num(g.hours) + " ч"));
+      var bar = el("div", "ticket__bar" + (i === 1 ? " ticket__bar--2" : i === 2 ? " ticket__bar--3" : ""));
+      var fill = el("i");
+      bar.appendChild(fill);
+      var row = el("div", "ticket__row");
+      row.appendChild(name);
+      row.appendChild(bar);
+      wrap.appendChild(row);
+      setTimeout(function () { fill.style.width = Math.max(6, Math.round(g.hours / max * 100)) + "%"; }, 60);
+    });
+  })();
+
+  /* ---------- вордмарк: построчная точная посадка ----------
+     Каждая строка-плакат натягивается measureText'ом на ширину h1 —
+     кегль в px через --fit-steam/--fit-wrap, без искажения форм букв.
+     Низкие окна страхует vh-кап внутри min(). Пересчёт: первичный,
+     на resize (passive) и после fonts.ready. */
+  (function titleFit() {
+    var title = $(".hero__title");
+    if (!title || !document.createElement("canvas").getContext) return;
+    var cx2d = document.createElement("canvas").getContext("2d");
+    /* Калибровка в три удара:
+       1) canvas меряет КАПС-текст (CSS uppercase меняет глифы, textContent врёт)
+          с учётом letter-spacing (ctx.letterSpacing или ручная добавка);
+       2) кегль ставится под 99.5% ширины колонки — микро-запас против субпиксельного перелива;
+       3) контрольный замер фактической ширины глифов через Range:
+          спаны блочные, их коробка всегда равна колонке и о переливе не расскажет. */
+    function fitLine(span, prop, capShare) {
+      if (!span) return;
+      var cs = getComputedStyle(span);
+      var text = span.textContent;
+      if ((cs.textTransform || "").toLowerCase() === "uppercase") text = text.toUpperCase();
+      var lsPx = parseFloat(cs.letterSpacing);
+      var fsPx = parseFloat(cs.fontSize) || 16;
+      var ls100 = isFinite(lsPx) ? lsPx / fsPx * 100 : 0;
+      var supportsLs = "letterSpacing" in cx2d;
+      if (supportsLs) cx2d.letterSpacing = ls100 + "px";
+      cx2d.font = cs.fontWeight + " 100px " + cs.fontFamily;
+      var w100 = cx2d.measureText(text).width;
+      if (!supportsLs) w100 += ls100 * Math.max(0, text.length - 1);
+      if (!w100 || !isFinite(w100)) return;
+      var cap = window.innerHeight * capShare;
+      var target = title.clientWidth * 0.995;
+      var size = Math.min(target / w100 * 100, cap);
+      span.style.setProperty(prop, size.toFixed(2) + "px");
+      for (var i = 0; i < 3; i++) {
+        var rng = document.createRange();
+        rng.selectNodeContents(span);
+        var real = rng.getBoundingClientRect().width;
+        if (!real || Math.abs(real - target) <= 1.5) break;
+        size = Math.min(size * (target / real), cap);
+        span.style.setProperty(prop, size.toFixed(2) + "px");
+      }
+    }
+    function fit() {
+      fitLine($(".t-steam", title), "--fit-steam", 0.24);
+      fitLine($(".t-wrap", title), "--fit-wrap", 0.19);
+    }
+    fit();
+    window.addEventListener("resize", fit, { passive: true });
+    window.addEventListener("load", fit);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+    if (window.ResizeObserver) new ResizeObserver(fit).observe(title);
   })();
 
   /* ---------- 01 · главная игра жизни ---------- */
@@ -523,7 +633,7 @@
     if (!top.length) return;
     var max = top[0].hours;
     var wrap = $("#bars");
-    var ramp = ["#E10600", "#8E8E93", "#6E6E73", "#636366", "#48484E",
+    var ramp = ["#BA3636", "#8E8E93", "#6E6E73", "#636366", "#48484E",
                 "#3A3A3F", "#2F2F34", "#26262B", "#1F1F23", "#1A1A1E"];
 
     // два колосса почти вровень (Dota и CS2) — каждому свой оттенок красного,
@@ -534,8 +644,8 @@
     var tail = ["#8E8E93", "#6E6E73", "#636366", "#48484E",
                 "#3A3A3F", "#2F2F34", "#26262B", "#1F1F23"];
     var colors = top.map(function (g, i) {
-      if (colossi && i === 0) return "#E10600";   // красный — лидер
-      if (colossi && i === 1) return "#FF5A4D";   // горячий коралл — второй колосс
+      if (colossi && i === 0) return "#BA3636";   // красный — лидер
+      if (colossi && i === 1) return "#E07A6B";   // горячий коралл — второй колосс
       return colossi ? tail[i - 2] : ramp[i];
     });
 
@@ -649,7 +759,7 @@
 
     if (list.length === 1) wrap.classList.add("is-single");
 
-    var rc = ["#E10600", "#FF5A4D", "#C0130A", "#8E8E93"];
+    var rc = ["#BA3636", "#E07A6B", "#9C2E28", "#8E8E93"];
     list.forEach(function (g, i) {
       var card = el("div", "rcard");
       card.style.setProperty("--rc", rc[i % rc.length]);
@@ -699,7 +809,7 @@
     }
 
     var R = 78, C = 2 * Math.PI * R, off = 0;
-    var palette = ["#E10600", "#FF5A4D", "#C0130A", "#EDEDEF", "#8E8E93",
+    var palette = ["#BA3636", "#E07A6B", "#9C2E28", "#EDEDEF", "#8E8E93",
                    "#6E6E73", "#48484E", "#3A3A3F"];
 
     /* Минимальная дуга. Симулятор и MMO — это 0,4% и 0,1%: их доля
@@ -958,12 +1068,43 @@
     if (c.width !== 1080) { c.width = 1080; x = c.getContext("2d"); }
     var W = c.width, H = c.height;
     var INK = "#EDEDEF", NEAR = "#F7F7F8", DIM = "#A7A7AD", FAINT = "#6E6E75";
-    var C1 = "#E10600", C2 = "#C0130A", C3 = "#8E0D08", C4 = "#FF5A4D", C5 = "#EDEDEF";
+    var C1 = "#BA3636", C2 = "#9C2E28", C3 = "#772420", C4 = "#E07A6B", C5 = "#EDEDEF";
     var RED = cardTheme === "red";
     var css = getComputedStyle(document.documentElement);
     var SANS = (css.getPropertyValue("--display") || "").trim() || 'Arial, sans-serif';
     var WD = (css.getPropertyValue("--w-display") || "700").trim();
     var M = 88;
+    var fmt = cardFormat;   // "45" | "916" | "169"
+    shareCanvas.setAttribute("data-fmt", fmt);
+
+    /* Единый фон карточки: подложка + мягкие пятна. На композите красится
+       на весь целевой холст до трансформации контента — швов не остаётся. */
+    function paintBackdrop(x2, W2, H2) {
+      if (!RED) {
+        x2.fillStyle = "#0A0807"; x2.fillRect(0, 0, W2, H2);
+      } else {
+        var bg = x2.createLinearGradient(0, 0, W2, H2);
+        bg.addColorStop(0, "#C6423C"); bg.addColorStop(0.35, "#BA3636");
+        bg.addColorStop(0.7, "#9C2E28"); bg.addColorStop(1, "#772420");
+        x2.fillStyle = bg; x2.fillRect(0, 0, W2, H2);
+      }
+      (function () {
+        function blob(cx, cy, r, color) {
+          var g = x2.createRadialGradient(cx, cy, 0, cx, cy, r);
+          g.addColorStop(0, color); g.addColorStop(1, "rgba(0,0,0,0)");
+          x2.fillStyle = g; x2.fillRect(0, 0, W2, H2);
+        }
+        if (!RED) {
+          blob(W2 * 0.5, H2 * 0.28, W2 * 0.80, "rgba(186,54,54,0.10)");
+          blob(W2 * 0.10, H2 * 0.92, W2 * 0.70, "rgba(156,46,40,0.10)");
+          blob(W2 * 0.92, H2 * 0.82, W2 * 0.65, "rgba(119,36,32,0.12)");
+          blob(W2 * 0.15, H2 * 0.52, W2 * 0.50, "rgba(255,90,77,0.07)");
+        } else {
+          blob(W2 * 0.5, H2 * 1.05, W2 * 0.85, "rgba(119,36,32,0.45)");
+          blob(W2 * 0.5, H2 * -0.08, W2 * 0.7, "rgba(255,255,255,0.10)");
+        }
+      })();
+    }
 
     /* Текстовый движок без обрезок: только автоподгон кегля и переносы.
        Старого fit() с «…» больше нет — ни одна строка не режется. */
@@ -1106,7 +1247,7 @@
       panelBottom = lineY + 276;
     }
 
-    var tcol = RED ? ["#FFFFFF", "#FFFFFF", "#FFFFFF"] : [C1, "#FF5A4D", C5];
+    var tcol = RED ? ["#FFFFFF", "#FFFFFF", "#FFFFFF"] : [C1, "#E07A6B", C5];
     var topList = played.slice(0, 3);
     var topRows = [];
     var curY = panelBottom + 64, lastTopY = curY;
@@ -1186,7 +1327,7 @@
     /* Широкая карточка 1600×N: те же данные и темы, просторные боксы.
        W мутирует наружу осознанно: line()/label() строят по новой ширине,
        после return вертикальный код не выполняется. */
-    function drawWide() {
+    function drawWide(tW, tH, own) {
       W = 1600;
       // ник: бокс почти на всю ширину
       var wNameX = M + 64 + 64 + 32, wNameW = (W - M) - wNameX;
@@ -1300,35 +1441,22 @@
       var wFootLineY = wContentBottom + 50;
       var wNeedH = wFootLineY + 104;
       if (wNeedH < 900) wNeedH = 900;
-      c.width = 1600; c.height = wNeedH; x = c.getContext("2d");
-      H = wNeedH;
-      var wFootY = H - 48;
-
-      // фон — те же темы, пятна масштабируются от W/H
-      if (!RED) {
-        x.fillStyle = "#0A0807"; x.fillRect(0, 0, W, H);
+      if (own) {
+        c.width = 1600; c.height = wNeedH; x = c.getContext("2d");
+        H = wNeedH;
+        paintBackdrop(x, W, H);
       } else {
-        var wBg = x.createLinearGradient(0, 0, W, H);
-        wBg.addColorStop(0, "#F31200"); wBg.addColorStop(0.35, "#E10600");
-        wBg.addColorStop(0.7, "#C0130A"); wBg.addColorStop(1, "#8E0D08");
-        x.fillStyle = wBg; x.fillRect(0, 0, W, H);
+        /* Композит: фон красится на весь целевой холст до трансформации,
+           контент вписывается единым масштабом — швов не остаётся. */
+        c.width = tW; c.height = tH; x = c.getContext("2d");
+        paintBackdrop(x, tW, tH);
+        var fitK = Math.min(tW / 1600, tH / wNeedH);
+        x.save();
+        x.translate((tW - 1600 * fitK) / 2, (tH - wNeedH * fitK) / 2);
+        x.scale(fitK, fitK);
+        W = 1600; H = wNeedH;
       }
-      (function paintWideBlobs() {
-        function blob(cx, cy, r, color) {
-          var g = x.createRadialGradient(cx, cy, 0, cx, cy, r);
-          g.addColorStop(0, color); g.addColorStop(1, "rgba(0,0,0,0)");
-          x.fillStyle = g; x.fillRect(0, 0, W, H);
-        }
-        if (!RED) {
-          blob(W * 0.5, H * 0.28, W * 0.80, "rgba(225,6,0,0.10)");
-          blob(W * 0.10, H * 0.92, W * 0.70, "rgba(192,19,10,0.10)");
-          blob(W * 0.92, H * 0.82, W * 0.65, "rgba(142,13,8,0.12)");
-          blob(W * 0.15, H * 0.52, W * 0.50, "rgba(255,90,77,0.07)");
-        } else {
-          blob(W * 0.5, H * 1.05, W * 0.85, "rgba(142,13,8,0.45)");
-          blob(W * 0.5, H * -0.08, W * 0.7, "rgba(255,255,255,0.10)");
-        }
-      })();
+      var wFootY = H - 48;
 
       // шапка
       label("STEAM WRAPPED", 92, C5);
@@ -1344,8 +1472,8 @@
           g.addColorStop(0, color); g.addColorStop(1, "rgba(0,0,0,0)");
           x.fillStyle = g; x.fillRect(0, 0, W, H);
         }
-        blob(wAvCx, wAvCy, 230, RED ? "rgba(142,13,8,0.35)" : "rgba(225,6,0,0.20)");
-        blob(wAvCx, wAvCy, 140, RED ? "rgba(142,13,8,0.28)" : "rgba(192,19,10,0.16)");
+        blob(wAvCx, wAvCy, 230, RED ? "rgba(119,36,32,0.35)" : "rgba(186,54,54,0.20)");
+        blob(wAvCx, wAvCy, 140, RED ? "rgba(119,36,32,0.28)" : "rgba(156,46,40,0.16)");
       })();
       x.save();
       x.beginPath(); x.arc(wAvCx, wAvCy, wAvR, 0, Math.PI * 2); x.clip();
@@ -1381,8 +1509,8 @@
       var wBadgePadX = 14, wBadgeH = 32, wBadgeY = wSloganY - 23;
       var wBadgeW = wBadgeTextW + wBadgePadX * 2 + 16;
       x.save();
-      x.fillStyle = RED ? "rgba(0, 0, 0, 0.28)" : "rgba(225, 6, 0, 0.12)";
-      x.strokeStyle = RED ? "rgba(255, 255, 255, 0.35)" : "rgba(225, 6, 0, 0.35)";
+      x.fillStyle = RED ? "rgba(0, 0, 0, 0.28)" : "rgba(186, 54, 54, 0.12)";
+      x.strokeStyle = RED ? "rgba(255, 255, 255, 0.35)" : "rgba(186, 54, 54, 0.35)";
       x.lineWidth = 1.5;
       roundRect(wNameX, wBadgeY, wBadgeW, wBadgeH, wBadgeH / 2);
       x.fill();
@@ -1419,7 +1547,7 @@
         wHl.addColorStop(0, C1); wHl.addColorStop(1, C4);
         x.fillStyle = wHl; x.fillRect(wPL, wPy, wPR - wPL, 5);
         x.restore();
-        x.strokeStyle = RED ? "rgba(142,13,8,0.18)" : "rgba(255,255,255,0.08)"; x.lineWidth = 1.5;
+        x.strokeStyle = RED ? "rgba(119,36,32,0.18)" : "rgba(255,255,255,0.08)"; x.lineWidth = 1.5;
         roundRect(wPL + 0.75, wPy + 0.75, wPR - wPL - 1.5, wPh - 1.5, wRR); x.stroke();
 
         label("ГЛАВНАЯ ИГРА ЖИЗНИ", wPy + 52, RED ? C1 : C4, wPL + 40);
@@ -1514,49 +1642,40 @@
         x.fillText("в Steam с " + String(D.meta.memberSince).slice(0, 4), W - M, wFootY);
         x.textAlign = "left";
       }
+      if (!own) x.restore();
     }
 
-    if (pinched) { drawWide(); return; }
+    if (fmt === "169") { drawWide(1920, 1080, false); return; }
+    if (pinched) {
+      if (fmt === "916") { drawWide(1080, 1920, false); return; }
+      drawWide(0, 0, true); return;   // 4:5: историческое поведение — холст уходит под широкую
+    }
 
     /* Холст вытягивается под длинные данные, обычные остаются 1080×1350.
        Низ (линейка + подпись) всегда на фиксированных отступах от контента. */
     var footLineY = contentBottom + 52;
     var needH = footLineY + 106;
     if (needH < 1350) needH = 1350;
-    if (c.height !== needH) {
-      c.height = needH;
-      x = c.getContext("2d");
+    if (fmt === "916") {
+      /* Сторис 9:16 — фон на весь холст, контент центрируется блоком.
+         При экстремально длинном контенте холст растягивается. */
+      var storyH = 1920 > needH ? 1920 : needH;
+      c.width = 1080; c.height = storyH; x = c.getContext("2d");
+      W = 1080; H = needH;
+      paintBackdrop(x, 1080, storyH);
+      x.save(); x.translate(0, (storyH - needH) / 2);
+    } else {
+      if (c.height !== needH) {
+        c.height = needH;
+        x = c.getContext("2d");
+      }
+      H = c.height;
+      W = c.width;
+      paintBackdrop(x, W, H);
     }
-    H = c.height;
-    W = c.width;
     var footY = H - 50;
 
     /* ---------- рисуем ---------- */
-    if (!RED) {
-      x.fillStyle = "#0A0807"; x.fillRect(0, 0, W, H);
-    } else {
-      var cardBg = x.createLinearGradient(0, 0, W, H);
-      cardBg.addColorStop(0, "#F31200"); cardBg.addColorStop(0.35, "#E10600");
-      cardBg.addColorStop(0.7, "#C0130A"); cardBg.addColorStop(1, "#8E0D08");
-      x.fillStyle = cardBg; x.fillRect(0, 0, W, H);
-    }
-    (function paintBlobs() {
-      function blob(cx, cy, r, color) {
-        var g = x.createRadialGradient(cx, cy, 0, cx, cy, r);
-        g.addColorStop(0, color); g.addColorStop(1, "rgba(0,0,0,0)");
-        x.fillStyle = g; x.fillRect(0, 0, W, H);
-      }
-      if (!RED) {
-        blob(W * 0.5, H * 0.28, W * 0.80, "rgba(225,6,0,0.10)");
-        blob(W * 0.10, H * 0.92, W * 0.70, "rgba(192,19,10,0.10)");
-        blob(W * 0.92, H * 0.82, W * 0.65, "rgba(142,13,8,0.12)");
-        blob(W * 0.15, H * 0.52, W * 0.50, "rgba(255,90,77,0.07)");
-      } else {
-        blob(W * 0.5, H * 1.05, W * 0.85, "rgba(142,13,8,0.45)");
-        blob(W * 0.5, H * -0.08, W * 0.7, "rgba(255,255,255,0.10)");
-      }
-    })();
-
     // шапка
     label("STEAM WRAPPED", 92, C5);
     x.fillStyle = RED ? "#FFFFFF" : C4; x.font = "700 22px " + SANS;
@@ -1572,8 +1691,8 @@
         g.addColorStop(0, color); g.addColorStop(1, "rgba(0,0,0,0)");
         x.fillStyle = g; x.fillRect(0, 0, W, H);
       }
-      blob(avCx, avCy, 250, RED ? "rgba(142,13,8,0.35)" : "rgba(225,6,0,0.20)");
-      blob(avCx, avCy, 150, RED ? "rgba(142,13,8,0.28)" : "rgba(192,19,10,0.16)");
+      blob(avCx, avCy, 250, RED ? "rgba(119,36,32,0.35)" : "rgba(186,54,54,0.20)");
+      blob(avCx, avCy, 150, RED ? "rgba(119,36,32,0.28)" : "rgba(156,46,40,0.16)");
     })();
     x.save();
     x.beginPath(); x.arc(avCx, avCy, avR, 0, Math.PI * 2); x.clip();
@@ -1610,8 +1729,8 @@
     var badgePadX = 16, badgeH = 34, badgeY = sloganY - 24;
     var badgeW = badgeTextW + badgePadX * 2 + 16;
     x.save();
-    x.fillStyle = RED ? "rgba(0, 0, 0, 0.28)" : "rgba(225, 6, 0, 0.12)";
-    x.strokeStyle = RED ? "rgba(255, 255, 255, 0.35)" : "rgba(225, 6, 0, 0.35)";
+    x.fillStyle = RED ? "rgba(0, 0, 0, 0.28)" : "rgba(186, 54, 54, 0.12)";
+    x.strokeStyle = RED ? "rgba(255, 255, 255, 0.35)" : "rgba(186, 54, 54, 0.35)";
     x.lineWidth = 1.5;
     roundRect(nameX, badgeY, badgeW, badgeH, badgeH / 2);
     x.fill();
@@ -1654,7 +1773,7 @@
       hl.addColorStop(0, C1); hl.addColorStop(1, C4);
       x.fillStyle = hl; x.fillRect(pL, py, pR - pL, 5);
       x.restore();
-      x.strokeStyle = RED ? "rgba(142,13,8,0.18)" : "rgba(255,255,255,0.08)"; x.lineWidth = 1.5;
+      x.strokeStyle = RED ? "rgba(119,36,32,0.18)" : "rgba(255,255,255,0.08)"; x.lineWidth = 1.5;
       roundRect(pL + 0.75, py + 0.75, pR - pL - 1.5, ph - 1.5, rr); x.stroke();
 
       label("ГЛАВНАЯ ИГРА ЖИЗНИ", py + 56, RED ? C1 : C4, pL + 40);
@@ -1748,6 +1867,7 @@
       x.fillText("в Steam с " + String(D.meta.memberSince).slice(0, 4), W - M, footY);
       x.textAlign = "left";
     }
+    if (fmt === "916") x.restore();
   }
   redrawCardLive = redrawCard;
   redrawCard();
@@ -1765,7 +1885,8 @@
 
   function downloadCard() {
     var a = document.createElement("a");
-    a.download = "steam-wrapped-" + (D.meta.persona || "profile") + ".png";
+    var fmtTag = cardFormat === "916" ? "-story" : (cardFormat === "169" ? "-wide" : "");
+    a.download = "steam-wrapped-" + (D.meta.persona || "profile") + fmtTag + ".png";
     a.href = shareCanvas.toDataURL("image/png");
     a.click();
     say("Карточка скачана ✓");
@@ -1850,7 +1971,7 @@
     );
   }
 
-  var tg = $("#tgBtn"), li = $("#liBtn"), dc = $("#dcBtn");
+  var tg = $("#tgBtn"), ig = $("#igBtn");
 
   if (tg) tg.onclick = function () {
     shareVia(function (text) {
@@ -1859,18 +1980,19 @@
     }, "Telegram");
   };
 
-  if (li) li.onclick = function () {
-    // LinkedIn берёт из ссылки только URL, текст подставляем через буфер
-    shareVia(function () {
-      return "https://www.linkedin.com/sharing/share-offsite/?url=" + encodeURIComponent(PAGE_URL);
-    }, "LinkedIn");
-  };
-
-  if (dc) dc.onclick = function () {
-    // у Discord нет окна публикации: кладём в буфер подпись и ссылку,
-    // а карточку отдаём скачиванием — PNG прикрепляешь к сообщению вручную.
-    copyText(caption() + "\n" + PAGE_URL);
-    downloadCard();
+  /* У Instagram нет окна публикации по ссылке: открываем сайт, карточку
+     кладём в буфер — остаётся создать пост или сторис и вставить Ctrl+V.
+     Для сторис удобно заранее включить формат 9:16 переключателем выше. */
+  if (ig) ig.onclick = function () {
+    openShare("https://www.instagram.com/");
+    copyCard().then(
+      function () {
+        say(cardFormat === "916"
+          ? "Карточка 9:16 в буфере — создай сторис и вставь Ctrl+V"
+          : "Карточка в буфере — создай пост или сторис и вставь Ctrl+V");
+      },
+      function () { say("Карточку скопировать не вышло, скачай PNG"); }
+    );
   };
 
   var capCopy = $("#capCopyBtn"), capReset = $("#capResetBtn");
@@ -2407,6 +2529,9 @@
           if (r.width && r.height) {
             hero.style.setProperty("--mx", ((cx - r.left) / r.width * 100).toFixed(1) + "%");
             hero.style.setProperty("--my", ((cy - r.top) / r.height * 100).toFixed(1) + "%");
+            /* нормализованный курсор -1..1: дрейф вордмарка и тикера */
+            hero.style.setProperty("--px", ((cx - r.left) / r.width - 0.5).toFixed(3));
+            hero.style.setProperty("--py", ((cy - r.top) / r.height - 0.5).toFixed(3));
           }
         });
       }, { passive: true });
