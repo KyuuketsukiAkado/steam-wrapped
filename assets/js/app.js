@@ -454,35 +454,42 @@
     var title = $(".hero__title");
     if (!title || !document.createElement("canvas").getContext) return;
     var cx2d = document.createElement("canvas").getContext("2d");
-    /* Двухпроходная калибровка: canvas-метрика может расходиться с DOM
-       (letter-spacing, variable-font кернинг), поэтому после установки
-       кегля меряем фактическую ширину span'а и докручиваем пропорцией. */
+    /* Калибровка в три удара:
+       1) canvas меряет КАПС-текст (CSS uppercase меняет глифы, textContent врёт)
+          с учётом letter-spacing (ctx.letterSpacing или ручная добавка);
+       2) кегль ставится под 99.5% ширины колонки — микро-запас против субпиксельного перелива;
+       3) контрольный замер фактической ширины глифов через Range:
+          спаны блочные, их коробка всегда равна колонке и о переливе не расскажет. */
     function fitLine(span, prop, capShare) {
       if (!span) return;
       var cs = getComputedStyle(span);
-      var weight = cs.fontWeight, fam = cs.fontFamily;
+      var text = span.textContent;
+      if ((cs.textTransform || "").toLowerCase() === "uppercase") text = text.toUpperCase();
       var lsPx = parseFloat(cs.letterSpacing);
-      var ls100 = (isFinite(lsPx) && cs.fontSize) ? lsPx / parseFloat(cs.fontSize) * 100 : 0;
-      if (cx2d.letterSpacing !== undefined) {
-        cx2d.letterSpacing = ls100 + "px";
-        cx2d.font = weight + " 100px " + fam;
-      } else {
-        cx2d.font = weight + " 100px " + fam;
-      }
-      var w100 = cx2d.measureText(span.textContent).width;
-      if (!cx2d.letterSpacing) w100 = w100 + ls100 * (span.textContent.length - 1);
+      var fsPx = parseFloat(cs.fontSize) || 16;
+      var ls100 = isFinite(lsPx) ? lsPx / fsPx * 100 : 0;
+      var supportsLs = "letterSpacing" in cx2d;
+      if (supportsLs) cx2d.letterSpacing = ls100 + "px";
+      cx2d.font = cs.fontWeight + " 100px " + cs.fontFamily;
+      var w100 = cx2d.measureText(text).width;
+      if (!supportsLs) w100 += ls100 * Math.max(0, text.length - 1);
       if (!w100 || !isFinite(w100)) return;
-      var size = Math.min(title.clientWidth / w100 * 100, window.innerHeight * capShare);
+      var cap = window.innerHeight * capShare;
+      var target = title.clientWidth * 0.995;
+      var size = Math.min(target / w100 * 100, cap);
       span.style.setProperty(prop, size.toFixed(2) + "px");
-      var real = span.getBoundingClientRect().width;
-      if (real > 40 && Math.abs(real - title.clientWidth) > 2) {
-        size = Math.min(size * (title.clientWidth / real), window.innerHeight * capShare);
+      for (var i = 0; i < 3; i++) {
+        var rng = document.createRange();
+        rng.selectNodeContents(span);
+        var real = rng.getBoundingClientRect().width;
+        if (!real || Math.abs(real - target) <= 1.5) break;
+        size = Math.min(size * (target / real), cap);
         span.style.setProperty(prop, size.toFixed(2) + "px");
       }
     }
     function fit() {
-      fitLine($(".t-steam", title), "--fit-steam", 0.30);
-      fitLine($(".t-wrap", title), "--fit-wrap", 0.24);
+      fitLine($(".t-steam", title), "--fit-steam", 0.24);
+      fitLine($(".t-wrap", title), "--fit-wrap", 0.19);
     }
     fit();
     window.addEventListener("resize", fit, { passive: true });
