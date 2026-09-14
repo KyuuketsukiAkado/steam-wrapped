@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Стенд: подбор гарнитуры вордмарка</title>
 <style>
-@font-face { font-family: "U"; font-weight: 200 900; src: url("../assets/fonts/unbounded-latin-wght-normal.woff2") format("woff2-variations"); }
+@font-face { font-family: "U"; font-weight: 200 900; src: url("/assets/fonts/unbounded-latin-wght-normal.woff2") format("woff2-variations"); }
 * { box-sizing: border-box; }
 body {
   margin: 0; padding: 26px clamp(14px, 3vw, 40px) 60px;
@@ -73,7 +73,7 @@ body {
 <script>
 var WEIGHT_OF_SOFIA = 1000;
 var FONTS = [
-  { id: "sofia",  label: "Sofia XCond",      fam: "Sofia XCond",       w: 1000, ls: "-0.02em", file: "sofia-sans-extra-condensed-latin-wght-normal.woff2", src: "../assets/fonts/", var: true, cyr: 1, note: "текущий прототип" },
+  { id: "sofia",  label: "Sofia XCond",      fam: "Sofia XCond",       w: 1000, ls: "-0.02em", file: "sofia-sans-extra-condensed-latin-wght-normal.woff2", src: "/assets/fonts/", var: true, cyr: 1, note: "текущий прототип" },
   { id: "oswald", label: "Oswald",           fam: "WM Oswald",         w: 700,  ls: "-0.005em", file: "wm-oswald-latin.woff2",  var: true,  cyr: 1 },
   { id: "fira",   label: "Fira Cond",        fam: "WM FiraCond",       w: 900,  ls: "-0.015em", file: "wm-firacond-latin.woff2", var: false, cyr: 1 },
   { id: "saira",  label: "Saira Cond",       fam: "WM SairaCond",      w: 900,  ls: "-0.01em",  file: "saira-condensed-latin-900-normal.woff2", var: false, cyr: 1 },
@@ -84,14 +84,14 @@ var FONTS = [
   { id: "archivo",label: "Archivo Black",    fam: "WM ArchivoBlack",   w: 400,  ls: "-0.03em",  file: "wm-archivoblack-latin.woff2", var: false, cyr: 0 },
   { id: "anton",  label: "Anton",            fam: "WM Anton",          w: 400,  ls: "-0.02em",  file: "wm-anton-latin.woff2",   var: false, cyr: 0 },
   { id: "inter",  label: "Inter Tight",      fam: "WM InterTight",     w: 900,  ls: "-0.035em", file: "wm-intertight-latin.woff2", var: true, cyr: 1 },
-  { id: "unbounded", label: "Unbounded",     fam: "U",                 w: 900,  ls: "-0.03em",  file: "unbounded-latin-wght-normal.woff2", src: "../assets/fonts/", var: true, cyr: 1, note: "было в боевом" }
+  { id: "unbounded", label: "Unbounded",     fam: "U",                 w: 900,  ls: "-0.03em",  file: "unbounded-latin-wght-normal.woff2", src: "/assets/fonts/", var: true, cyr: 1, note: "было в боевом" }
 ];
 
 /* те же гарнитуры в родительском документе — иначе кнопки показываются фолбэком */
 (function definePreviewFonts() {
   var css = FONTS.map(function (f) {
     return '@font-face{font-family:"' + f.fam + '";font-weight:' + f.w + ';font-style:normal;font-display:block;' +
-      'src:url("' + (f.src || "fonts/") + f.file + '") format("' + (f.var ? "woff2-variations" : "woff2") + '")}';
+      'src:url("' + (f.src || "/concepts/fonts/") + f.file + '") format("' + (f.var ? "woff2-variations" : "woff2") + '")}';
   }).join("");
   var st = document.createElement("style");
   st.textContent = css;
@@ -115,7 +115,7 @@ FONTS.forEach(function (f) {
 });
 
 function cssFor(f) {
-  var base = f.src || "fonts/";
+  var base = f.src || "/concepts/fonts/";
   return '@font-face{font-family:"' + f.fam + '";font-weight:' + f.w + ';font-style:normal;font-display:block;' +
     'src:url("' + base + f.file + '") format("' + (f.var ? "woff2-variations" : "woff2") + '")}' +
     '.wm,.wm-ghost{font-family:"' + f.fam + '",Arial,sans-serif !important;font-weight:' + f.w + ' !important;' +
