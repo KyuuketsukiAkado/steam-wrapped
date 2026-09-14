@@ -26,7 +26,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400..900&family=JetBrains+Mono:wght@400..800&display=swap">
 <!-- ?v= — бамп версии при ручных правках css/js, иначе браузер отдаст кэш -->
-<link rel="stylesheet" href="assets/css/style.css?v=20260913-9">
+<link rel="stylesheet" href="assets/css/style.css?v=20260913-10">
 </head>
 <body>
 <a class="skip-link" href="#hero">К содержимому</a>
@@ -67,17 +67,24 @@
           <span class="hero__brand">Steam—Wrapped</span>
           <span class="hero__pill">RU · 2026</span>
         </div>
-        <div class="hero__stage">
-          <span class="meteor" aria-hidden="true"></span>
-          <span class="meteor" aria-hidden="true"></span>
-          <span class="meteor" aria-hidden="true"></span>
-          <h1 class="hero__title"><span class="t-steam">Steam</span><span class="t-wrap">Wrapped</span></h1>
+        <div class="hero__split">
+          <div class="hero__stage">
+            <span class="meteor" aria-hidden="true"></span>
+            <span class="meteor" aria-hidden="true"></span>
+            <span class="meteor" aria-hidden="true"></span>
+            <h1 class="hero__title"><span class="t-steam">Steam</span><span class="t-wrap">Wrapped</span></h1>
+          </div>
+          <aside class="hero__ticket" id="heroTicket" aria-hidden="true">
+            <span class="ticket__notch ticket__notch--top" aria-hidden="true"></span>
+            <span class="ticket__notch ticket__notch--bottom" aria-hidden="true"></span>
+            <div class="ticket__head">Steam—Wrapped</div>
+            <div class="ticket__num" data-count="ticket">0</div>
+            <p class="ticket__cap">часов в библиотеке</p>
+            <div class="ticket__bars"></div>
+            <div class="ticket__foot"><span id="ticketNick">—</span><span id="ticketSince"></span></div>
+          </aside>
         </div>
       </div>
-    </div>
-
-    <div class="marquee marquee--ticker" aria-hidden="true">
-      <div class="marquee__track" id="marquee"></div>
     </div>
 
     <div class="wrap hero__tools">
@@ -152,6 +159,9 @@
     </div>
   </section>
 
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee__track" id="marquee"></div>
+  </div>
 
   <!-- ============ ГЛАВНАЯ ИГРА ЖИЗНИ ============ -->
   <section id="soulmate" class="sec sec--red sec--c1">
@@ -376,7 +386,7 @@
 
 <script src="assets/js/data.js"></script>
 <script src="assets/js/profile-data.js"></script>
-<script src="assets/js/app.js?v=20260913-9"></script>
+<script src="assets/js/app.js?v=20260913-10"></script>
   <button class="to-top" id="toTop" type="button" aria-label="Наверх">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
   </button>

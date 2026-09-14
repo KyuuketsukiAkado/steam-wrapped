@@ -361,7 +361,8 @@
     games: gamesOwned,
     hours: totalHours,
     hours2w: hours2w,
-    smHours: soulmate ? soulmate.hours : 0
+    smHours: soulmate ? soulmate.hours : 0,
+    ticket: totalHours
   };
 
   function animate(node, to) {
@@ -389,21 +390,58 @@
   /* ---------- бегущая строка ---------- */
 
   (function marquee() {
-    /* Статичная полоса-хор под вордмарком: четыре главные цифры профиля.
-       Бегущая строка больше не нужна — постер и так живой. */
+    var h = soulmate ? soulmate.hours : totalHours;
     var items = [
-      num(totalHours) + " " + plural(totalHours, ["час", "часа", "часов"]),
-      num(gamesOwned) + " " + plural(gamesOwned, ["игра", "игры", "игр"]),
-      num(hours2w) + " ч за 2 недели",
-      num(neverPlayed) + " не запущено"
-    ];
+      num(gamesOwned) + " " + plural(gamesOwned, ["игра", "игры", "игр"]) + " в библиотеке",
+      num(totalHours) + " " + plural(totalHours, ["час", "часа", "часов"]) + " всего",
+      dec(totalHours / 24, 0) + " " + plural(totalHours / 24, ["день", "дня", "дней"]) + " нон-стоп",
+      num(neverPlayed) + " " + plural(neverPlayed, ["игра", "игры", "игр"]) + " не запущены ни разу",
+      soulmate ? soulmate.name + " — " + num(h) + " ч" : "",
+      num(hours2w) + " " + plural(hours2w, ["час", "часа", "часов"]) + " за две недели",
+      D.meta.memberSince ? "в Steam с " + new Date(D.meta.memberSince).getFullYear() + " года" : "",
+      "и это только Steam"
+    ].filter(Boolean);
     var marqueeNode = $("#marquee");
     marqueeNode.textContent = "";
-    items.forEach(function (text, i) {
+    // Дубль нужен для бесшовной прокрутки. Создаём DOM-узлы, а не HTML-строку:
+    // один из пунктов содержит имя игры, пришедшее от Steam.
+    items.concat(items).forEach(function (text) {
       var item = el("span");
-      if (i) item.appendChild(el("i", "", "·"));
+      item.appendChild(el("i", "", "✦"));
       item.appendChild(document.createTextNode(text));
       marqueeNode.appendChild(item);
+    });
+  })();
+
+  /* ---------- тикет-билет в hero: живой объект из данных ---------- */
+  (function heroTicket() {
+    var t = $("#heroTicket");
+    if (!t) return;
+    var nickEl = $("#ticketNick");
+    if (nickEl) nickEl.textContent = D.meta.persona || "—";
+    var sinceEl = $("#ticketSince");
+    if (sinceEl && D.meta.memberSince) {
+      sinceEl.textContent = "в Steam с " + new Date(D.meta.memberSince).getFullYear();
+    }
+    var wrap = $(".ticket__bars", t);
+    if (!wrap) return;
+    wrap.textContent = "";
+    var top = played.slice(0, 3);
+    if (!top.length) { wrap.style.display = "none"; return; }
+    var max = top[0].hours || 1;
+    top.forEach(function (g, i) {
+      var name = el("div", "ticket__row-name");
+      var b = el("b", "", g.name);
+      name.appendChild(b);
+      name.appendChild(document.createTextNode(" · " + num(g.hours) + " ч"));
+      var bar = el("div", "ticket__bar" + (i === 1 ? " ticket__bar--2" : i === 2 ? " ticket__bar--3" : ""));
+      var fill = el("i");
+      bar.appendChild(fill);
+      var row = el("div", "ticket__row");
+      row.appendChild(name);
+      row.appendChild(bar);
+      wrap.appendChild(row);
+      setTimeout(function () { fill.style.width = Math.max(6, Math.round(g.hours / max * 100)) + "%"; }, 60);
     });
   })();
 
