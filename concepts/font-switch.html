@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Стенд: подбор гарнитуры вордмарка</title>
+<style>
+@font-face { font-family: "U"; font-weight: 200 900; src: url("../assets/fonts/unbounded-latin-wght-normal.woff2") format("woff2-variations"); }
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 26px clamp(14px, 3vw, 40px) 60px;
+  background: #0A0807; color: #EDEDEF; font-family: "Golos Text", "Segoe UI", Arial, sans-serif;
+  background-image: radial-gradient(70% 30% at 50% 0%, rgba(186, 54, 54, 0.14), transparent 70%);
+}
+.top { display: flex; align-items: baseline; justify-content: space-between; gap: 18px; flex-wrap: wrap; border-bottom: 1px solid rgba(186, 54, 54, 0.55); padding-bottom: 13px; }
+.top b { font-family: "U", Arial, sans-serif; font-weight: 900; font-size: clamp(18px, 2.3vw, 26px); }
+.top span { font-family: monospace; font-size: 11.5px; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(237, 237, 239, 0.5); }
+.hint { margin: 16px 0 24px; max-width: 980px; font-size: 14.5px; line-height: 1.6; color: #C4C4CA; }
+.hint code { font-family: monospace; color: #E07A6B; }
+.picker { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 22px; }
+.fbtn {
+  display: flex; flex-direction: column; gap: 4px; align-items: flex-start;
+  padding: 10px 14px 11px; min-width: 178px; cursor: pointer;
+  background: #141110; color: #EDEDEF; text-align: left;
+  border: 1px solid rgba(255, 241, 231, 0.12); border-radius: 5px;
+  transition: border-color .2s, background .2s, transform .2s;
+}
+.fbtn:hover { transform: translateY(-2px); border-color: rgba(224, 122, 107, 0.55); }
+.fbtn.is-on { border-color: var(--c1); background: #1B1514; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5); }
+.fbtn .spec { font-size: 21px; line-height: 1.05; text-transform: uppercase; letter-spacing: -0.01em; }
+.fbtn .nm { font-family: monospace; font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(237, 237, 239, 0.55); }
+.fbtn.is-on .nm { color: #E07A6B; }
+.metrics {
+  display: flex; gap: 10px 26px; flex-wrap: wrap; align-items: baseline;
+  margin-bottom: 24px; padding: 12px 16px; border: 1px solid rgba(255, 241, 231, 0.10);
+  border-radius: 5px; background: rgba(20, 17, 16, 0.7);
+  font-family: monospace; font-size: 12px; color: rgba(237, 237, 239, 0.65);
+}
+.metrics b { color: #E07A6B; font-weight: 700; }
+.board { display: flex; gap: 26px; align-items: flex-start; flex-wrap: wrap; }
+.cap { font-family: monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #E07A6B; margin: 0 0 8px; }
+.frame { border: 1px solid rgba(255, 241, 231, 0.10); border-radius: 5px; overflow: hidden; background: #0A0807; }
+.frame iframe { display: block; border: 0; }
+.clip-d { width: 965px; height: 603px; }
+.clip-d iframe { width: 1440px; height: 900px; transform: scale(0.67); transform-origin: 0 0; }
+.clip-m { width: 360px; height: 780px; }
+.clip-m iframe { width: 390px; height: 844px; transform: scale(0.923); transform-origin: 0 0; }
+</style>
+</head>
+<body>
+<div class="top"><b>ПОДБОР ГАРНИТУРЫ ВОРДМАРКА</b><span>кликайте — вся сцена перерисовывается выбранным шрифтом</span></div>
+<p class="hint">
+  Слева — десктоп 1440×900, справа — мобилка 390×844. Выбранный шрифт применяется к обеим строкам
+  вордмарка и к призрачному номеру. «Высота блока» — сколько места занимают STEAM + WRAPPED при
+  одинаковой ширине колонки: чем больше, тем «крупнее» сцена. «Кириллица» — понадобится, если этим же
+  шрифтом набирать заголовки секций.
+</p>
+
+<div class="picker" id="picker"></div>
+<div class="metrics" id="metrics"><span>замер…</span></div>
+
+<div class="board">
+  <div>
+    <p class="cap">desktop · 1440 × 900</p>
+    <div class="frame clip-d"><iframe id="frD" src="/concepts/hero-proto.html" scrolling="no" title="Десктоп"></iframe></div>
+  </div>
+  <div>
+    <p class="cap">mobile · 390 × 844</p>
+    <div class="frame clip-m"><iframe id="frM" src="/concepts/hero-proto.html" scrolling="no" title="Мобилка"></iframe></div>
+  </div>
+</div>
+
+<script>
+var WEIGHT_OF_SOFIA = 1000;
+var FONTS = [
+  { id: "sofia",  label: "Sofia XCond",      fam: "Sofia XCond",       w: 1000, ls: "-0.02em", file: "sofia-sans-extra-condensed-latin-wght-normal.woff2", src: "../assets/fonts/", var: true, cyr: 1, note: "текущий прототип" },
+  { id: "oswald", label: "Oswald",           fam: "WM Oswald",         w: 700,  ls: "-0.005em", file: "wm-oswald-latin.woff2",  var: true,  cyr: 1 },
+  { id: "fira",   label: "Fira Cond",        fam: "WM FiraCond",       w: 900,  ls: "-0.015em", file: "wm-firacond-latin.woff2", var: false, cyr: 1 },
+  { id: "saira",  label: "Saira Cond",       fam: "WM SairaCond",      w: 900,  ls: "-0.01em",  file: "saira-condensed-latin-900-normal.woff2", var: false, cyr: 1 },
+  { id: "tektur", label: "Tektur",           fam: "WM Tektur",         w: 900,  ls: "-0.02em",  file: "wm-tektur-latin.woff2",  var: true,  cyr: 1 },
+  { id: "chakra", label: "Chakra Petch",     fam: "WM Chakra",         w: 700,  ls: "-0.01em",  file: "chakra-petch-latin-700-normal.woff2", var: false, cyr: 1 },
+  { id: "russo",  label: "Russo One",        fam: "WM Russo",          w: 400,  ls: "-0.01em",  file: "wm-russoone-latin.woff2", var: false, cyr: 1 },
+  { id: "bebas",  label: "Bebas Neue",       fam: "WM Bebas",          w: 400,  ls: "0em",      file: "bebas-neue-latin-400-normal.woff2", var: false, cyr: 0 },
+  { id: "archivo",label: "Archivo Black",    fam: "WM ArchivoBlack",   w: 400,  ls: "-0.03em",  file: "wm-archivoblack-latin.woff2", var: false, cyr: 0 },
+  { id: "anton",  label: "Anton",            fam: "WM Anton",          w: 400,  ls: "-0.02em",  file: "wm-anton-latin.woff2",   var: false, cyr: 0 },
+  { id: "inter",  label: "Inter Tight",      fam: "WM InterTight",     w: 900,  ls: "-0.035em", file: "wm-intertight-latin.woff2", var: true, cyr: 1 },
+  { id: "unbounded", label: "Unbounded",     fam: "U",                 w: 900,  ls: "-0.03em",  file: "unbounded-latin-wght-normal.woff2", src: "../assets/fonts/", var: true, cyr: 1, note: "было в боевом" }
+];
+
+/* те же гарнитуры в родительском документе — иначе кнопки показываются фолбэком */
+(function definePreviewFonts() {
+  var css = FONTS.map(function (f) {
+    return '@font-face{font-family:"' + f.fam + '";font-weight:' + f.w + ';font-style:normal;font-display:block;' +
+      'src:url("' + (f.src || "fonts/") + f.file + '") format("' + (f.var ? "woff2-variations" : "woff2") + '")}';
+  }).join("");
+  var st = document.createElement("style");
+  st.textContent = css;
+  document.head.appendChild(st);
+})();
+
+var picker = document.getElementById("picker");
+var metrics = document.getElementById("metrics");
+var current = FONTS[0];
+var frames = [document.getElementById("frD"), document.getElementById("frM")];
+
+FONTS.forEach(function (f) {
+  var b = document.createElement("button");
+  b.type = "button";
+  b.className = "fbtn" + (f.id === current.id ? " is-on" : "");
+  b.dataset.id = f.id;
+  b.innerHTML = '<span class="spec" style="font-family:\'' + f.fam + '\';font-weight:' + f.w + '">Steam</span>' +
+    '<span class="nm">' + f.label + (f.note ? " · " + f.note : "") + (f.cyr ? "" : " · без кириллицы") + "</span>";
+  b.addEventListener("click", function () { apply(f.id); });
+  picker.appendChild(b);
+});
+
+function cssFor(f) {
+  var base = f.src || "fonts/";
+  return '@font-face{font-family:"' + f.fam + '";font-weight:' + f.w + ';font-style:normal;font-display:block;' +
+    'src:url("' + base + f.file + '") format("' + (f.var ? "woff2-variations" : "woff2") + '")}' +
+    '.wm,.wm-ghost{font-family:"' + f.fam + '",Arial,sans-serif !important;font-weight:' + f.w + ' !important;' +
+    'letter-spacing:' + f.ls + ' !important}';
+}
+
+function apply(id) {
+  var f = FONTS.filter(function (x) { return x.id === id; })[0];
+  if (!f) return;
+  current = f;
+  Array.prototype.forEach.call(picker.children, function (b) {
+    b.classList.toggle("is-on", b.dataset.id === id);
+  });
+  frames.forEach(function (fr) {
+    try {
+      var doc = fr.contentDocument;
+      if (!doc) return;
+      var st = doc.getElementById("wmFont") || doc.createElement("style");
+      st.id = "wmFont";
+      st.textContent = cssFor(f);
+      doc.head.appendChild(st);
+      var win = fr.contentWindow;
+      var refit = function () { if (win.__wmFit) win.__wmFit(); };
+      /* фит обязан считаться ПОСЛЕ загрузки глифов: иначе Range меряет фолбэк */
+      if (doc.fonts && doc.fonts.load) {
+        doc.fonts.load(f.w + ' 100px "' + f.fam + '"').then(refit).catch(refit);
+      }
+      setTimeout(refit, 260);
+      setTimeout(refit, 700);
+    } catch (e) { /* iframe ещё грузится */ }
+  });
+  setTimeout(report, 950);
+}
+
+function report() {
+  try {
+    var doc = frames[0].contentDocument;
+    var lines = doc.querySelectorAll("[data-wm]");
+    if (!lines.length) return;
+    var h = 0, w = 0, sizes = [];
+    Array.prototype.forEach.call(lines, function (sp) {
+      var rng = document.createRange(); rng.selectNodeContents(sp);
+      w = Math.max(w, rng.getBoundingClientRect().width);
+      h += sp.getBoundingClientRect().height;
+      sizes.push(Math.round(parseFloat(getComputedStyle(sp).fontSize)));
+    });
+    metrics.innerHTML = "<span>шрифт <b>" + current.label + "</b></span>" +
+      "<span>кегль строк <b>" + sizes.join(" / ") + " px</b></span>" +
+      "<span>высота блока <b>" + Math.round(h) + " px</b></span>" +
+      "<span>ширина колонки <b>" + Math.round(w) + " px</b></span>" +
+      "<span>кириллица <b>" + (current.cyr ? "есть" : "нет") + "</b></span>";
+  } catch (e) { /* пусто */ }
+}
+
+frames.forEach(function (fr) {
+  fr.addEventListener("load", function () {
+    try {
+      /* отдаём прототипу хук, чтобы стенд мог попросить пересчитать фит */
+      var win = fr.contentWindow, doc = fr.contentDocument;
+
+    } catch (e) { /* пусто */ }
+    apply(current.id);
+  });
+});
+
+/* первичный замер, когда вордмарк уже отрисован */
+setTimeout(function () { apply(current.id); }, 1400);
+</script>
+</body>
+</html>

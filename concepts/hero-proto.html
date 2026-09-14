@@ -354,6 +354,8 @@ body { background: var(--bg); color: var(--ink); font-family: var(--sans); }
     }
   }
   fit();
+  /* хук для стенда подбора гарнитуры: после смены шрифта фит надо пересчитать */
+  window.__wmFit = fit;
   window.addEventListener("resize", fit, { passive: true });
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
   window.addEventListener("load", fit);

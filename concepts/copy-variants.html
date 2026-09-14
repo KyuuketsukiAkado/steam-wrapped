@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Стенд: смысл hero — три варианта текста</title>
+<style>
+@font-face { font-family: "U"; font-weight: 200 900; src: url("/assets/fonts/unbounded-latin-wght-normal.woff2") format("woff2-variations"); }
+* { box-sizing: border-box; }
+body { margin: 0; padding: 28px clamp(14px, 3vw, 40px) 60px; background: #0A0807; color: #EDEDEF; font-family: "Golos Text", "Segoe UI", Arial, sans-serif;
+  background-image: radial-gradient(70% 26% at 50% 0%, rgba(186, 54, 54, 0.14), transparent 70%); }
+.top { display: flex; align-items: baseline; justify-content: space-between; gap: 18px; flex-wrap: wrap; border-bottom: 1px solid rgba(186, 54, 54, 0.55); padding-bottom: 13px; margin-bottom: 18px; }
+.top b { font-family: "U", Arial, sans-serif; font-weight: 900; font-size: clamp(18px, 2.3vw, 26px); }
+.top span { font-family: monospace; font-size: 11.5px; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(237, 237, 239, 0.5); }
+.hint { max-width: 1000px; margin: 0 0 24px; font-size: 14.5px; line-height: 1.6; color: #C4C4CA; }
+.var { border-top: 1px solid rgba(255, 241, 231, 0.10); padding-top: 18px; margin-bottom: 26px; }
+.vh { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin-bottom: 6px; }
+.vh b { font-family: "U", Arial, sans-serif; font-weight: 900; font-size: clamp(17px, 1.9vw, 22px); }
+.vh em { font-style: normal; font-family: monospace; font-size: 11.5px; letter-spacing: 0.1em; text-transform: uppercase; color: #E07A6B; }
+.vd { max-width: 1000px; margin: 0 0 14px; font-size: 14px; line-height: 1.6; color: #B9B9C0; }
+.frame { width: 100%; max-width: 1200px; height: 743px; overflow: hidden; border: 1px solid rgba(255, 241, 231, 0.10); border-radius: 5px; }
+.frame iframe { width: 1440px; height: 1126px; border: 0; transform: scale(0.66); transform-origin: 0 0; display: block; }
+</style>
+</head>
+<body>
+<div class="top"><b>СМЫСЛ HERO · ТРИ ВАРИАНТА</b><span>одна сцена · меняется только текст-обещание</span></div>
+<p class="hint">
+  Во всех трёх меняется только верхняя и нижняя подписи вокруг вордмарка: надстрочник, строка-обещание и кнопка.
+  Вордмарк, прибор, pit-pass и диагональ не тронуты — сравниваем именно то, что человек понимает за первую секунду.
+</p>
+
+<div class="var">
+  <div class="vh"><b>Вариант 1 — «витрина привычек»</b><em>прямо и по делу</em></div>
+  <p class="vd">Сразу говорит, что делает сервис: вставить ссылку → получить страницу с разбором библиотеки. Скучнее всех, но не оставляет вопросов.</p>
+  <div class="frame"><iframe src="/concepts/hero-proto.html" scrolling="no" data-v="1" title="Вариант 1"></iframe></div>
+</div>
+
+<div class="var">
+  <div class="vh"><b>Вариант 2 — «афиша содержания»</b><em>обещание через оглавление</em></div>
+  <p class="vd">Вместо объяснения — три обещания-рубрики: главная игра жизни, топ по часам, что запустить вечером. Работает как афиша: видно, что внутри.</p>
+  <div class="frame"><iframe src="/concepts/hero-proto.html" scrolling="no" data-v="2" title="Вариант 2"></iframe></div>
+</div>
+
+<div class="var">
+  <div class="vh"><b>Вариант 3 — «диагноз по библиотеке»</b><em>в тон текстам сайта</em></div>
+  <p class="vd">Заходит через факт о самом игроке: 68 игр из 323 так и не запущены. Самый цепляющий и самый похожий на Wrapped по настроению.</p>
+  <div class="frame"><iframe src="/concepts/hero-proto.html" scrolling="no" data-v="3" title="Вариант 3"></iframe></div>
+</div>
+
+<script>
+var COPY = {
+  1: {
+    eyebrow: "Steam-профиль → страница с цифрами · за 30 секунд",
+    value: "Вставь ссылку на профиль и получишь разбор библиотеки: главная игра жизни, топ по часам, жанры и что запустить сегодня вечером.",
+    cta: "Построить wrapped →",
+    note: "Живой пример ↓"
+  },
+  2: {
+    eyebrow: "Отчёт о твоей библиотеке · семь глав",
+    chapters: ["01 Главная игра жизни", "02 Топ по часам", "03 Что запустить вечером"],
+    value: "Разбор публичного Steam-профиля в одном длинном скролле — от главной игры жизни до судьбы сегодняшнего вечера.",
+    cta: "Собрать свой отчёт →"
+  },
+  3: {
+    eyebrow: "Библиотека помнит всё",
+    value: "249 игр из 323 ты всё-таки запустил. Остальные 68 ждут своей очереди. Покажем, во что ты играл на самом деле — и что стоит открыть сегодня.",
+    cta: "Показать мой Steam →"
+  }
+};
+
+var CSS = '' +
+  '.hv-eyebrow{font-family:var(--mono);font-size:11.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;' +
+  'color:var(--c4);margin:clamp(12px,1.6vw,22px) 0 0}' +
+  '.hv-value{max-width:62ch;margin:clamp(14px,1.8vw,26px) 0 0;font-size:clamp(14px,1.15vw,17px);line-height:1.55;color:var(--ink-dim)}' +
+  '.hv-value b{color:var(--ink);font-weight:700}' +
+  '.hv-chapters{display:flex;flex-wrap:wrap;gap:10px clamp(18px,3vw,44px);margin:clamp(14px,1.8vw,26px) 0 0;' +
+  'font-family:var(--mono);font-size:clamp(10.5px,.95vw,13px);font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink)}' +
+  '.hv-chapters span::before{content:"— ";color:var(--c1)}' +
+  '.hv-actions{display:flex;align-items:center;gap:clamp(14px,2vw,26px);flex-wrap:wrap;margin:clamp(16px,2vw,28px) 0 0}' +
+  '.hv-cta{display:inline-flex;align-items:center;gap:10px;padding:15px 26px;background:#EDEDEF;color:#12100F;border:0;border-radius:4px;' +
+  'font-family:var(--mono);font-size:12.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;cursor:pointer}' +
+  '.hv-cta:hover{background:#FFFFFF}' +
+  '.hv-note{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint)}';
+
+Array.prototype.forEach.call(document.querySelectorAll("iframe"), function (fr) {
+  fr.addEventListener("load", function () {
+    var v = COPY[fr.dataset.v];
+    if (!v) return;
+    try {
+      var doc = fr.contentDocument, win = fr.contentWindow;
+      var st = doc.createElement("style");
+      st.textContent = CSS;
+      doc.head.appendChild(st);
+
+      var meta = doc.querySelector(".hero__meta");
+      var grid = doc.querySelector(".hero__grid");
+
+      var eyebrow = doc.createElement("p");
+      eyebrow.className = "hv-eyebrow";
+      eyebrow.textContent = v.eyebrow;
+      meta.parentNode.insertBefore(eyebrow, meta.nextSibling);
+
+      var block = doc.createElement("div");
+      var html = "";
+      if (v.chapters) html += '<div class="hv-chapters">' + v.chapters.map(function (c) { return "<span>" + c + "</span>"; }).join("") + "</div>";
+      if (v.value) html += '<p class="hv-value">' + v.value + "</p>";
+      html += '<div class="hv-actions"><button class="hv-cta" type="button">' + v.cta + "</button>" +
+        (v.note ? '<span class="hv-note">' + v.note + "</span>" : "") + "</div>";
+      block.innerHTML = html;
+      grid.parentNode.insertBefore(block, grid.nextSibling);
+
+      var refit = function () { if (win.__wmFit) win.__wmFit(); };
+      setTimeout(refit, 200);
+      setTimeout(refit, 600);
+    } catch (e) { /* пусто */ }
+  });
+});
+</script>
+</body>
+</html>

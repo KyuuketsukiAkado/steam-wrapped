@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Одна сцена — шесть гарнитур</title>
+<style>
+@font-face { font-family: "U"; font-weight: 200 900; src: url("/assets/fonts/unbounded-latin-wght-normal.woff2") format("woff2-variations"); }
+* { box-sizing: border-box; }
+body { margin: 0; padding: 34px 38px 50px; width: 1180px; background: #0A0807; color: #EDEDEF; font-family: Arial, sans-serif; }
+.top { display: flex; align-items: baseline; justify-content: space-between; border-bottom: 1px solid rgba(186, 54, 54, 0.55); padding-bottom: 12px; margin-bottom: 22px; }
+.top b { font-family: "U", Arial, sans-serif; font-weight: 900; font-size: 22px; }
+.top span { font-family: monospace; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(237, 237, 239, 0.5); }
+.row { display: grid; grid-template-columns: 178px 1fr; gap: 18px; align-items: center; margin-bottom: 16px; border-top: 1px solid rgba(255, 241, 231, 0.08); padding-top: 14px; }
+.row:first-of-type { border-top: 0; padding-top: 0; }
+.info b { display: block; font-size: 15px; margin-bottom: 3px; }
+.info em { font-style: normal; font-family: monospace; font-size: 10.5px; line-height: 1.5; color: rgba(237, 237, 239, 0.5); display: block; }
+.info i { font-style: normal; font-family: monospace; font-size: 10.5px; color: #E07A6B; display: block; margin-top: 6px; }
+.frame { width: 936px; height: 292px; overflow: hidden; border: 1px solid rgba(255, 241, 231, 0.09); border-radius: 4px; }
+.frame iframe { width: 1440px; height: 900px; border: 0; transform: scale(0.65); transform-origin: 0 0; display: block; }
+</style>
+</head>
+<body>
+<div class="top"><b>ОДНА СЦЕНА — ШЕСТЬ ГАРНИТУР</b><span>одинаковая ширина колонки · реальный рендер</span></div>
+<div id="rows"></div>
+<script>
+var CANDS = [
+  { n: "Sofia Sans Extra Condensed 1000", f: "Sofia XCond", w: 1000, ls: "-0.02em", file: "sofia-sans-extra-condensed-latin-wght-normal.woff2", base: "/assets/fonts/", va: 1, cyr: 1, note: "текущий прототип" },
+  { n: "Bebas Neue 400", f: "WM Bebas", w: 400, ls: "0em", file: "bebas-neue-latin-400-normal.woff2", base: "/concepts/fonts/", va: 0, cyr: 0 },
+  { n: "Oswald 700", f: "WM Oswald", w: 700, ls: "-0.005em", file: "wm-oswald-latin.woff2", base: "/concepts/fonts/", va: 1, cyr: 1 },
+  { n: "Inter Tight 900", f: "WM InterTight", w: 900, ls: "-0.035em", file: "wm-intertight-latin.woff2", base: "/concepts/fonts/", va: 1, cyr: 1 },
+  { n: "Tektur 900", f: "WM Tektur", w: 900, ls: "-0.02em", file: "wm-tektur-latin.woff2", base: "/concepts/fonts/", va: 1, cyr: 1 },
+  { n: "Unbounded 900", f: "U", w: 900, ls: "-0.03em", file: "unbounded-latin-wght-normal.woff2", base: "/assets/fonts/", va: 1, cyr: 1, note: "было в боевом hero" }
+];
+var rows = document.getElementById("rows");
+CANDS.forEach(function (c) {
+  var d = document.createElement("div");
+  d.className = "row";
+  d.innerHTML = '<div class="info"><b>' + c.n + '</b><em>' + (c.note ? c.note + "<br>" : "") +
+    (c.cyr ? "кириллица есть" : "только латиница") + '</em><i data-m>замер…</i></div>' +
+    '<div class="frame"><iframe src="/concepts/hero-proto.html" scrolling="no" title="' + c.n + '"></iframe></div>';
+  rows.appendChild(d);
+});
+var iframes = document.querySelectorAll("iframe");
+Array.prototype.forEach.call(iframes, function (fr, i) {
+  fr.addEventListener("load", function () {
+    var c = CANDS[i];
+    try {
+      var doc = fr.contentDocument, win = fr.contentWindow;
+      var st = doc.createElement("style");
+      st.textContent = '@font-face{font-family:"' + c.f + '";font-weight:' + c.w + ';font-style:normal;font-display:block;' +
+        'src:url("' + c.base + c.file + '") format("' + (c.va ? "woff2-variations" : "woff2") + '")}' +
+        '.wm,.wm-ghost{font-family:"' + c.f + '",Arial,sans-serif !important;font-weight:' + c.w + ' !important;letter-spacing:' + c.ls + ' !important}';
+      doc.head.appendChild(st);
+      var refit = function () { if (win.__wmFit) win.__wmFit(); };
+      if (doc.fonts && doc.fonts.load) doc.fonts.load(c.w + ' 100px "' + c.f + '"').then(refit).catch(refit);
+      setTimeout(function () {
+        refit();
+        var lines = doc.querySelectorAll("[data-wm]"), h = 0, sizes = [];
+        Array.prototype.forEach.call(lines, function (sp) {
+          h += sp.getBoundingClientRect().height;
+          sizes.push(Math.round(parseFloat(getComputedStyle(sp).fontSize)));
+        });
+        var el = document.querySelectorAll("[data-m]")[i];
+        if (el) el.textContent = "кегль " + sizes.join("/") + " · блок " + Math.round(h) + "px";
+      }, 500);
+    } catch (e) { /* пусто */ }
+  });
+});
+</script>
+</body>
+</html>
