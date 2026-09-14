@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Стенд hero — прототип «Redline-приборка»</title>
+<style>
+@font-face {
+  font-family: "U"; font-weight: 200 900; font-style: normal;
+  src: url("../assets/fonts/unbounded-latin-wght-normal.woff2") format("woff2-variations");
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 30px clamp(16px, 3vw, 44px) 60px;
+  background: #0A0807; color: #EDEDEF;
+  font-family: "Golos Text", "Segoe UI", Arial, sans-serif;
+  background-image: radial-gradient(70% 40% at 50% 0%, rgba(186, 54, 54, 0.16), transparent 70%);
+}
+.top {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 18px; flex-wrap: wrap;
+  border-bottom: 1px solid rgba(186, 54, 54, 0.55); padding-bottom: 14px; margin-bottom: 22px;
+}
+.top b { font-family: "U", Arial, sans-serif; font-weight: 900; font-size: clamp(19px, 2.4vw, 27px); }
+.top span { font-family: monospace; font-size: 11.5px; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(237, 237, 239, 0.5); }
+.note { max-width: 940px; margin-bottom: 26px; font-size: 14.5px; line-height: 1.6; color: #C4C4CA; }
+.note code { font-family: monospace; color: #E07A6B; }
+.board { display: flex; gap: 26px; align-items: flex-start; flex-wrap: wrap; }
+.col { min-width: 0; }
+.cap { font-family: monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #E07A6B; margin: 0 0 8px; }
+.frame { border: 1px solid rgba(255, 241, 231, 0.10); border-radius: 5px; overflow: hidden; background: #0A0807; }
+.frame iframe { display: block; border: 0; }
+.clip-d { width: min(100%, 966px); height: 604px; }
+.clip-d iframe { width: 1440px; height: 900px; transform: scale(0.67); transform-origin: 0 0; }
+.clip-m { width: 390px; height: 844px; }
+.clip-m iframe { width: 390px; height: 844px; }
+.links { margin-top: 26px; border-top: 1px solid rgba(255, 241, 231, 0.10); padding-top: 16px; display: flex; gap: 22px; flex-wrap: wrap; font-family: monospace; font-size: 12px; }
+.links a { color: #E07A6B; text-decoration: none; border-bottom: 1px solid rgba(224, 122, 107, 0.4); }
+.links a:hover { color: #EDEDEF; }
+</style>
+</head>
+<body>
+<div class="top"><b>СТЕНД HERO · ПРОТОТИП</b><span>боевые index.html / style.css / app.js не тронуты</span></div>
+<p class="note">
+  Живой прототип сцены «Redline-приборка»: вордмарк на Sofia Sans Extra Condensed 1000, полукруглый прибор
+  с рисками и прогресс-дугой, pit-pass поверх кирпичной диагонали. Внутри рамок всё работает по-настоящему —
+  наведите курсор на билет, обновите страницу, чтобы увидеть выезд дуги.<br>
+  Исходник — <code>concepts/hero-proto.html</code>, единственный файл, без сборки и зависимостей.
+</p>
+
+<div class="board">
+  <div class="col">
+    <p class="cap">desktop · 1440 × 900</p>
+    <div class="frame clip-d"><iframe src="hero-proto.html" title="Прототип hero, десктоп" scrolling="no"></iframe></div>
+  </div>
+  <div class="col">
+    <p class="cap">mobile · 390 × 844</p>
+    <div class="frame clip-m"><iframe src="hero-proto.html" title="Прототип hero, мобилка"></iframe></div>
+  </div>
+</div>
+
+<div class="links">
+  <a href="hero-proto.html">прототип на весь экран →</a>
+  <a href="hero-concepts.jpg">три концепта (лист выбора)</a>
+  <a href="font-compare-finalists.png">сравнение гарнитур</a>
+</div>
+</body>
+</html>
