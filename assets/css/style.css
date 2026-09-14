@@ -329,7 +329,7 @@ section { padding: var(--section-pad) 0; }
 .hero__red {
   padding: clamp(40px, 5.5vw, 72px) 0 0; text-align: left;
   background:
-    radial-gradient(62% 64% at 50% 62%, rgba(186, 54, 54, 0.40), rgba(119, 36, 32, 0.16) 48%, transparent 74%),
+    radial-gradient(68% 74% at var(--mx, 50%) var(--my, 58%), rgba(186, 54, 54, 0.55), rgba(119, 36, 32, 0.20) 50%, transparent 76%),
     #0A0807;
 }
 .hero__tools { padding-top: clamp(48px, 6vw, 88px); padding-bottom: clamp(60px, 8vw, 110px); position: relative; }
@@ -392,17 +392,35 @@ section { padding: var(--section-pad) 0; }
   color: #FFFFFF; text-align: center;
   width: 102%; margin-left: -1%;
   position: relative; z-index: 1;
+  /* микро-дрейф за курсором: этажи дышат, постер живой (--px/--py ставит JS) */
+  transform: translate3d(calc(var(--px, 0) * 12px), calc(var(--py, 0) * 5px), 0);
+  will-change: transform; transition: transform 0.25s ease-out;
 }
 /* Две строки-плаката: каждую натягивает на ширину h1 measureText (см. app.js).
    Пока JS не отработал — честные vw-fallback'и; vh-кап страхует низкие окна. */
 .hero__title .t-steam, .hero__title .t-wrap { display: block; white-space: nowrap; }
+/* угловые аннотации сцены: моноширинные метки, как на чертеже/постере */
+.hero__stage::before, .hero__stage::after {
+  position: absolute; top: clamp(10px, 1.4vw, 22px); z-index: 2;
+  font-family: var(--mono); font-size: 11px; font-weight: 700;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.40); pointer-events: none;
+}
+.hero__stage::before { content: "// итоги года — 2026"; left: 3.5vw; }
+.hero__stage::after  { content: "открытые данные steam"; right: 3.5vw; }
+@media (max-width: 620px) {
+  .hero__stage::before, .hero__stage::after { display: none; }
+}
 .hero__title .t-steam {
   font-size: min(var(--fit-steam, 19vw), 24vh);
+  /* офсетный сдвиг: эффект раскладки печатного станка, без обводок и градиентов */
+  text-shadow: 0.032em 0.032em 0 rgba(186, 54, 54, 0.9);
   animation: title-in 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.25s both;
 }
 .hero__title .t-wrap {
   font-size: min(var(--fit-wrap, 13vw), 19vh);
   color: var(--c1);
+  text-shadow: 0.03em 0.03em 0 rgba(119, 36, 32, 0.9);
   animation: title-in 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.4s both;
 }
 @keyframes title-in {
@@ -413,9 +431,9 @@ section { padding: var(--section-pad) 0; }
 /* звездопад за типом: три метеора чертят сцену и гаснут */
 .meteor {
   position: absolute; z-index: 0; pointer-events: none;
-  width: 140px; height: 2px; border-radius: 999px;
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0) 85%);
-  box-shadow: 0 0 12px rgba(255, 255, 255, 0.35);
+  width: 180px; height: 3px; border-radius: 999px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.95), rgba(224, 122, 107, 0) 88%);
+  box-shadow: 0 0 16px rgba(224, 122, 107, 0.55);
   opacity: 0;
   animation: meteor-fall 5s linear infinite;
 }
@@ -1078,6 +1096,10 @@ a.game-link:hover { text-decoration: underline; text-decoration-color: currentCo
 .marquee {
   overflow: hidden; padding: clamp(16px, 2vw, 30px) 0;
   background: var(--c1);
+}
+.marquee--ticker {
+  transform: rotate(-0.6deg) translate3d(calc(var(--px, 0) * -8px), 0, 0);
+  transition: transform 0.25s ease-out;
 }
 .marquee__track { display: flex; gap: 38px; width: max-content; animation: slide 38s linear infinite; }
 .marquee:hover .marquee__track { animation-play-state: paused; }

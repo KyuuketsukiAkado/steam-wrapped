@@ -2471,6 +2471,9 @@
           if (r.width && r.height) {
             hero.style.setProperty("--mx", ((cx - r.left) / r.width * 100).toFixed(1) + "%");
             hero.style.setProperty("--my", ((cy - r.top) / r.height * 100).toFixed(1) + "%");
+            /* нормализованный курсор -1..1: дрейф вордмарка и тикера */
+            hero.style.setProperty("--px", ((cx - r.left) / r.width - 0.5).toFixed(3));
+            hero.style.setProperty("--py", ((cy - r.top) / r.height - 0.5).toFixed(3));
           }
         });
       }, { passive: true });
