@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Прототип hero v4 — «Гигантизм / минимализм»</title>
+<!--
+  ПРОТОТИП v4. Боевые index.html / style.css / app.js не задействованы.
+
+  Правила этой версии:
+  - никакого мелкого текста: убраны моно-лента, оглавление 01-07, подписи по углам,
+    прибор с рисками и подстрочники;
+  - гигантизм: вордмарк на всю ширину окна, две строки во всю высоту сцены;
+  - одна фраза-смысл крупным кеглем обычным регистром и одна кнопка;
+  - билет-pit-pass остаётся (не трогаем) и работает акцентом справа;
+  - приглушённая палитра «кирпич» — без изменений.
+-->
+<style>
+@font-face {
+  font-family: "Russo"; font-style: normal; font-display: block; font-weight: 400;
+  src: url("/concepts/fonts/russo-one-latin-400-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+@font-face {
+  font-family: "Russo"; font-style: normal; font-display: block; font-weight: 400;
+  src: url("/concepts/fonts/russo-one-cyrillic-400-normal.woff2") format("woff2");
+  unicode-range: U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;
+}
+@font-face {
+  font-family: "Mono Proto"; font-style: normal; font-display: block; font-weight: 100 800;
+  src: url("/concepts/fonts/jetbrains-mono-latin-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+@font-face {
+  font-family: "Mono Proto"; font-style: normal; font-display: block; font-weight: 100 800;
+  src: url("/concepts/fonts/jetbrains-mono-cyrillic-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;
+}
+@font-face {
+  font-family: "Golos Proto"; font-style: normal; font-display: block; font-weight: 100 900;
+  src: url("/concepts/fonts/golos-text-latin-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+@font-face {
+  font-family: "Golos Proto"; font-style: normal; font-display: block; font-weight: 100 900;
+  src: url("/concepts/fonts/golos-text-cyrillic-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;
+}
+
+:root {
+  --bg: #0A0807; --bg-soft: #141110;
+  --ink: #EDEDEF; --ink-dim: #A7A7AD; --ink-faint: #6E6E75;
+  --c1: #BA3636; --c2: #9C2E28; --c3: #772420; --c4: #E07A6B;
+  --gutter: clamp(16px, 2.2vw, 34px);
+  --display: "Russo", "Arial Narrow", Arial, sans-serif;
+  --sans: "Golos Proto", "Segoe UI", Arial, sans-serif;
+  --mono: "Mono Proto", Consolas, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: var(--sans); }
+
+.hero {
+  position: relative; isolation: isolate; overflow-x: clip;
+  min-height: 100svh;
+  display: grid; grid-template-rows: auto 1fr auto;
+  gap: clamp(16px, 2.4vw, 40px);
+  padding: clamp(20px, 2.4vw, 34px) var(--gutter) clamp(28px, 3.4vw, 52px);
+  background:
+    radial-gradient(76% 62% at 42% 8%, rgba(186, 54, 54, 0.42), rgba(119, 36, 32, 0.10) 54%, transparent 78%),
+    #0A0807;
+}
+/* единственная декорация: тёмная кирпичная полоса у нижнего края */
+.hero::after {
+  content: ""; position: absolute; left: -2%; right: -2%; bottom: -16%; height: 30%; z-index: 0;
+  background: linear-gradient(180deg, rgba(120, 38, 33, 0.55), rgba(48, 18, 16, 0.86));
+  border-top: 1px solid rgba(186, 54, 54, 0.32);
+  clip-path: polygon(0 48%, 100% 0, 100% 100%, 0 100%);
+  pointer-events: none;
+}
+.hero > * { position: relative; z-index: 1; }
+
+/* тонкая сервисная строка — единственный мелкий элемент на всю сцену */
+.nav {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  font-family: var(--mono); font-size: clamp(11px, 0.86vw, 13px); font-weight: 700;
+  letter-spacing: 0.16em; text-transform: uppercase; color: rgba(237, 237, 239, 0.62);
+}
+.nav b { color: #FFFFFF; font-weight: 700; }
+
+/* ===== гигантский вордмарк: на всю ширину, две строки почти во всю высоту ===== */
+.wordmark { position: relative; align-self: center; }
+.wm {
+  display: block; width: 100%; text-align: center; white-space: nowrap;
+  font-family: var(--display); font-weight: 400; text-transform: uppercase;
+  line-height: 0.82; letter-spacing: -0.015em;
+}
+.wm--steam { color: #F4F1EB; }
+.wm--wrapped { color: var(--c1); }
+
+/* ===== нижний блок: смысл и действие слева, билет справа ===== */
+.bottom {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto;
+  gap: clamp(24px, 4vw, 64px); align-items: end;
+}
+.claim {
+  max-width: 34ch; margin: 0;
+  font-size: clamp(20px, 1.9vw, 30px); line-height: 1.28; font-weight: 500;
+  color: var(--ink);
+}
+.claim em { font-style: normal; color: var(--c4); }
+.cta {
+  display: inline-flex; align-items: center; gap: 12px; margin-top: clamp(20px, 2.4vw, 32px);
+  padding: clamp(16px, 1.4vw, 20px) clamp(26px, 2.4vw, 38px);
+  background: #F4F1EB; color: #12100F; border: 0; border-radius: 3px; cursor: pointer;
+  font-family: var(--mono); font-size: clamp(12px, 1vw, 14px); font-weight: 800;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  transition: background .2s, transform .2s;
+}
+.cta:hover { background: #FFFFFF; transform: translateY(-2px); }
+
+/* билет-pit-pass: не трогаем структуру, только посадка */
+.ticket {
+  position: relative; z-index: 2;
+  width: clamp(232px, 20vw, 300px);
+  padding: 0 22px 20px 32px; background: #141110;
+  border: 1px solid rgba(255, 255, 255, 0.10); border-radius: 16px;
+  transform: rotate(4deg) translateY(clamp(-12px, -1vw, 0px));
+  transform-origin: 100% 100%;
+  box-shadow: -16px 22px 56px rgba(0, 0, 0, 0.6), 0 0 70px rgba(186, 54, 54, 0.16);
+  transition: transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.ticket:hover { transform: rotate(1deg) translateY(-4px); }
+.ticket::before {
+  content: ""; position: absolute; top: 0; bottom: 0; left: 16px;
+  border-left: 2px dashed rgba(255, 255, 255, 0.16);
+}
+.ticket__notch {
+  position: absolute; left: 7px; width: 18px; height: 18px; border-radius: 50%;
+  background: var(--bg); border: 1px solid rgba(255, 255, 255, 0.10);
+}
+.ticket__notch--top { top: -10px; }
+.ticket__notch--bottom { bottom: -10px; }
+.ticket__head {
+  margin: 14px -22px 14px -32px; padding: 9px 22px 9px 32px;
+  background: var(--c1); color: #FFFFFF;
+  font-family: var(--mono); font-size: 11.5px; font-weight: 800;
+  letter-spacing: 0.18em; text-transform: uppercase;
+}
+.ticket__rows { display: grid; gap: 10px; }
+.ticket__row-name {
+  display: flex; justify-content: space-between; gap: 10px; margin-bottom: 5px;
+  font-family: var(--mono); font-size: 10.5px; font-weight: 700;
+  letter-spacing: 0.05em; text-transform: uppercase; color: var(--ink-faint);
+}
+.ticket__row-name b { min-width: 0; color: var(--ink); font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ticket__row-name span { white-space: nowrap; }
+.ticket__bar { height: 11px; border-radius: 2px; overflow: hidden; background: rgba(255, 255, 255, 0.06); }
+.ticket__bar i {
+  display: block; height: 100%; width: 0; border-radius: 2px;
+  background-color: var(--c1);
+  background-image: repeating-linear-gradient(90deg, rgba(12, 9, 8, 0.62) 0 3px, transparent 3px 9px);
+  transition: width 1s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+.ticket__bar--2 i { background-color: var(--c4); }
+.ticket__bar--3 i { background-color: var(--c2); }
+.ticket__foot {
+  display: grid; gap: 3px; margin-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.10); padding-top: 11px;
+  font-family: var(--mono); font-size: 10.5px; color: var(--ink-faint); letter-spacing: 0.04em;
+}
+.ticket__foot span:first-child { color: var(--ink-dim); }
+
+.after {
+  padding: 14px var(--gutter) 0; margin: 0;
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.16em;
+  text-transform: uppercase; color: rgba(237, 237, 239, 0.3);
+}
+
+@media (max-width: 900px) {
+  .bottom { grid-template-columns: minmax(0, 1fr); gap: clamp(22px, 5vw, 34px); }
+  .ticket { display: none; }
+  .claim { max-width: 34ch; }
+}
+@media (max-width: 560px) {
+  /* на телефоне сцена не растягивается на экран: вордмарк сверху, смысл и кнопка сразу за ним */
+  .hero { min-height: auto; grid-template-rows: auto auto auto; gap: clamp(20px, 6vw, 32px); padding-bottom: clamp(30px, 8vw, 48px); }
+  .wordmark { align-self: start; }
+  .bottom { align-self: start; }
+  .wm { line-height: 0.86; }
+  .claim { font-size: clamp(17px, 5.2vw, 21px); }
+  .cta { width: 100%; justify-content: center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+</style>
+</head>
+<body>
+
+<main class="hero">
+  <div class="nav">
+    <span><b>Steam—Wrapped</b></span>
+    <span>RU · 2026</span>
+  </div>
+
+  <header class="wordmark">
+    <span class="wm wm--steam" data-wm>Steam</span>
+    <span class="wm wm--wrapped" data-wm>Wrapped</span>
+  </header>
+
+  <div class="bottom">
+    <div>
+      <p class="claim">Ссылка на профиль — и твоя библиотека становится <em>семью главами</em>: от главной игры жизни до судьбы вечера.</p>
+      <button class="cta" type="button">Построить wrapped →</button>
+    </div>
+
+    <aside class="ticket" aria-hidden="true">
+      <span class="ticket__notch ticket__notch--top"></span>
+      <span class="ticket__notch ticket__notch--bottom"></span>
+      <div class="ticket__head">Steam—Wrapped</div>
+      <div class="ticket__rows">
+        <div>
+          <div class="ticket__row-name"><b>Dota 2</b><span>2 849 ч</span></div>
+          <div class="ticket__bar"><i data-w="100"></i></div>
+        </div>
+        <div>
+          <div class="ticket__row-name"><b>Counter-Strike 2</b><span>2 669 ч</span></div>
+          <div class="ticket__bar ticket__bar--2"><i data-w="94"></i></div>
+        </div>
+        <div>
+          <div class="ticket__row-name"><b>Stardew Valley</b><span>313 ч</span></div>
+          <div class="ticket__bar ticket__bar--3"><i data-w="11"></i></div>
+        </div>
+      </div>
+      <div class="ticket__foot"><span>mormyszka</span><span>в Steam с 2017</span></div>
+    </aside>
+  </div>
+</main>
+
+<p class="after">дальше: бегущая строка → секция 01 (не затронуты)</p>
+
+<script>
+/* ---------- вордмарк: диапазон-замер, размер прямо в font-size ----------
+   Кап по высоте считается в JS: CSS min(var(), vh) ломает докрутку по Range. */
+(function wordmarkFit() {
+  var lines = document.querySelectorAll("[data-wm]");
+  function sizeToWidth(sp, target) {
+    sp.style.fontSize = "100px";
+    var size = 100;
+    for (var i = 0; i < 8; i++) {
+      var rng = document.createRange();
+      rng.selectNodeContents(sp);
+      var real = rng.getBoundingClientRect().width;
+      if (!real) break;
+      size = size * (target / real);
+      sp.style.fontSize = size.toFixed(2) + "px";
+      if (Math.abs(real - target) <= 1) break;
+    }
+    return size;
+  }
+  function fit() {
+    var host = document.querySelector(".wordmark");
+    if (!host) return;
+    var target = host.clientWidth;
+    var sizes = [];
+    lines.forEach(function (sp) { sizes.push(sizeToWidth(sp, target)); });
+    var cap = window.innerHeight * 0.52;
+    var total = 0;
+    lines.forEach(function (sp) { total += sp.getBoundingClientRect().height; });
+    if (total > cap) {
+      var k = cap / total;
+      lines.forEach(function (sp, i) { sp.style.fontSize = (sizes[i] * k).toFixed(2) + "px"; });
+    }
+  }
+  fit();
+  window.__wmFit = fit;
+  window.addEventListener("resize", fit, { passive: true });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+  window.addEventListener("load", fit);
+})();
+
+/* ---------- билет: полосы с насечкой ---------- */
+(function ticketBars() {
+  document.querySelectorAll(".ticket__bar i").forEach(function (el) {
+    setTimeout(function () { el.style.width = (el.getAttribute("data-w") || "0") + "%"; }, 350);
+  });
+})();
+</script>
+</body>
+</html>
