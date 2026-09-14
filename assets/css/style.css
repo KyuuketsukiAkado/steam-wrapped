@@ -326,6 +326,7 @@ section { padding: var(--section-pad) 0; }
 /* якорь пилюли не прячется под липкий топбар */
 #profileForm { scroll-margin-top: 76px; }
 /* красная шапка во всю ширину + тёмная инструментальная зона */
+.hero__red .wrap { max-width: 1440px; }
 .hero__red {
   padding: clamp(40px, 5.5vw, 72px) 0 0; text-align: left;
   background:
@@ -333,12 +334,7 @@ section { padding: var(--section-pad) 0; }
     #0A0807;
 }
 .hero__tools { padding-top: clamp(48px, 6vw, 88px); padding-bottom: clamp(60px, 8vw, 110px); position: relative; }
-/* двойная красная линейка — нижний край постера */
-.hero__tools::after {
-  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 7px;
-  border-top: 1px solid rgba(186, 54, 54, 0.55);
-  border-bottom: 1px solid rgba(186, 54, 54, 0.28);
-}
+
 .hero::before {
   content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
 }
@@ -381,13 +377,13 @@ section { padding: var(--section-pad) 0; }
    кегль натягивается measureText'ом на ширину колонки (см. app.js). */
 .hero__stage {
   position: relative; overflow: hidden;
-  padding: clamp(30px, 3.8vw, 64px) 0 clamp(36px, 4.4vw, 76px);
+  padding: clamp(26px, 3.2vw, 54px) 0 clamp(30px, 3.6vw, 62px);
 }
 .hero__title {
   font-family: var(--display); font-weight: var(--w-display);
   line-height: 0.92; letter-spacing: var(--tight); text-transform: uppercase;
   color: #FFFFFF; text-align: center;
-  width: 102%; margin-left: -1%;
+  width: 100%;
   position: relative; z-index: 1;
   /* микро-дрейф за курсором: этажи дышат, постер живой (--px/--py ставит JS) */
   transform: translate3d(calc(var(--px, 0) * 12px), calc(var(--py, 0) * 5px), 0);
@@ -1111,8 +1107,8 @@ a.game-link:hover { text-decoration: underline; text-decoration-color: currentCo
 
 /* ---------- hero: сплит «вордмарк + тикет» (референс 2) ---------- */
 .hero__split {
-  display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.85fr);
-  gap: clamp(28px, 4vw, 64px); align-items: center;
+  display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(290px, 0.7fr);
+  gap: clamp(24px, 3vw, 48px); align-items: center;
 }
 /* тикет-билет: живой объект из данных профиля — часы, топ-3, срок дружбы */
 .hero__ticket {
@@ -1145,8 +1141,9 @@ a.game-link:hover { text-decoration: underline; text-decoration-color: currentCo
   letter-spacing: 0.18em; text-transform: uppercase;
 }
 .ticket__num {
-  font-family: var(--display); font-weight: var(--w-display);
-  font-size: clamp(58px, 5.6vw, 80px); line-height: 1; letter-spacing: var(--tight);
+  font-family: var(--mono); font-weight: 800;
+  font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1;
+  font-size: clamp(54px, 5vw, 74px); line-height: 1; letter-spacing: -0.03em;
   color: #FFFFFF;
 }
 .ticket__cap { margin: 6px 0 18px; font-size: 13px; color: var(--ink-dim); }

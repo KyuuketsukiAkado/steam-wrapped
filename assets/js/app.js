@@ -454,23 +454,41 @@
     var title = $(".hero__title");
     if (!title || !document.createElement("canvas").getContext) return;
     var cx2d = document.createElement("canvas").getContext("2d");
+    /* Двухпроходная калибровка: canvas-метрика может расходиться с DOM
+       (letter-spacing, variable-font кернинг), поэтому после установки
+       кегля меряем фактическую ширину span'а и докручиваем пропорцией. */
     function fitLine(span, prop, capShare) {
       if (!span) return;
       var cs = getComputedStyle(span);
-      cx2d.font = cs.fontWeight + " 100px " + cs.fontFamily;
+      var weight = cs.fontWeight, fam = cs.fontFamily;
+      var lsPx = parseFloat(cs.letterSpacing);
+      var ls100 = (isFinite(lsPx) && cs.fontSize) ? lsPx / parseFloat(cs.fontSize) * 100 : 0;
+      if (cx2d.letterSpacing !== undefined) {
+        cx2d.letterSpacing = ls100 + "px";
+        cx2d.font = weight + " 100px " + fam;
+      } else {
+        cx2d.font = weight + " 100px " + fam;
+      }
       var w100 = cx2d.measureText(span.textContent).width;
-      if (!w100) return;
-      var cap = window.innerHeight * capShare;
-      var size = Math.min(title.clientWidth / w100 * 100, cap);
+      if (!cx2d.letterSpacing) w100 = w100 + ls100 * (span.textContent.length - 1);
+      if (!w100 || !isFinite(w100)) return;
+      var size = Math.min(title.clientWidth / w100 * 100, window.innerHeight * capShare);
       span.style.setProperty(prop, size.toFixed(2) + "px");
+      var real = span.getBoundingClientRect().width;
+      if (real > 40 && Math.abs(real - title.clientWidth) > 2) {
+        size = Math.min(size * (title.clientWidth / real), window.innerHeight * capShare);
+        span.style.setProperty(prop, size.toFixed(2) + "px");
+      }
     }
     function fit() {
-      fitLine($(".t-steam", title), "--fit-steam", 0.24);
-      fitLine($(".t-wrap", title), "--fit-wrap", 0.19);
+      fitLine($(".t-steam", title), "--fit-steam", 0.30);
+      fitLine($(".t-wrap", title), "--fit-wrap", 0.24);
     }
     fit();
     window.addEventListener("resize", fit, { passive: true });
+    window.addEventListener("load", fit);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+    if (window.ResizeObserver) new ResizeObserver(fit).observe(title);
   })();
 
   /* ---------- 01 · главная игра жизни ---------- */
