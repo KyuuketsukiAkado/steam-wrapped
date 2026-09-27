@@ -3,14 +3,14 @@
    -------------------------------------------------------------
    ФАЙЛ СГЕНЕРИРОВАН АВТОМАТИЧЕСКИ: python fetch_data.py
    Правки руками перезапишутся при следующем запуске.
-   Дата сборки: 2026-09-26
+   Дата сборки: 2026-09-27
    Образцовые данные лежат в data.sample.js
    ============================================================= */
 
 window.STEAM_DATA = {
-  "meta": {"persona": "mormyszka", "profileUrl": "https://steamcommunity.com/id/K_Ak4d0/", "avatar": "assets/img/avatar.jpg", "source": "steam-api", "generatedAt": "2026-09-26", "memberSince": "2017-02-02"},
+  "meta": {"persona": "mormyszka", "profileUrl": "https://steamcommunity.com/id/K_Ak4d0/", "avatar": "assets/img/avatar.jpg", "source": "steam-api", "generatedAt": "2026-09-27", "memberSince": "2017-02-02"},
 
-  "totals": {"gamesOwned": 324, "hoursTotal": 8090, "hoursTwoWeeks": 71, "gamesPlayed": 249, "gamesNeverPlayed": 69},
+  "totals": {"gamesOwned": 324, "hoursTotal": 8090, "hoursTwoWeeks": 63, "gamesPlayed": 249, "gamesNeverPlayed": 69},
 
   "soulmateAppid": 570,
 
@@ -28,7 +28,7 @@ window.STEAM_DATA = {
 
   "games": [
     {"appid": 570, "name": "Dota 2", "hours": 2848.8, "hours2w": 0, "lastPlayed": null, "genres": ["Экшен", "Стратегия"]},
-    {"appid": 730, "name": "Counter-Strike 2", "hours": 2685, "hours2w": 27.6, "lastPlayed": "2026-09-25", "genres": ["Экшен"]},
+    {"appid": 730, "name": "Counter-Strike 2", "hours": 2685, "hours2w": 20, "lastPlayed": "2026-09-25", "genres": ["Экшен"]},
     {"appid": 413150, "name": "Stardew Valley", "hours": 313, "hours2w": 0, "lastPlayed": "2026-07-12", "genres": ["Инди", "RPG"]},
     {"appid": 359550, "name": "Tom Clancy's Rainbow Six Siege", "hours": 179, "hours2w": 0, "lastPlayed": "2022-05-28", "genres": ["Экшен"]},
     {"appid": 1293830, "name": "Forza Horizon 4", "hours": 151, "hours2w": 0, "lastPlayed": "2024-11-24", "genres": ["Гонки"]},
