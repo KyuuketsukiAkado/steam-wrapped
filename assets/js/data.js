@@ -3,23 +3,23 @@
    -------------------------------------------------------------
    ФАЙЛ СГЕНЕРИРОВАН АВТОМАТИЧЕСКИ: python fetch_data.py
    Правки руками перезапишутся при следующем запуске.
-   Дата сборки: 2026-09-30
+   Дата сборки: 2026-10-01
    Образцовые данные лежат в data.sample.js
    ============================================================= */
 
 window.STEAM_DATA = {
-  "meta": {"persona": "mormyszka", "profileUrl": "https://steamcommunity.com/id/K_Ak4d0/", "avatar": "assets/img/avatar.jpg", "source": "steam-api", "generatedAt": "2026-09-30", "memberSince": "2017-02-02"},
+  "meta": {"persona": "mormyszka", "profileUrl": "https://steamcommunity.com/id/K_Ak4d0/", "avatar": "assets/img/avatar.jpg", "source": "steam-api", "generatedAt": "2026-10-01", "memberSince": "2017-02-02"},
 
-  "totals": {"gamesOwned": 324, "hoursTotal": 8108, "hoursTwoWeeks": 68, "gamesPlayed": 249, "gamesNeverPlayed": 69},
+  "totals": {"gamesOwned": 324, "hoursTotal": 8113, "hoursTwoWeeks": 64, "gamesPlayed": 249, "gamesNeverPlayed": 69},
 
   "soulmateAppid": 570,
 
   "genreHours": [
-    {"name": "Экшен", "hours": 4828},
-    {"name": "Стратегия", "hours": 1533},
+    {"name": "Экшен", "hours": 4831},
+    {"name": "Стратегия", "hours": 1534},
     {"name": "Приключения", "hours": 422},
     {"name": "RPG", "hours": 408},
-    {"name": "Инди", "hours": 358},
+    {"name": "Инди", "hours": 359},
     {"name": "Казуальные", "hours": 175},
     {"name": "Гонки", "hours": 174},
     {"name": "Симулятор", "hours": 28},
@@ -28,10 +28,10 @@ window.STEAM_DATA = {
 
   "games": [
     {"appid": 570, "name": "Dota 2", "hours": 2848.8, "hours2w": 0, "lastPlayed": null, "genres": ["Экшен", "Стратегия"]},
-    {"appid": 730, "name": "Counter-Strike 2", "hours": 2688, "hours2w": 13.7, "lastPlayed": "2026-09-29", "genres": ["Экшен"]},
+    {"appid": 730, "name": "Counter-Strike 2", "hours": 2691, "hours2w": 17.1, "lastPlayed": "2026-09-30", "genres": ["Экшен"]},
     {"appid": 413150, "name": "Stardew Valley", "hours": 313, "hours2w": 0, "lastPlayed": "2026-07-12", "genres": ["Инди", "RPG"]},
     {"appid": 359550, "name": "Tom Clancy's Rainbow Six Siege", "hours": 179, "hours2w": 0, "lastPlayed": "2022-05-28", "genres": ["Экшен"]},
-    {"appid": 2868840, "name": "Slay the Spire 2", "hours": 163, "hours2w": 54.8, "lastPlayed": "2026-09-29", "genres": ["Инди", "Стратегия"]},
+    {"appid": 2868840, "name": "Slay the Spire 2", "hours": 163, "hours2w": 44.6, "lastPlayed": "2026-10-01", "genres": ["Инди", "Стратегия"]},
     {"appid": 1293830, "name": "Forza Horizon 4", "hours": 151, "hours2w": 0, "lastPlayed": "2024-11-24", "genres": ["Гонки"]},
     {"appid": 238960, "name": "Path of Exile", "hours": 99, "hours2w": 0, "lastPlayed": "2023-01-17", "genres": ["Экшен", "Приключения"]},
     {"appid": 1091500, "name": "Cyberpunk 2077", "hours": 85, "hours2w": 0, "lastPlayed": "2026-05-09", "genres": ["RPG"]},
@@ -82,11 +82,11 @@ window.STEAM_DATA = {
     {"appid": 588650, "name": "Dead Cells", "hours": 8.1, "hours2w": 0, "lastPlayed": "2022-08-06", "genres": ["Экшен", "Приключения"]},
     {"appid": 12110, "name": "Grand Theft Auto: Vice City", "hours": 7.9, "hours2w": 0, "lastPlayed": "2023-03-24", "genres": ["Экшен"]},
     {"appid": 255710, "name": "Cities: Skylines", "hours": 7.8, "hours2w": 0, "lastPlayed": "2024-05-19", "genres": ["Симулятор", "Стратегия"]},
+    {"appid": 646570, "name": "Slay the Spire", "hours": 7.6, "hours2w": 2, "lastPlayed": "2026-09-30", "genres": ["Инди", "Стратегия"]},
     {"appid": 550, "name": "Left 4 Dead 2", "hours": 7.3, "hours2w": 0, "lastPlayed": "2021-05-18", "genres": ["Экшен"]},
     {"appid": 225260, "name": "Brütal Legend", "hours": 7, "hours2w": 0, "lastPlayed": "2018-03-03", "genres": ["Экшен", "Приключения"]},
     {"appid": 553790, "name": "Once in Yaissor", "hours": 6.8, "hours2w": 0, "lastPlayed": "2017-05-31", "genres": ["Приключения", "Инди"]},
     {"appid": 317360, "name": "Double Action: Boogaloo", "hours": 6.5, "hours2w": 0, "lastPlayed": "2017-04-08", "genres": ["Экшен", "Инди"]},
-    {"appid": 1971870, "name": "Mortal Kombat 1", "hours": 6.4, "hours2w": 0, "lastPlayed": "2025-12-29", "genres": ["Экшен"]},
     {"appid": 504390, "name": "Along the Edge", "hours": 0, "hours2w": 0, "lastPlayed": null, "genres": ["Инди"]},
     {"appid": 2623090, "name": "Battle Simulator: Counter Stickman", "hours": 0, "hours2w": 0, "lastPlayed": null, "genres": ["Инди", "Симулятор"]},
     {"appid": 8850, "name": "BioShock 2", "hours": 0, "hours2w": 0, "lastPlayed": null, "genres": ["Экшен"]},
