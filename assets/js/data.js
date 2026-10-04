@@ -3,23 +3,23 @@
    -------------------------------------------------------------
    ФАЙЛ СГЕНЕРИРОВАН АВТОМАТИЧЕСКИ: python fetch_data.py
    Правки руками перезапишутся при следующем запуске.
-   Дата сборки: 2026-10-03
+   Дата сборки: 2026-10-04
    Образцовые данные лежат в data.sample.js
    ============================================================= */
 
 window.STEAM_DATA = {
-  "meta": {"persona": "mormyszka", "profileUrl": "https://steamcommunity.com/id/K_Ak4d0/", "avatar": "assets/img/avatar.jpg", "source": "steam-api", "generatedAt": "2026-10-03", "memberSince": "2017-02-02"},
+  "meta": {"persona": "mormyszka", "profileUrl": "https://steamcommunity.com/id/K_Ak4d0/", "avatar": "assets/img/avatar.jpg", "source": "steam-api", "generatedAt": "2026-10-04", "memberSince": "2017-02-02"},
 
-  "totals": {"gamesOwned": 325, "hoursTotal": 8128, "hoursTwoWeeks": 65, "gamesPlayed": 250, "gamesNeverPlayed": 69},
+  "totals": {"gamesOwned": 329, "hoursTotal": 8134, "hoursTwoWeeks": 65, "gamesPlayed": 250, "gamesNeverPlayed": 73},
 
   "soulmateAppid": 570,
 
   "genreHours": [
-    {"name": "Экшен", "hours": 4833},
-    {"name": "Стратегия", "hours": 1540},
-    {"name": "Приключения", "hours": 424},
+    {"name": "Экшен", "hours": 4835},
+    {"name": "Стратегия", "hours": 1541},
+    {"name": "Приключения", "hours": 426},
     {"name": "RPG", "hours": 408},
-    {"name": "Инди", "hours": 363},
+    {"name": "Инди", "hours": 364},
     {"name": "Гонки", "hours": 174},
     {"name": "Казуальные", "hours": 174},
     {"name": "Симулятор", "hours": 28},
@@ -28,10 +28,10 @@ window.STEAM_DATA = {
 
   "games": [
     {"appid": 570, "name": "Dota 2", "hours": 2848.8, "hours2w": 0, "lastPlayed": null, "genres": ["Экшен", "Стратегия"]},
-    {"appid": 730, "name": "Counter-Strike 2", "hours": 2691, "hours2w": 13.3, "lastPlayed": "2026-09-30", "genres": ["Экшен"]},
+    {"appid": 730, "name": "Counter-Strike 2", "hours": 2691, "hours2w": 9.9, "lastPlayed": "2026-09-30", "genres": ["Экшен"]},
     {"appid": 413150, "name": "Stardew Valley", "hours": 313, "hours2w": 0, "lastPlayed": "2026-07-12", "genres": ["Инди", "RPG"]},
     {"appid": 359550, "name": "Tom Clancy's Rainbow Six Siege", "hours": 179, "hours2w": 0, "lastPlayed": "2022-05-28", "genres": ["Экшен"]},
-    {"appid": 2868840, "name": "Slay the Spire 2", "hours": 172, "hours2w": 44.1, "lastPlayed": "2026-10-02", "genres": ["Инди", "Стратегия"]},
+    {"appid": 2868840, "name": "Slay the Spire 2", "hours": 175, "hours2w": 44.4, "lastPlayed": "2026-10-03", "genres": ["Инди", "Стратегия"]},
     {"appid": 1293830, "name": "Forza Horizon 4", "hours": 151, "hours2w": 0, "lastPlayed": "2024-11-24", "genres": ["Гонки"]},
     {"appid": 238960, "name": "Path of Exile", "hours": 99, "hours2w": 0, "lastPlayed": "2023-01-17", "genres": ["Экшен", "Приключения"]},
     {"appid": 1091500, "name": "Cyberpunk 2077", "hours": 85, "hours2w": 0, "lastPlayed": "2026-05-09", "genres": ["RPG"]},
@@ -83,10 +83,10 @@ window.STEAM_DATA = {
     {"appid": 588650, "name": "Dead Cells", "hours": 8.1, "hours2w": 0, "lastPlayed": "2022-08-06", "genres": ["Экшен", "Приключения"]},
     {"appid": 12110, "name": "Grand Theft Auto: Vice City", "hours": 7.9, "hours2w": 0, "lastPlayed": "2023-03-24", "genres": ["Экшен"]},
     {"appid": 255710, "name": "Cities: Skylines", "hours": 7.8, "hours2w": 0, "lastPlayed": "2024-05-19", "genres": ["Симулятор", "Стратегия"]},
+    {"appid": 774801, "name": "Crab Champions", "hours": 7.6, "hours2w": 7.6, "lastPlayed": "2026-10-04", "genres": ["Экшен", "Приключения"]},
     {"appid": 550, "name": "Left 4 Dead 2", "hours": 7.3, "hours2w": 0, "lastPlayed": "2021-05-18", "genres": ["Экшен"]},
     {"appid": 225260, "name": "Brütal Legend", "hours": 7, "hours2w": 0, "lastPlayed": "2018-03-03", "genres": ["Экшен", "Приключения"]},
     {"appid": 553790, "name": "Once in Yaissor", "hours": 6.8, "hours2w": 0, "lastPlayed": "2017-05-31", "genres": ["Приключения", "Инди"]},
-    {"appid": 317360, "name": "Double Action: Boogaloo", "hours": 6.5, "hours2w": 0, "lastPlayed": "2017-04-08", "genres": ["Экшен", "Инди"]},
     {"appid": 504390, "name": "Along the Edge", "hours": 0, "hours2w": 0, "lastPlayed": null, "genres": ["Инди"]},
     {"appid": 2623090, "name": "Battle Simulator: Counter Stickman", "hours": 0, "hours2w": 0, "lastPlayed": null, "genres": ["Инди", "Симулятор"]},
     {"appid": 8850, "name": "BioShock 2", "hours": 0, "hours2w": 0, "lastPlayed": null, "genres": ["Экшен"]},
@@ -119,6 +119,9 @@ window.STEAM_DATA = {
     {"appid": 320, "name": "Half-Life 2: Deathmatch", "hours": 0, "hours2w": 0, "lastPlayed": null, "genres": ["Экшен"]},
     {"appid": 360, "name": "Half-Life Deathmatch: Source", "hours": 0, "hours2w": 0, "lastPlayed": null, "genres": ["Экшен"]},
     {"appid": 1433340, "name": "Happy's Humble Burger Farm", "hours": 0, "hours2w": 0, "lastPlayed": null, "genres": ["Экшен", "Приключения"]},
+    {"appid": 285500, "name": "Hard Truck Apocalypse / Ex Machina", "hours": 0, "hours2w": 0, "lastPlayed": null, "genres": ["Экшен", "Гонки"]},
+    {"appid": 286830, "name": "Hard Truck Apocalypse: Arcade / Ex Machina: Arcade", "hours": 0, "hours2w": 0, "lastPlayed": null, "genres": ["Экшен", "Гонки"]},
+    {"appid": 286810, "name": "Hard Truck: Apocalypse Rise Of Clans / Ex Machina: Meridian 113", "hours": 0, "hours2w": 0, "lastPlayed": null, "genres": ["Экшен", "Гонки"]},
     {"appid": 203140, "name": "Hitman: Absolution", "hours": 0, "hours2w": 0, "lastPlayed": null, "genres": ["Экшен"]},
     {"appid": 205930, "name": "Hitman: Sniper Challenge", "hours": 0, "hours2w": 0, "lastPlayed": null, "genres": ["Экшен"]},
     {"appid": 1456200, "name": "Initial Drift Online", "hours": 0, "hours2w": 0, "lastPlayed": null, "genres": ["Экшен", "Инди"]},
@@ -144,9 +147,10 @@ window.STEAM_DATA = {
     {"appid": 41070, "name": "Serious Sam 3: BFE", "hours": 0, "hours2w": 0, "lastPlayed": null, "genres": ["Экшен", "Инди"]},
     {"appid": 1755300, "name": "Smart Factory Tycoon", "hours": 0, "hours2w": 0, "lastPlayed": null, "genres": ["Казуальные", "Инди"]},
     {"appid": 399100, "name": "Spheroid", "hours": 0, "hours2w": 0, "lastPlayed": null, "genres": ["Экшен", "Инди"]},
-    {"appid": 443910, "name": "TGV Voyages Train Simulator", "hours": 0, "hours2w": 0, "lastPlayed": null, "genres": ["Симулятор"]},
-    {"appid": 1053710, "name": "The Red Lantern", "hours": 0, "hours2w": 0, "lastPlayed": null, "genres": ["Приключения", "Казуальные"]},
-    {"appid": 221910, "name": "The Stanley Parable", "hours": 0, "hours2w": 0, "lastPlayed": null, "genres": ["Приключения", "Инди"]},
+    {"appid": 443910, "name": "TGV Voyages Train Simulator", "hours": 0, "hours2w": 0, "lastPlayed": null, "genres": []},
+    {"appid": 1053710, "name": "The Red Lantern", "hours": 0, "hours2w": 0, "lastPlayed": null, "genres": []},
+    {"appid": 221910, "name": "The Stanley Parable", "hours": 0, "hours2w": 0, "lastPlayed": null, "genres": []},
+    {"appid": 1659420, "name": "UNCHARTED: Legacy of Thieves Collection", "hours": 0, "hours2w": 0, "lastPlayed": null, "genres": []},
     {"appid": 255520, "name": "Viscera Cleanup Detail: Shadow Warrior", "hours": 0, "hours2w": 0, "lastPlayed": null, "genres": []},
     {"appid": 358380, "name": "Wacky Wheels", "hours": 0, "hours2w": 0, "lastPlayed": null, "genres": []},
     {"appid": 4570, "name": "Warhammer 40,000: Dawn of War - Anniversary Edition", "hours": 0, "hours2w": 0, "lastPlayed": null, "genres": []},
