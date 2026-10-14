@@ -3,23 +3,23 @@
    -------------------------------------------------------------
    ФАЙЛ СГЕНЕРИРОВАН АВТОМАТИЧЕСКИ: python fetch_data.py
    Правки руками перезапишутся при следующем запуске.
-   Дата сборки: 2026-10-13
+   Дата сборки: 2026-10-14
    Образцовые данные лежат в data.sample.js
    ============================================================= */
 
 window.STEAM_DATA = {
-  "meta": {"persona": "mormyszka", "profileUrl": "https://steamcommunity.com/id/K_Ak4d0/", "avatar": "assets/img/avatar.jpg", "source": "steam-api", "generatedAt": "2026-10-13", "memberSince": "2017-02-02"},
+  "meta": {"persona": "mormyszka", "profileUrl": "https://steamcommunity.com/id/K_Ak4d0/", "avatar": "assets/img/avatar.jpg", "source": "steam-api", "generatedAt": "2026-10-14", "memberSince": "2017-02-02"},
 
-  "totals": {"gamesOwned": 329, "hoursTotal": 8174, "hoursTwoWeeks": 72, "gamesPlayed": 250, "gamesNeverPlayed": 73},
+  "totals": {"gamesOwned": 329, "hoursTotal": 8180, "hoursTwoWeeks": 72, "gamesPlayed": 250, "gamesNeverPlayed": 73},
 
   "soulmateAppid": 570,
 
   "genreHours": [
-    {"name": "Экшен", "hours": 4855},
-    {"name": "Стратегия", "hours": 1551},
+    {"name": "Экшен", "hours": 4860},
+    {"name": "Стратегия", "hours": 1552},
     {"name": "Приключения", "hours": 426},
     {"name": "RPG", "hours": 408},
-    {"name": "Инди", "hours": 374},
+    {"name": "Инди", "hours": 375},
     {"name": "Гонки", "hours": 174},
     {"name": "Казуальные", "hours": 174},
     {"name": "Симулятор", "hours": 28},
@@ -28,9 +28,9 @@ window.STEAM_DATA = {
 
   "games": [
     {"appid": 570, "name": "Dota 2", "hours": 2848.8, "hours2w": 0, "lastPlayed": null, "genres": ["Экшен", "Стратегия"]},
-    {"appid": 730, "name": "Counter-Strike 2", "hours": 2710, "hours2w": 24.5, "lastPlayed": "2026-10-13", "genres": ["Экшен"]},
+    {"appid": 730, "name": "Counter-Strike 2", "hours": 2715, "hours2w": 26.6, "lastPlayed": "2026-10-13", "genres": ["Экшен"]},
     {"appid": 413150, "name": "Stardew Valley", "hours": 313, "hours2w": 0, "lastPlayed": "2026-07-12", "genres": ["Инди", "RPG"]},
-    {"appid": 2868840, "name": "Slay the Spire 2", "hours": 195, "hours2w": 35.2, "lastPlayed": "2026-10-13", "genres": ["Инди", "Стратегия"]},
+    {"appid": 2868840, "name": "Slay the Spire 2", "hours": 196, "hours2w": 33, "lastPlayed": "2026-10-13", "genres": ["Инди", "Стратегия"]},
     {"appid": 359550, "name": "Tom Clancy's Rainbow Six Siege", "hours": 179, "hours2w": 0, "lastPlayed": "2022-05-28", "genres": ["Экшен"]},
     {"appid": 1293830, "name": "Forza Horizon 4", "hours": 151, "hours2w": 0, "lastPlayed": "2024-11-24", "genres": ["Гонки"]},
     {"appid": 238960, "name": "Path of Exile", "hours": 99, "hours2w": 0, "lastPlayed": "2023-01-17", "genres": ["Экшен", "Приключения"]},
