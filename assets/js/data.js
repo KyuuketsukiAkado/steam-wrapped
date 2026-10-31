@@ -3,23 +3,23 @@
    -------------------------------------------------------------
    ФАЙЛ СГЕНЕРИРОВАН АВТОМАТИЧЕСКИ: python fetch_data.py
    Правки руками перезапишутся при следующем запуске.
-   Дата сборки: 2026-10-30
+   Дата сборки: 2026-10-31
    Образцовые данные лежат в data.sample.js
    ============================================================= */
 
 window.STEAM_DATA = {
-  "meta": {"persona": "mormyszka", "profileUrl": "https://steamcommunity.com/id/K_Ak4d0/", "avatar": "assets/img/avatar.jpg", "source": "steam-api", "generatedAt": "2026-10-30", "memberSince": "2017-02-02"},
+  "meta": {"persona": "mormyszka", "profileUrl": "https://steamcommunity.com/id/K_Ak4d0/", "avatar": "assets/img/avatar.jpg", "source": "steam-api", "generatedAt": "2026-10-31", "memberSince": "2017-02-02"},
 
-  "totals": {"gamesOwned": 330, "hoursTotal": 8219, "hoursTwoWeeks": 35, "gamesPlayed": 250, "gamesNeverPlayed": 74},
+  "totals": {"gamesOwned": 330, "hoursTotal": 8223, "hoursTwoWeeks": 35, "gamesPlayed": 250, "gamesNeverPlayed": 74},
 
   "soulmateAppid": 570,
 
   "genreHours": [
-    {"name": "Экшен", "hours": 4890},
-    {"name": "Стратегия", "hours": 1556},
+    {"name": "Экшен", "hours": 4892},
+    {"name": "Стратегия", "hours": 1557},
     {"name": "Приключения", "hours": 426},
     {"name": "RPG", "hours": 408},
-    {"name": "Инди", "hours": 379},
+    {"name": "Инди", "hours": 380},
     {"name": "Гонки", "hours": 174},
     {"name": "Казуальные", "hours": 174},
     {"name": "Симулятор", "hours": 28},
@@ -28,9 +28,9 @@ window.STEAM_DATA = {
 
   "games": [
     {"appid": 570, "name": "Dota 2", "hours": 2848.8, "hours2w": 0, "lastPlayed": null, "genres": ["Экшен", "Стратегия"]},
-    {"appid": 730, "name": "Counter-Strike 2", "hours": 2745, "hours2w": 27.7, "lastPlayed": "2026-10-29", "genres": ["Экшен"]},
+    {"appid": 730, "name": "Counter-Strike 2", "hours": 2747, "hours2w": 28.1, "lastPlayed": "2026-10-30", "genres": ["Экшен"]},
     {"appid": 413150, "name": "Stardew Valley", "hours": 313, "hours2w": 0, "lastPlayed": "2026-07-12", "genres": ["Инди", "RPG"]},
-    {"appid": 2868840, "name": "Slay the Spire 2", "hours": 205, "hours2w": 6.8, "lastPlayed": "2026-10-23", "genres": ["Инди", "Стратегия"]},
+    {"appid": 2868840, "name": "Slay the Spire 2", "hours": 206, "hours2w": 5.9, "lastPlayed": "2026-10-30", "genres": ["Инди", "Стратегия"]},
     {"appid": 359550, "name": "Tom Clancy's Rainbow Six Siege", "hours": 179, "hours2w": 0, "lastPlayed": "2022-05-28", "genres": ["Экшен"]},
     {"appid": 1293830, "name": "Forza Horizon 4", "hours": 151, "hours2w": 0, "lastPlayed": "2024-11-24", "genres": ["Гонки"]},
     {"appid": 238960, "name": "Path of Exile", "hours": 99, "hours2w": 0, "lastPlayed": "2023-01-17", "genres": ["Экшен", "Приключения"]},
@@ -75,9 +75,9 @@ window.STEAM_DATA = {
     {"appid": 105600, "name": "Terraria", "hours": 10, "hours2w": 0, "lastPlayed": "2022-08-11", "genres": ["Экшен", "Приключения"]},
     {"appid": 239030, "name": "Papers, Please", "hours": 9.3, "hours2w": 0, "lastPlayed": "2026-08-21", "genres": ["Приключения", "Инди"]},
     {"appid": 536220, "name": "The Walking Dead: A New Frontier", "hours": 9.2, "hours2w": 0, "lastPlayed": "2023-01-03", "genres": ["Приключения"]},
+    {"appid": 774801, "name": "Crab Champions", "hours": 9, "hours2w": 0.5, "lastPlayed": "2026-10-30", "genres": ["Экшен", "Приключения"]},
     {"appid": 646570, "name": "Slay the Spire", "hours": 9, "hours2w": 0, "lastPlayed": "2026-10-05", "genres": ["Инди", "Стратегия"]},
     {"appid": 38120, "name": "Farm Frenzy", "hours": 8.9, "hours2w": 0, "lastPlayed": "2026-10-05", "genres": ["Казуальные"]},
-    {"appid": 774801, "name": "Crab Champions", "hours": 8.5, "hours2w": 0, "lastPlayed": "2026-10-04", "genres": ["Экшен", "Приключения"]},
     {"appid": 1969080, "name": "A Building Full of Cats", "hours": 8.4, "hours2w": 0, "lastPlayed": "2024-01-04", "genres": ["Казуальные"]},
     {"appid": 1049590, "name": "Eternal Return", "hours": 8.2, "hours2w": 0, "lastPlayed": "2021-07-30", "genres": ["Инди", "Стратегия"]},
     {"appid": 782330, "name": "DOOM Eternal", "hours": 8.1, "hours2w": 0, "lastPlayed": "2024-04-26", "genres": ["Экшен"]},
